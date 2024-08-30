@@ -4,6 +4,7 @@ import { OllamaService } from "../services/OllamaService";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
+import clipboardIcon from '../assets/clipboard2.svg'
 
 function Chat() {
    
@@ -76,6 +77,27 @@ function Chat() {
         return content
     }
 
+    async function copyToClipboard(text : string) {
+        try {
+          await navigator.clipboard.writeText(text);
+          console.log('Text copied to clipboard');
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+        }
+    }
+
+    function downloadAsFile(text : string){
+        const blob = new Blob([text], {type: "text/plain;charset=utf-8"})
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = "myfile.txt"
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+    }
+
     return (
         <>
             <select style={{maxWidth:'300px', height: '2rem'}}>
@@ -83,7 +105,15 @@ function Chat() {
             </select>
             <ChatHistory/>
             {
-                history.map((message, index) => <div className="historyItem" style={{backgroundColor:index%2 == 0 ? '#fff' : '#eee'}} key={'message' + index}>{message}</div>)
+                history.map((message, index) => (
+                    <div className="historyItem" style={{backgroundColor:index%2 == 0 ? '#eeeeeebb' : '#ffffff', color:'#000000dd'}} key={'message' + index}>
+                        <div>{message}</div>
+                        <div style={{flexDirection:'row', flexShrink:'0'}}>
+                            <svg className="clipboardIcon" onClick={() => downloadAsFile(message)} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000aa"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
+                            <svg className="clipboardIcon" onClick={() => copyToClipboard(message)} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000aa"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
+                        </div>
+                    </div>
+                ))
             }
             <textarea ref={textareaRef} style={{margin:'2rem 0', resize:'none', height:'300px'}}></textarea>
             <button onClick={handleSendMessageStreaming}>send</button>
@@ -91,7 +121,10 @@ function Chat() {
       );
 }
   
+export default Chat
+
 // lorsque je vois certains elements textuels, par exemple : bulletpoint list. je peux extraire toute la partie de la phrase relative a cette
 // instruction utilisateur grace au llm et la remplacer par quelque chose de plus effectif
-
-  export default Chat
+// <img className="clipboardIcon" src={clipboardIcon} alt="Clipboard" onClick={() => copyToClipboard(message)}/>
+// save history as a file
+// save response as a file
