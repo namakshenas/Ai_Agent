@@ -34,8 +34,21 @@ button:hover {
 
 .historyItem {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   text-align: left;
   padding: 1rem;
   border-bottom: 1px dashed #cdcdcdee;
+  column-gap: 1rem;
+}
+
+.clipboardIcon {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+.clipboardIcon:hover {
+  fill: #2292ee;
 }

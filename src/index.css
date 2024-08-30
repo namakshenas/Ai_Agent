@@ -6,6 +6,8 @@
   padding: 0px;
   text-decoration: none;
   list-style: none;
+  font-family: "Jost", sans-serif;
+  font-size: 1rem;
 }
 
 :root {
