@@ -4,15 +4,15 @@ import { OllamaService } from "../services/OllamaService";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
-import { IHistoryItem } from "../interfaces/IHistoryItem";
+import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair";
 
 function Chat() {
    
     const [lastContext, setLastContext] = useState<number[]>([])
 
     const textareaRef = useRef(null);
-    const [history, setHistory] = useState<IHistoryItem[]>([])
-    const recentHistory = useRef<IHistoryItem[]>([])
+    const [history, setHistory] = useState<IChatHistoryQAPair[]>([])
+    const recentHistory = useRef<IChatHistoryQAPair[]>([])
     const effectRef = useRef<number>(0)
     const [modelsList, setModelsList] = useState<string[]>([])
 
@@ -84,6 +84,11 @@ function Chat() {
             <select style={{maxWidth:'300px', height: '2rem'}}>
                 {modelsList.map((model,id) => <option key={id}>{model}</option>)}
             </select>
+            <div className="tabBar">
+                <button>tab1</button>
+                <button>tab2</button>
+                <button>tab2</button>
+            </div>
             <ChatHistory historyItems={history}/>
             <textarea ref={textareaRef}></textarea>
             <button onClick={handleSendMessageStreaming}>send</button>

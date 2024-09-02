@@ -1,4 +1,4 @@
-import { IHistoryItem } from "../interfaces/IHistoryItem"
+import { IHistoryItem } from "../interfaces/IChatHistoryQAPair"
 import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
 import '../style/ChatHistory.css'

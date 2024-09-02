@@ -34,3 +34,32 @@ button:hover {
   background-color: #2292ee;
   box-shadow: 0 4px 8px #97c8f0;
 }
+
+.tabBar {
+  display: flex;
+  column-gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.tabBar button {
+  height: 3rem;
+  background-color: #eee;
+  border-radius: 4px 4px 0 0;
+  color: #000000aa;
+  box-shadow: none;
+}
+
+.tabBar button:first-of-type {
+  height: 3rem;
+  background-color: #0078d7;
+  border-radius: 4px 4px 0 0;
+  color: #fff;
+}
+
+.tabBar button:hover {
+  height: 3rem;
+  background-color: #2292ee;
+  border-radius: 4px 4px 0 0;
+  color: #fff;
+  box-shadow: none;
+}

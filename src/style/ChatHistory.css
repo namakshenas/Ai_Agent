@@ -1,7 +1,6 @@
 .chatHistorySection {
   display: flex;
   flex-direction: column;
-  margin-top: 2rem;
   width: 100%;
   border-top: 1px solid #000000aa;
   border-bottom: 1px solid #000000aa;
