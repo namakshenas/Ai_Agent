@@ -1,4 +1,4 @@
-export interface IHistoryItem{
+export interface IChatHistoryQAPair{
     question : string
     answer : string
 }
