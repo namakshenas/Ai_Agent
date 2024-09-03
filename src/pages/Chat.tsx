@@ -5,6 +5,7 @@ import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
 import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair";
+import { ChatConversationsService } from "../services/ChatConversationsService";
 
 function Chat() {
    
@@ -15,6 +16,7 @@ function Chat() {
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
     const effectRef = useRef<number>(0)
     const [modelsList, setModelsList] = useState<string[]>([])
+    const [activeConversation, setActiveConversation] = useState<number>(0);
 
     useEffect(() => {
         async function fetchJobDisambiguation () {
@@ -32,6 +34,8 @@ function Chat() {
             }
         }
         fetchJobDisambiguation()
+        ChatConversationsService.pushConversation([])
+        setActiveConversation(0)
     }, [])
 
     /*async function handleSendMessage() : Promise<void>{
@@ -79,15 +83,21 @@ function Chat() {
         return content
     }
 
+    function handleNewTabClick(){
+        ChatConversationsService.pushConversation([])
+        setActiveConversation(ChatConversationsService.getNumberOfConversations() - 1)
+    }
+
     return (
         <>
-            <select style={{maxWidth:'300px', height: '2rem'}}>
+            <select className="modelDropdown">
                 {modelsList.map((model,id) => <option key={id}>{model}</option>)}
             </select>
             <div className="tabBar">
-                <button>tab1</button>
-                <button>tab2</button>
-                <button>tab2</button>
+                {
+                    ChatConversationsService.getConversations().map((conversation, id) => <button>conversation {id}</button>)
+                }
+                <button onClick={handleNewTabClick}>+</button>
             </div>
             <ChatHistory historyItems={history}/>
             <textarea ref={textareaRef}></textarea>

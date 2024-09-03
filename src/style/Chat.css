@@ -1,3 +1,8 @@
+.modelDropdown {
+  max-width: 300px;
+  height: 3rem;
+}
+
 textarea:focus {
   border: none;
   box-sizing: border-box;
