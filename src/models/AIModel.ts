@@ -27,7 +27,7 @@ export class AIModel{
      * @param {number} [params.contextSize=2048] - The size of the context for the AI model.
      * @param {number} [params.temperature=0.8] - The temperature for the AI model.
      */
-    constructor({ modelName = "dolphin-llama3:8b-256k", stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8 } : IAIModelParams){
+    constructor({ modelName = "llama3.1:8b", stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8 } : IAIModelParams){
         this.#modelName = modelName
         this.#stream = stream
         this.#systemPrompt = systemPrompt
