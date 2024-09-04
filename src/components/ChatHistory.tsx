@@ -1,4 +1,4 @@
-import { IHistoryItem } from "../interfaces/IChatHistoryQAPair"
+import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair"
 import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
 import '../style/ChatHistory.css'
@@ -20,7 +20,7 @@ function ChatHistory({historyItems} : IProps) {
   async function handleCopyToClipboard(text : string) : Promise<void> {
     try {
       await navigator.clipboard.writeText(text);
-      console.log('Text copied to clipboard');
+      console.log('Text copied to clipboard.');
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
@@ -43,5 +43,5 @@ function ChatHistory({historyItems} : IProps) {
 export default ChatHistory
 
 interface IProps{
-  historyItems : IHistoryItem[]
+  historyItems : IChatHistoryQAPair[]
 }

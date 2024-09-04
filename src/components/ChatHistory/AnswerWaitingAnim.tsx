@@ -15,6 +15,6 @@ export default function AnswerWaitingAnim() {
     }, [])
 
     return (
-        <div>{dots}</div>
+        <div style={{textAlign:'left', width:'100%'}}>{dots}</div>
     )
 }
