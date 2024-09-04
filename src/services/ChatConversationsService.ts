@@ -32,6 +32,10 @@ export class ChatConversationsService{
     static getNumberOfConversations() : number{
         return this.chatConversations.length
     }
+
+    static clearAll(){
+        this.chatConversations = []
+    }
 }
 
 type TChatConversation = IChatHistoryQAPair[]
