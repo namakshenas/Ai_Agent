@@ -1,14 +1,20 @@
 import '../../style/ChatHistory.css'
+import userIcon from '../../assets/usericon5.png';
+import clipboardIcon from '../../assets/clipboardicon2.png';
+import downloadIcon from '../../assets/downloadicon2.png';
 
 function QuestionRow({index, question, onDownload, onCopyToClipboard} : IProps){
 
     return(
        <div className="historyItem" style={{backgroundColor:'#eeeeeebb', color:'#000000dd'}} key={'question' + index}>
-           <div>{question}</div>
-           <div style={{flexDirection:'row', flexShrink:'0'}}>
-               <svg className="clipboardIcon" onClick={() => onDownload(question)} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000aa"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
-               <svg className="clipboardIcon" onClick={() => onCopyToClipboard(question)} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000aa"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>
-           </div>
+            <div style={{height:'34px', width:'34px', borderRadius:'100%', border:'0px solid #000', flex:'0'}}>
+                <img src={userIcon} width={32} style={{opacity:'0.6'}}/>
+            </div>
+            <div style={{width:'100%', display:'flex', alignItems:'center'}}>{question}</div>
+            <div style={{display:'flex', flexDirection:'row', flexShrink:'0', columnGap:'8px', opacity:'0.6'}}>
+                <img className="clipboardIcon" src={downloadIcon} onClick={() => onDownload(question)}/>
+                <img className="clipboardIcon" src={clipboardIcon} onClick={() => onCopyToClipboard(question)}/>
+            </div>
        </div>
     )
    }
