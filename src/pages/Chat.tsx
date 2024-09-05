@@ -82,13 +82,13 @@ function Chat() {
                 const newHistory = [...recentHistory.current]
                 newHistory[newHistory.length-1].answer = content
                 recentHistory.current = newHistory
-                console.log("recent history : " + recentHistory.current)
+                // console.log("recent history : " + recentHistory.current)
                 setHistory(newHistory)
             }
         }
 
         generateFollowUpQuestions((textareaRef.current as HTMLTextAreaElement).value);
-        (textareaRef.current as HTMLTextAreaElement).value=''
+        (textareaRef.current as HTMLTextAreaElement).value = ''
         return content
     }
 
@@ -98,10 +98,13 @@ function Chat() {
     }
 
     async function generateFollowUpQuestions(question : string){
-        const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
+        const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and intriguing knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
         const threeQuestions = await ChatService.askTheActiveModel(prompt, lastContext || [])
-        console.log(threeQuestions)
         setFollowUpQuestions(JSON.parse(threeQuestions.response))
+    }
+
+    function handleFollowUpQuestionClick(text : string){
+        (textareaRef.current as HTMLTextAreaElement).value = text
     }
 
     return (
@@ -122,7 +125,7 @@ function Chat() {
             {followUpQuestions.length > 0 && (
                 <div className="followUpQuestionsContainer">
                     {followUpQuestions.map((question, id) => (
-                    <span key={'fupquestion' + id}>{question}</span>
+                    <span key={'fupquestion' + id} onClick={(e) => handleFollowUpQuestionClick((e.target as HTMLSpanElement).innerText)}>{question}</span>
                     ))}
                 </div>
             )}
