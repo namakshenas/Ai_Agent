@@ -12,7 +12,6 @@
   "dependencies": {
     "cheerio": "^1.0.0",
     "duck-duck-scrape": "^2.2.5",
-    "osspitaui": "file:",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1"

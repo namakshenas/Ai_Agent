@@ -20,21 +20,21 @@ function Chat() {
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
 
     useEffect(() => {
-        async function fetchJobDisambiguation () {
-            if(effectRef.current == 1) return
-            if(effectRef.current == 0) effectRef.current = 1
+        async function fetchModelsList () {
+            /*if(effectRef.current == 1) return
+            if(effectRef.current == 0) effectRef.current = 1*/
             try {
                 // listing all the models installed on the users machine
                 const modelList = await OllamaService.getModelList()
                 if(modelList != null) {
                     const ml = modelList?.models.map((model) => model?.model)
-                    setModelsList(ml)
+                    setModelsList(ml.filter((model : string) => !model.includes("embed")))
                 }
             } catch (error) {
-                console.error("Error fetching job disambiguation:", error)
+                console.error("Error fetching models list:", error)
             }
         }
-        fetchJobDisambiguation()
+        fetchModelsList()
         ChatConversationsService.pushConversation([])
         setActiveConversation(0)
 
@@ -45,15 +45,15 @@ function Chat() {
         };
     }, [])
 
-    /*async function handleSendMessage() : Promise<void>{
+    async function handleSendMessage() : Promise<void>{
         if(textareaRef.current == null) return
         const historyCopy = [...history]
-        const response = await ChatService.askQuestion((textareaRef.current as HTMLTextAreaElement).value, lastContext)
-        historyCopy.push({question : textareaRef.current, answer : response.response})
+        const response = await ChatService.askTheActiveModel((textareaRef.current as HTMLTextAreaElement).value, lastContext)
+        historyCopy.push({question : textareaRef.current.value, answer : response.response})
         setHistory(historyCopy)
         setLastContext(response.context);
         (textareaRef.current as HTMLTextAreaElement).value=''
-    }*/
+    }
 
     async function handleSendMessageStreaming() : Promise<string | void>{
         if(textareaRef.current == null) return
@@ -98,7 +98,7 @@ function Chat() {
     }
 
     async function generateFollowUpQuestions(question : string){
-        const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and intriguing knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
+        const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
         const threeQuestions = await ChatService.askTheActiveModel(prompt, lastContext || [])
         setFollowUpQuestions(JSON.parse(threeQuestions.response))
     }
@@ -145,6 +145,8 @@ export default Chat
 // testarea typing suggestion, tab to replace typing with suggestion
 
 // save conversation by ticking the history pairs you want to keep
+
+// number of characters in textarea
 
 /*
 Valid Parameters and Values
