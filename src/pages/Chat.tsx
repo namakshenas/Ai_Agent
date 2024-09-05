@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef, useState } from "react";
+import { TextareaHTMLAttributes, useEffect, useRef, useState } from "react";
 import { OllamaService } from "../services/OllamaService";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
@@ -11,12 +11,13 @@ function Chat() {
    
     const [lastContext, setLastContext] = useState<number[]>([])
 
-    const textareaRef = useRef(null);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const [history, setHistory] = useState<IChatHistoryQAPair[]>([])
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
     const effectRef = useRef<number>(0)
     const [modelsList, setModelsList] = useState<string[]>([])
     const [activeConversation, setActiveConversation] = useState<number>(0);
+    const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
 
     useEffect(() => {
         async function fetchJobDisambiguation () {
@@ -82,16 +83,25 @@ function Chat() {
                 newHistory[newHistory.length-1].answer = content
                 recentHistory.current = newHistory
                 console.log("recent history : " + recentHistory.current)
-                setHistory(newHistory);
-                (textareaRef.current as HTMLTextAreaElement).value=''
+                setHistory(newHistory)
             }
         }
+
+        generateFollowUpQuestions((textareaRef.current as HTMLTextAreaElement).value);
+        (textareaRef.current as HTMLTextAreaElement).value=''
         return content
     }
 
     function handleNewTabClick(){
         ChatConversationsService.pushConversation([])
         setActiveConversation(ChatConversationsService.getNumberOfConversations() - 1)
+    }
+
+    async function generateFollowUpQuestions(question : string){
+        const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
+        const threeQuestions = await ChatService.askTheActiveModel(prompt, lastContext || [])
+        console.log(threeQuestions)
+        setFollowUpQuestions(JSON.parse(threeQuestions.response))
     }
 
     return (
@@ -101,13 +111,25 @@ function Chat() {
             </select>
             <div className="tabBar">
                 {
-                    ChatConversationsService.getConversations().map((_, id) => <button>conversation {id} [save]</button>)
+                    ChatConversationsService.getConversations().map((_, id) => <button key={'tabButton'+id}>conversation {id} [save]</button>)
                 }
                 <button onClick={handleNewTabClick}>+</button>
             </div>
-            <ChatHistory historyItems={history}/>
+            <ChatHistory historyItems={history} textareaRef={textareaRef}/>
+            <div className="historyFakeShadow"></div>
+            <span className="textAreaTitle">Input</span>
             <textarea ref={textareaRef}></textarea>
-            <button onClick={handleSendMessageStreaming}>send</button>
+            {followUpQuestions.length > 0 && (
+                <div className="followUpQuestionsContainer">
+                    {followUpQuestions.map((question, id) => (
+                    <span key={'fupquestion' + id}>{question}</span>
+                    ))}
+                </div>
+            )}
+            <div className="sendButtonContainer">
+                <input type="checkbox"/>Search the web for uptodate results
+                <button onClick={handleSendMessageStreaming}>send</button>
+            </div>
         </>
       );
 }
@@ -116,6 +138,10 @@ export default Chat
 
 // lorsque je vois certains elements textuels, par exemple : bulletpoint list. je peux extraire toute la partie de la phrase relative a cette
 // instruction utilisateur grace au llm et la remplacer par quelque chose de plus effectif
+
+// testarea typing suggestion, tab to replace typing with suggestion
+
+// save conversation by ticking the history pairs you want to keep
 
 /*
 Valid Parameters and Values
