@@ -3,6 +3,7 @@ import AnswerWaitingAnim from './AnswerWaitingAnim'
 import computerIcon from '../../assets/computericon2.png';
 import clipboardIcon from '../../assets/clipboardicon2.png';
 import downloadIcon from '../../assets/downloadicon2.png';
+import retryIcon from '../../assets/reloadicon.png';
 
 function AnswerRow({index, answer, onDownload, onCopyToClipboard} : IProps){
 
@@ -14,9 +15,10 @@ function AnswerRow({index, answer, onDownload, onCopyToClipboard} : IProps){
             {
                 answer == '' ? <AnswerWaitingAnim/> : <div style={{width:'100%'}}>{answer}</div>
             }
-            <div style={{display:'flex', flexDirection:'row', flexShrink:'0', columnGap:'8px', opacity:'0.6'}}>
-                <img className="clipboardIcon" src={downloadIcon} onClick={() => onDownload(answer)}/>
-                <img className="clipboardIcon" src={clipboardIcon} onClick={() => onCopyToClipboard(answer)}/>
+            <div style={{display:'flex', flexDirection:'row', flexShrink:'0', columnGap:'8px'}}>
+                <div style={{opacity:0.2, cursor:'default'}} className='iconButton' role="button"><img className="clipboardIcon" src={retryIcon}/></div>
+                <div className='iconButton' role="button"><img className="clipboardIcon" src={downloadIcon} onClick={() => onDownload(answer)}/></div>
+                <div className='iconButton' role="button"><img className="clipboardIcon" src={clipboardIcon} onClick={() => onCopyToClipboard(answer)}/></div>
             </div>
         </div>
     )

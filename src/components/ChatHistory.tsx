@@ -3,7 +3,7 @@ import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
 import '../style/ChatHistory.css'
 
-function ChatHistory({historyItems} : IProps) {
+function ChatHistory({historyItems, textareaRef} : IProps) {
 
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})
@@ -26,14 +26,18 @@ function ChatHistory({historyItems} : IProps) {
     }
   }
 
+  function handleModifyQuestion(text : string){
+    if(textareaRef.current != null) textareaRef.current.value = text;
+  }
+
   return (
     <section className="chatHistorySection">
         {
           historyItems.map((item, index) => (
-            <>
-              <QuestionRow key={index} question={item.question} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
+            <div key={'historyItem'+index}>
+              <QuestionRow key={index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               <AnswerRow key={index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
-            </>
+            </div>
           ))
         }
     </section>
@@ -44,4 +48,5 @@ export default ChatHistory
 
 interface IProps{
   historyItems : IChatHistoryQAPair[]
+  textareaRef : React.MutableRefObject<HTMLTextAreaElement | null>
 }
