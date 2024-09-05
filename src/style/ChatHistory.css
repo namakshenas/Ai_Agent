@@ -16,13 +16,31 @@
 }
 
 .clipboardIcon {
-  cursor: pointer;
   width: 20px;
   height: 20px;
   align-self: flex-start;
   flex-shrink: 0;
 }
 
-.clipboardIcon:hover {
+/*.clipboardIcon:hover {
   fill: #2292ee;
+}*/
+
+.iconButton {
+  background: linear-gradient(to bottom, #ffffff, #f6f6f6);
+  box-shadow: 0 3px 6px #33333366;
+  border-radius: 3px;
+  padding: 4px;
+  box-sizing: border-box;
+  height: 30px;
+  cursor: pointer;
+  opacity: 0.8;
+  border: 1px solid #fff;
+}
+
+.iconButton:hover {
+  background: #0078d7;
+  box-shadow: none;
+  outline: 1px solid #2f4e68dd;
+  border: 1px solid #0078d7;
 }
