@@ -4,25 +4,29 @@ import { OllamaService } from "../services/OllamaService";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
+import downloadIcon from '../assets/downloadicon2.png';
 import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair";
 import { ChatConversationsService } from "../services/ChatConversationsService";
+import FollowUpQuestions from "../components/FollowUpQuestions";
+import { AgentLibraryService } from "../services/AgentLibraryService";
+import { AIAgent } from "../models/AIAgent";
 
 function Chat() {
    
     const [lastContext, setLastContext] = useState<number[]>([])
 
-    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+    const suggestionRef = useRef<HTMLDivElement | null>(null)
     const [history, setHistory] = useState<IChatHistoryQAPair[]>([])
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
     const effectRef = useRef<number>(0)
     const [modelsList, setModelsList] = useState<string[]>([])
+    const [agentsList, setAgentsList] = useState<string[]>([])
     const [activeConversation, setActiveConversation] = useState<number>(0);
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
 
     useEffect(() => {
         async function fetchModelsList () {
-            /*if(effectRef.current == 1) return
-            if(effectRef.current == 0) effectRef.current = 1*/
             try {
                 // listing all the models installed on the users machine
                 const modelList = await OllamaService.getModelList()
@@ -30,6 +34,8 @@ function Chat() {
                     const ml = modelList?.models.map((model) => model?.model)
                     setModelsList(ml.filter((model : string) => !model.includes("embed")))
                 }
+                AgentLibraryService.addAgent(new AIAgent("helpfulAssistantAgent"))
+                setAgentsList(AgentLibraryService.getAgentsNameList())
             } catch (error) {
                 console.error("Error fetching models list:", error)
             }
@@ -38,10 +44,15 @@ function Chat() {
         ChatConversationsService.pushConversation([])
         setActiveConversation(0)
 
+        // tab event listener
+        window.addEventListener('keydown', applyAutoCompleteOnTabPress)
+
         // Cleanup
         return () => {
             ChatConversationsService.clearAll()
             setActiveConversation(0)
+            // cleanup event listener
+            window.removeEventListener('keydown', applyAutoCompleteOnTabPress)
         };
     }, [])
 
@@ -58,8 +69,6 @@ function Chat() {
     async function handleSendMessageStreaming() : Promise<string | void>{
         if(textareaRef.current == null) return
         const historyCopy = [...history]
-        /*historyCopy.push((textareaRef.current as HTMLTextAreaElement).value)
-        historyCopy.push("")*/
         historyCopy.push({question : (textareaRef.current as HTMLTextAreaElement).value, answer : ""})
         recentHistory.current = historyCopy
         setHistory(historyCopy)
@@ -97,44 +106,65 @@ function Chat() {
         setActiveConversation(ChatConversationsService.getNumberOfConversations() - 1)
     }
 
-    async function generateFollowUpQuestions(question : string){
+    async function generateFollowUpQuestions(question : string, iter : number = 0){
         const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
+        let response = []
         const threeQuestions = await ChatService.askTheActiveModel(prompt, lastContext || [])
-        setFollowUpQuestions(JSON.parse(threeQuestions.response))
+        try{
+            response = JSON.parse(threeQuestions.response)
+        }catch(error){
+            if(iter + 1 > 4) return setFollowUpQuestions([])
+            generateFollowUpQuestions(question, iter + 1)
+        }
+        if(response.length == 3) setFollowUpQuestions(response)
     }
 
-    function handleFollowUpQuestionClick(text : string){
-        (textareaRef.current as HTMLTextAreaElement).value = text
+    async function askAutoComplete(sentence : string){
+        const prompt = `Your role is to guess all the characters needed to complete the last sentence of a given block of text. Only output the completion. Don't respond to the question. No commentary. No notes. No annotations, markings or delimiters. No need of the original text.\n\nGiven block of text :\n\n${sentence}`
+        const response = await ChatService.askTheActiveModel(prompt, lastContext || [])
+        if(suggestionRef.current) suggestionRef.current.innerText = sentence + response.response
+    }
+
+    function applyAutoCompleteOnTabPress(e : KeyboardEvent) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            if(textareaRef.current && suggestionRef.current) textareaRef.current.value = suggestionRef.current.innerText
+        }
     }
 
     return (
         <>
-            <select className="modelDropdown">
-                {modelsList.map((model,id) => <option key={id}>{model}</option>)}
-            </select>
+            <div className="modelAgentContainer">
+                <label>Active Model</label><select className="modelDropdown">
+                    {modelsList.map((model,id) => <option key={'model'+id}>{model}</option>)}
+                </select>
+                <select className="agentDropdown">
+                    {agentsList.map((agent,id) => <option key={'agent'+id}>{agent}</option>)}
+                </select>
+                <button>Add</button>
+            </div>
             <div className="tabBar">
                 {
-                    ChatConversationsService.getConversations().map((_, id) => <button key={'tabButton'+id}>conversation {id} [save]</button>)
+                    ChatConversationsService.getConversations().map((_, id) => (
+                    <button style={{columnGap:'1rem'}} key={'tabButton'+id}><span>Conversation {id}</span><div className='iconButton' role="button"><img className="clipboardIcon" src={downloadIcon}/></div>
+                    </button>))
                 }
                 <button onClick={handleNewTabClick}>+</button>
             </div>
             <ChatHistory historyItems={history} textareaRef={textareaRef}/>
             <div className="historyFakeShadow"></div>
             <span className="textAreaTitle">Input</span>
-            <textarea ref={textareaRef}></textarea>
-            {followUpQuestions.length > 0 && (
-                <div className="followUpQuestionsContainer">
-                    {followUpQuestions.map((question, id) => (
-                    <span key={'fupquestion' + id} onClick={(e) => handleFollowUpQuestionClick((e.target as HTMLSpanElement).innerText)}>{question}</span>
-                    ))}
-                </div>
-            )}
+            <div className="textAreaContainer">
+                <textarea ref={textareaRef} onInput={(e) => askAutoComplete((e.target as HTMLTextAreaElement).value)}></textarea>
+                <div ref={suggestionRef} className="suggestionOverlay" onClick={() => textareaRef.current?.focus()}></div>
+            </div>
+            {followUpQuestions.length > 0 && <FollowUpQuestions questions={followUpQuestions} textareaRef={textareaRef}/>}
             <div className="sendButtonContainer">
                 <input type="checkbox"/>Search the web for uptodate results
-                <button onClick={handleSendMessageStreaming}>send</button>
+                <button onClick={handleSendMessageStreaming}>Send</button>
             </div>
         </>
-      );
+      )
 }
   
 export default Chat
