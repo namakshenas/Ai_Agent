@@ -175,6 +175,10 @@ export class AIAgent {
         return this
     }
 
+    get name() : string {
+        return this.#name
+    }
+
     //setAction
     //setOutputSchema
 }

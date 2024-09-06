@@ -56,7 +56,7 @@ export class AIModel{
         return await response.json()
     }
 
-     async askForAStreamedResponse(prompt : string) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
+    async askForAStreamedResponse(prompt : string) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
         const response = await fetch("http://127.0.0.1:11434/api/generate", {
             method: "POST",
             headers: {
