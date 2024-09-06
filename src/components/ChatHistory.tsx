@@ -35,8 +35,8 @@ function ChatHistory({historyItems, textareaRef} : IProps) {
         {
           historyItems.map((item, index) => (
             <div key={'historyItem'+index}>
-              <QuestionRow key={index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
-              <AnswerRow key={index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
+              <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
+              <AnswerRow key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
             </div>
           ))
         }
