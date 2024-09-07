@@ -3,7 +3,7 @@ import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
 import '../style/ChatHistory.css'
 
-function ChatHistory({historyItems, textareaRef} : IProps) {
+function ChatHistory({historyItems, setTextareaValue} : IProps) {
 
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})
@@ -27,7 +27,8 @@ function ChatHistory({historyItems, textareaRef} : IProps) {
   }
 
   function handleModifyQuestion(text : string){
-    if(textareaRef.current != null) textareaRef.current.value = text;
+    // if(textareaRef.current != null) textareaRef.current.innerText = text;
+    setTextareaValue(text)
   }
 
   return (
@@ -48,5 +49,6 @@ export default ChatHistory
 
 interface IProps{
   historyItems : IChatHistoryQAPair[]
-  textareaRef : React.MutableRefObject<HTMLTextAreaElement | null>
+  // textareaRef : React.MutableRefObject<HTMLSpanElement | null>
+  setTextareaValue : (text : string) => void
 }

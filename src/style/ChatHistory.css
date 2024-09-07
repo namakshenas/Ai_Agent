@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-top: 1px solid #000000aa;
-  border-bottom: 1px solid #000000aa;
+  border-top: 1px solid #1e292c66;
+  border-bottom: 1px solid #1e292c66;
 }
 
 .historyItem {
@@ -11,15 +11,26 @@
   justify-content: space-between;
   text-align: left;
   padding: 1rem;
-  border-bottom: 1px dashed #cdcdcdee;
+  border-bottom: 1px dashed #abaeb1ee;
   column-gap: 1rem;
 }
+
+.questionItem {
+  background: #dfe4ea88;
+  /*background: linear-gradient(to right, #c5cfd335, #4d749422);*/
+  color: #000000dd;
+}
+
+/*.chatHistorySection > div .historyItem:first-child {
+  border-bottom: none;
+}*/
 
 .clipboardIcon {
   width: 20px;
   height: 20px;
-  align-self: flex-start;
+  align-self: center;
   flex-shrink: 0;
+  justify-self: center;
 }
 
 /*.clipboardIcon:hover {
