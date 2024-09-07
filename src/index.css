@@ -40,6 +40,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   flex-direction: column;
+  /*background: linear-gradient(to bottom, #efefef99, #fff);*/
+  background: linear-gradient(to bottom, #e9ecefbb, #fff);
 }
 
 h1 {

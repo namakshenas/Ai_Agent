@@ -10,78 +10,76 @@ import { ChatConversationsService } from "../services/ChatConversationsService";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import { AgentLibraryService } from "../services/AgentLibraryService";
 import { AIAgent } from "../models/AIAgent";
+import useFetchModelsList from "../hooks/useFetchModelsList";
+import CustomTextarea from "../components/CustomTextarea";
 
 function Chat() {
    
     const [lastContext, setLastContext] = useState<number[]>([])
 
-    const textareaRef = useRef<HTMLTextAreaElement | null>(null)
-    const suggestionRef = useRef<HTMLDivElement | null>(null)
-    const [history, setHistory] = useState<IChatHistoryQAPair[]>([])
+    /*const fakeTextareaRef = useRef<HTMLDivElement | null>(null)
+    const editableSpanRef = useRef<HTMLSpanElement | null>(null)*/
+    const [textareaValue, setTextareaValue] = useState("")
+    const textareaRef = useRef()
+    const [history, _setHistory] = useState<IChatHistoryQAPair[]>([])
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
-    const effectRef = useRef<number>(0)
-    const [modelsList, setModelsList] = useState<string[]>([])
+    // const [modelsList, setModelsList] = useState<string[]>([])
     const [agentsList, setAgentsList] = useState<string[]>([])
-    const [activeConversation, setActiveConversation] = useState<number>(0);
-    const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+    const [activeConversation, setActiveConversation] = useState<number>(0)
+    const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
+    const [suggestion, setSuggestion] = useState<string>("")
+
+    function setHistory(history: IChatHistoryQAPair[]) {
+        recentHistory.current = history
+        _setHistory(history)
+    }
+
+    const modelsList = useFetchModelsList()
 
     useEffect(() => {
-        async function fetchModelsList () {
-            try {
-                // listing all the models installed on the users machine
-                const modelList = await OllamaService.getModelList()
-                if(modelList != null) {
-                    const ml = modelList?.models.map((model) => model?.model)
-                    setModelsList(ml.filter((model : string) => !model.includes("embed")))
-                }
-                AgentLibraryService.addAgent(new AIAgent("helpfulAssistantAgent"))
-                setAgentsList(AgentLibraryService.getAgentsNameList())
-            } catch (error) {
-                console.error("Error fetching models list:", error)
-            }
-        }
-        fetchModelsList()
+
+        AgentLibraryService.addAgent(new AIAgent("helpfulAssistant"))
+        setAgentsList(AgentLibraryService.getAgentsNameList())
         ChatConversationsService.pushConversation([])
         setActiveConversation(0)
 
-        // tab event listener
-        window.addEventListener('keydown', applyAutoCompleteOnTabPress)
+        // autocomplete on tab press
+        // window.addEventListener('keydown', applyAutoCompleteOnTabPress)
 
         // Cleanup
         return () => {
             ChatConversationsService.clearAll()
+            AgentLibraryService.removeAllAgents()
             setActiveConversation(0)
-            // cleanup event listener
-            window.removeEventListener('keydown', applyAutoCompleteOnTabPress)
+            // cleanup autocomplete listener
+            // window.removeEventListener('keydown', applyAutoCompleteOnTabPress)
         };
     }, [])
 
+    // asking the model for a one block response
     async function handleSendMessage() : Promise<void>{
-        if(textareaRef.current == null) return
-        const historyCopy = [...history]
-        const response = await ChatService.askTheActiveModel((textareaRef.current as HTMLTextAreaElement).value, lastContext)
-        historyCopy.push({question : textareaRef.current.value, answer : response.response})
-        setHistory(historyCopy)
+        if(textareaValue == null) return
+        const response = await ChatService.askTheActiveModel(textareaValue, lastContext)
+        setHistory([...history, { question: textareaValue, answer: response.response }])
         setLastContext(response.context);
-        (textareaRef.current as HTMLTextAreaElement).value=''
+        setTextareaValue("")
+        setSuggestion("")
     }
 
+    // asking the model for a streamed response
     async function handleSendMessageStreaming() : Promise<string | void>{
-        if(textareaRef.current == null) return
-        const historyCopy = [...history]
-        historyCopy.push({question : (textareaRef.current as HTMLTextAreaElement).value, answer : ""})
-        recentHistory.current = historyCopy
-        setHistory(historyCopy)
+        if(textareaValue == null) return
+        setHistory([...history, {question : textareaValue, answer : ""}])
         
-        const reader : ReadableStreamDefaultReader<Uint8Array> = await ChatService.askTheActiveModelForAStreamedResponse((textareaRef.current as HTMLTextAreaElement).value, lastContext)
+        const reader : ReadableStreamDefaultReader<Uint8Array> = await ChatService.askTheActiveModelForAStreamedResponse(textareaValue, lastContext)
         let content = ""
+        // keep reading the streamed response until the stream is closed
         while(true){
             const { done, value } = await reader.read()
             if (done) {
                 break;
             }
-            const stringifiedJson = new TextDecoder().decode(value);
-            const json = JSON.parse(stringifiedJson)
+            const json = JSON.parse(new TextDecoder().decode(value))
 
             if(json.done && json?.context) setLastContext(json.context)
         
@@ -90,22 +88,25 @@ function Chat() {
                 if(json?.context?.length > 0) console.log("falsedone : " + json?.context)
                 const newHistory = [...recentHistory.current]
                 newHistory[newHistory.length-1].answer = content
-                recentHistory.current = newHistory
-                // console.log("recent history : " + recentHistory.current)
+                // recentHistory.current = newHistory
                 setHistory(newHistory)
             }
         }
-
-        generateFollowUpQuestions((textareaRef.current as HTMLTextAreaElement).value);
-        (textareaRef.current as HTMLTextAreaElement).value = ''
+        
+        // ask the model for 3 follow up questions related to it's last answer
+        generateFollowUpQuestions(textareaValue);
+        setTextareaValue("")
+        setSuggestion("")
         return content
     }
 
+    // adding a new conversation tab
     function handleNewTabClick(){
         ChatConversationsService.pushConversation([])
         setActiveConversation(ChatConversationsService.getNumberOfConversations() - 1)
     }
 
+    // generate three follow up questions
     async function generateFollowUpQuestions(question : string, iter : number = 0){
         const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
         let response = []
@@ -119,18 +120,31 @@ function Chat() {
         if(response.length == 3) setFollowUpQuestions(response)
     }
 
-    async function askAutoComplete(sentence : string){
-        const prompt = `Your role is to guess all the characters needed to complete the last sentence of a given block of text. Only output the completion. Don't respond to the question. No commentary. No notes. No annotations, markings or delimiters. No need of the original text.\n\nGiven block of text :\n\n${sentence}`
-        const response = await ChatService.askTheActiveModel(prompt, lastContext || [])
-        if(suggestionRef.current) suggestionRef.current.innerText = sentence + response.response
+    // asking the model to autocomplete the currently written prompt
+    /*async function askAutoComplete(sentence : string){
+        console.log('sentence to complete : ' + sentence)
+        const response = await ChatService.askTheActiveModelForAutoComplete(sentence, lastContext || [])
+        setSuggestion(response.response)
     }
 
+    // apply autocomplete on tab press
     function applyAutoCompleteOnTabPress(e : KeyboardEvent) {
         if (e.key === 'Tab') {
             e.preventDefault();
-            if(textareaRef.current && suggestionRef.current) textareaRef.current.value = suggestionRef.current.innerText
+            if(editableSpanRef.current) {
+                editableSpanRef.current.innerText = editableSpanRef.current.innerText + suggestion
+                // place the cursor at the end of the text
+                const range = document.createRange();
+                const selection = window.getSelection();
+                if(!selection) return
+                range.selectNodeContents(editableSpanRef.current); // select the whole text
+                range.collapse(false); // collapse the range to the end point
+                selection.removeAllRanges(); // clear all existing selections
+                selection.addRange(range); // add the range as a selection
+            }
+            setSuggestion("")
         }
-    }
+    }*/
 
     return (
         <>
@@ -141,24 +155,30 @@ function Chat() {
                 <select className="agentDropdown">
                     {agentsList.map((agent,id) => <option key={'agent'+id}>{agent}</option>)}
                 </select>
-                <button>Add</button>
+                <button style={{paddingLeft:'0.75rem', paddingRight:'0.75rem'}}>+ New</button>
             </div>
             <div className="tabBar">
                 {
                     ChatConversationsService.getConversations().map((_, id) => (
-                    <button style={{columnGap:'1rem'}} key={'tabButton'+id}><span>Conversation {id}</span><div className='iconButton' role="button"><img className="clipboardIcon" src={downloadIcon}/></div>
+                    <button style={{columnGap:'1rem'}} key={'tabButton'+id}><span>Conversation {id}</span>
                     </button>))
                 }
                 <button onClick={handleNewTabClick}>+</button>
             </div>
-            <ChatHistory historyItems={history} textareaRef={textareaRef}/>
-            <div className="historyFakeShadow"></div>
-            <span className="textAreaTitle">Input</span>
-            <div className="textAreaContainer">
-                <textarea ref={textareaRef} onInput={(e) => askAutoComplete((e.target as HTMLTextAreaElement).value)}></textarea>
-                <div ref={suggestionRef} className="suggestionOverlay" onClick={() => textareaRef.current?.focus()}></div>
-            </div>
-            {followUpQuestions.length > 0 && <FollowUpQuestions questions={followUpQuestions} textareaRef={textareaRef}/>}
+            <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
+            {/*<span className="textAreaTitle">Input</span>
+            <div className="textArea" ref={fakeTextareaRef} role="textbox"
+                onClick={() => {
+                    if (editableSpanRef.current) {
+                        editableSpanRef.current.focus();
+                    }
+                }} 
+                onInput={(e) => askAutoComplete((e.target as HTMLDivElement).innerText)}>
+                    <span style={{border:'none', outline:'none', color:'#000'}} ref={editableSpanRef} contentEditable="true"></span>
+                    <span style={{color:'#000000aa'}}>{suggestion}</span>
+            </div>*/}
+            <CustomTextarea setTextareaValue={setTextareaValue} textareaValue={textareaValue}/>
+            {followUpQuestions.length > 0 && <FollowUpQuestions questions={followUpQuestions} setTextareaValue={setTextareaValue}/>}
             <div className="sendButtonContainer">
                 <input type="checkbox"/>Search the web for uptodate results
                 <button onClick={handleSendMessageStreaming}>Send</button>
@@ -171,8 +191,6 @@ export default Chat
 
 // lorsque je vois certains elements textuels, par exemple : bulletpoint list. je peux extraire toute la partie de la phrase relative a cette
 // instruction utilisateur grace au llm et la remplacer par quelque chose de plus effectif
-
-// testarea typing suggestion, tab to replace typing with suggestion
 
 // save conversation by ticking the history pairs you want to keep
 
