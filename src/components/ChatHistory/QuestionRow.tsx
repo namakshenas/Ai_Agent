@@ -7,7 +7,7 @@ import retryIcon from '../../assets/reloadicon.png';
 function QuestionRow({index, question, onDownload, onCopyToClipboard, onModify} : IProps){
 
     return(
-       <div className="historyItem" style={{backgroundColor:'#eeeeeebb', color:'#000000dd'}} key={'question' + index}>
+       <div className="historyItem questionItem" style={{borderBottom:'1px solid #22222211'}} key={'question' + index}>
             <div style={{height:'34px', width:'34px', borderRadius:'100%', border:'0px solid #000', flex:'0'}}>
                 <img src={userIcon} width={32} style={{opacity:'0.6'}}/>
             </div>
