@@ -1,7 +1,9 @@
-function FollowUpQuestions({questions, textareaRef} : IProps){
+import '../style/FollowUpQuestions.css'
+
+function FollowUpQuestions({questions, setTextareaValue} : IProps){
 
     function handleFollowUpQuestionClick(text : string){
-        (textareaRef.current as HTMLTextAreaElement).value = text
+        setTextareaValue(text)
     }
 
     return (
@@ -17,5 +19,5 @@ export default FollowUpQuestions;
 
 interface IProps{
     questions : string[]
-    textareaRef : React.MutableRefObject<HTMLTextAreaElement | null>
+    setTextareaValue : (text : string) => void
 }

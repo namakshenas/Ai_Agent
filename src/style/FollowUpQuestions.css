@@ -4,8 +4,8 @@
   max-height: 8rem;
   width: 100%;
   margin-bottom: 2rem;
-  background-color: #f3f3f3;
-  border: 1px solid #e3e3e3;
+  background-color: #dfe4ea88;
+  border: 1px solid #4d749434;
   padding: 1rem;
   border-radius: 4px;
 }
@@ -17,7 +17,7 @@
   flex-shrink: 1;
   border-radius: 3px;
   /*box-shadow: 0 4px 8px #97c8f066;*/
-  box-shadow: 0 4px 8px #e3e3e3;
+  box-shadow: 0 2px 4px #b3b8bb44, 0 4px 8px #b3b8bb77;
   background-color: #fff;
   justify-content: center;
   align-items: center;
@@ -25,4 +25,9 @@
   cursor: pointer;
   box-sizing: border-box;
   border: 2px solid #fff;
+}
+
+.followUpQuestionsContainer span:hover {
+  box-shadow: 0 4px 8px #bfbfbf;
+  border: 2px solid #2292ee;
 }
