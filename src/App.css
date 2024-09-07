@@ -20,8 +20,41 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 4rem;
-  column-gap: 2rem;
+  height: 3rem;
+  column-gap: 0.75rem;
+  margin-bottom: 2rem;
+  margin-top: 0.5rem;
+}
+
+nav li {
+  background-color: #ffffffff;
+  box-shadow: 0 1px 2px #b3b8bb44, 0 4px 8px #b0c7da88;
+  color: #000000aa;
+  border-radius: 4px;
+  font-weight: 600;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+nav li a:any-link {
+  color: #000000aa;
+}
+
+nav li:hover {
+  background-color: #0078d7aa;
+  color: #fff;
+  box-shadow: 0 4px 8px #97c8f0, 0 12px 24px #97c8f066;
+}
+
+nav li:hover a {
+  color: #fff;
+}
+
+nav a:any-link {
+  color: #000;
 }
 
 nav ul {
@@ -33,8 +66,8 @@ nav ul {
 }
 
 select {
-  background-color: #f4f4f4;
   border-radius: 4px;
   padding: 0 0.25rem;
-  border: 1px solid #d4d4d4;
+  background-color: #dfe4ea88;
+  border: 1px solid #4d749434;
 }

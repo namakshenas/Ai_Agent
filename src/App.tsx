@@ -16,6 +16,15 @@ function App() {
           <ul>
             <li><Link to="/">Presets</Link></li>
           </ul>
+          <ul>
+            <li><Link to="/">Options</Link></li>
+          </ul>
+          <ul>
+            <li><Link to="/">Tutorial</Link></li>
+          </ul>
+          <ul>
+            <li><Link to="/">Contact</Link></li>
+          </ul>
         </nav>
         <main>
           <Routes>
