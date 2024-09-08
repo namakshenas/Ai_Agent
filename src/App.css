@@ -31,16 +31,22 @@ nav li {
   box-shadow: 0 1px 2px #b3b8bb44, 0 4px 8px #b0c7da88;
   color: #000000aa;
   border-radius: 4px;
-  font-weight: 600;
+  font-weight: 500;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0 1rem;
+  cursor: pointer;
 }
 
 nav li a:any-link {
   color: #000000aa;
+  column-gap: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 nav li:hover {
@@ -53,8 +59,12 @@ nav li:hover a {
   color: #fff;
 }
 
+nav li:hover a svg path {
+  fill: #fff;
+}
+
 nav a:any-link {
-  color: #000;
+  color: #000000aa;
 }
 
 nav ul {
