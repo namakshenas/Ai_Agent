@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { TextareaHTMLAttributes, useEffect, useRef, useState } from "react";
-import { OllamaService } from "../services/OllamaService";
+import { useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
-import downloadIcon from '../assets/downloadicon2.png';
 import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair";
 import { ChatConversationsService } from "../services/ChatConversationsService";
 import FollowUpQuestions from "../components/FollowUpQuestions";
@@ -16,18 +14,14 @@ import CustomTextarea from "../components/CustomTextarea";
 function Chat() {
    
     const [lastContext, setLastContext] = useState<number[]>([])
-
-    /*const fakeTextareaRef = useRef<HTMLDivElement | null>(null)
-    const editableSpanRef = useRef<HTMLSpanElement | null>(null)*/
     const [textareaValue, setTextareaValue] = useState("")
-    const textareaRef = useRef()
+    // const textareaRef = useRef()
     const [history, _setHistory] = useState<IChatHistoryQAPair[]>([])
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
-    // const [modelsList, setModelsList] = useState<string[]>([])
     const [agentsList, setAgentsList] = useState<string[]>([])
     const [activeConversation, setActiveConversation] = useState<number>(0)
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
-    const [suggestion, setSuggestion] = useState<string>("")
+    // const [_, setSuggestion] = useState<string>("")
 
     function setHistory(history: IChatHistoryQAPair[]) {
         recentHistory.current = history
@@ -43,16 +37,11 @@ function Chat() {
         ChatConversationsService.pushConversation([])
         setActiveConversation(0)
 
-        // autocomplete on tab press
-        // window.addEventListener('keydown', applyAutoCompleteOnTabPress)
-
         // Cleanup
         return () => {
             ChatConversationsService.clearAll()
             AgentLibraryService.removeAllAgents()
             setActiveConversation(0)
-            // cleanup autocomplete listener
-            // window.removeEventListener('keydown', applyAutoCompleteOnTabPress)
         };
     }, [])
 
@@ -61,43 +50,27 @@ function Chat() {
         if(textareaValue == null) return
         const response = await ChatService.askTheActiveModel(textareaValue, lastContext)
         setHistory([...history, { question: textareaValue, answer: response.response }])
-        setLastContext(response.context);
         setTextareaValue("")
-        setSuggestion("")
+        // setSuggestion("")
+        setLastContext(response.context)
     }
 
     // asking the model for a streamed response
     async function handleSendMessageStreaming() : Promise<string | void>{
         if(textareaValue == null) return
         setHistory([...history, {question : textareaValue, answer : ""}])
-        
-        const reader : ReadableStreamDefaultReader<Uint8Array> = await ChatService.askTheActiveModelForAStreamedResponse(textareaValue, lastContext)
-        let content = ""
-        // keep reading the streamed response until the stream is closed
-        while(true){
-            const { done, value } = await reader.read()
-            if (done) {
-                break;
-            }
-            const json = JSON.parse(new TextDecoder().decode(value))
-
-            if(json.done && json?.context) setLastContext(json.context)
-        
-            if (!json.done) {
-                content += json.response
-                if(json?.context?.length > 0) console.log("falsedone : " + json?.context)
-                const newHistory = [...recentHistory.current]
-                newHistory[newHistory.length-1].answer = content
-                // recentHistory.current = newHistory
-                setHistory(newHistory)
-            }
-        }
-        
+        const context = await ChatService.askTheActiveModelForAStreamedResponse(textareaValue, displayStreamedAnswerCallback, lastContext)
         // ask the model for 3 follow up questions related to it's last answer
         generateFollowUpQuestions(textareaValue);
         setTextareaValue("")
-        setSuggestion("")
-        return content
+        // setSuggestion("")
+        setLastContext(context)
+    }
+
+    function displayStreamedAnswerCallback(content : string){
+        const newHistory = [...recentHistory.current]
+        newHistory[newHistory.length-1].answer = content
+        setHistory(newHistory)
     }
 
     // adding a new conversation tab
@@ -120,63 +93,33 @@ function Chat() {
         if(response.length == 3) setFollowUpQuestions(response)
     }
 
-    // asking the model to autocomplete the currently written prompt
-    /*async function askAutoComplete(sentence : string){
-        console.log('sentence to complete : ' + sentence)
-        const response = await ChatService.askTheActiveModelForAutoComplete(sentence, lastContext || [])
-        setSuggestion(response.response)
-    }
-
-    // apply autocomplete on tab press
-    function applyAutoCompleteOnTabPress(e : KeyboardEvent) {
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            if(editableSpanRef.current) {
-                editableSpanRef.current.innerText = editableSpanRef.current.innerText + suggestion
-                // place the cursor at the end of the text
-                const range = document.createRange();
-                const selection = window.getSelection();
-                if(!selection) return
-                range.selectNodeContents(editableSpanRef.current); // select the whole text
-                range.collapse(false); // collapse the range to the end point
-                selection.removeAllRanges(); // clear all existing selections
-                selection.addRange(range); // add the range as a selection
-            }
-            setSuggestion("")
-        }
-    }*/
-
     return (
         <>
             <div className="modelAgentContainer">
-                <label>Active Model</label><select className="modelDropdown">
+                <label>Select a Model</label>
+                <select className="modelDropdown">
                     {modelsList.map((model,id) => <option key={'model'+id}>{model}</option>)}
                 </select>
+                <label style={{marginLeft:'auto'}}>Select an Agent</label>
                 <select className="agentDropdown">
                     {agentsList.map((agent,id) => <option key={'agent'+id}>{agent}</option>)}
                 </select>
+                <button style={{padding:'0 0.85rem'}}>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M12.035 0.809018C12.405 0.543018 12.925 0.419018 13.436 0.606018C14.5223 1.00418 15.5313 1.58784 16.418 2.33102C16.835 2.68102 16.988 3.19202 16.942 3.64402C16.867 4.39702 16.999 5.12402 17.362 5.75002C17.682 6.30702 18.164 6.74702 18.752 7.05702L18.977 7.16702C19.391 7.35402 19.759 7.74302 19.852 8.28002C20.0507 9.41808 20.0507 10.582 19.852 11.72C19.769 12.204 19.462 12.567 19.099 12.771L18.977 12.834C18.287 13.144 17.723 13.624 17.361 14.25C16.999 14.877 16.867 15.603 16.942 16.356C16.987 16.808 16.835 17.32 16.418 17.669C15.5313 18.4122 14.5223 18.9959 13.436 19.394C13.2038 19.4771 12.9548 19.502 12.7108 19.4666C12.4667 19.4312 12.235 19.3366 12.036 19.191C11.42 18.75 10.723 18.5 9.99999 18.5C9.27699 18.5 8.57999 18.749 7.96499 19.191C7.76584 19.3368 7.53399 19.4315 7.28976 19.4669C7.04552 19.5023 6.79633 19.4772 6.56399 19.394C5.47769 18.9959 4.46872 18.4122 3.58199 17.669C3.39414 17.5095 3.24818 17.3065 3.15685 17.0776C3.06551 16.8488 3.03157 16.601 3.05799 16.356C3.13299 15.603 2.99999 14.876 2.63799 14.25C2.3089 13.6906 1.82658 13.2371 1.24799 12.943L1.02299 12.833C0.797289 12.7331 0.59951 12.5795 0.446968 12.3854C0.294426 12.1914 0.191772 11.9629 0.147993 11.72C-0.0507144 10.582 -0.0507144 9.41808 0.147993 8.28002C0.230993 7.79602 0.537993 7.43302 0.900993 7.22902L1.02299 7.16702C1.71299 6.85602 2.27699 6.37702 2.63899 5.75002C2.99999 5.12402 3.13299 4.39702 3.05799 3.64402C3.03157 3.39902 3.06551 3.15128 3.15685 2.92241C3.24818 2.69354 3.39414 2.4905 3.58199 2.33102C4.46872 1.58784 5.47769 1.00418 6.56399 0.606018C6.79619 0.522965 7.04519 0.498042 7.28924 0.533429C7.53328 0.568816 7.76495 0.663436 7.96399 0.809018C8.57899 1.25102 9.27599 1.50002 9.99999 1.50002C10.724 1.50002 11.42 1.25102 12.035 0.809018ZM12.992 2.57802C12.126 3.14802 11.105 3.50002 9.99999 3.50002C8.89499 3.50002 7.87399 3.14702 7.00799 2.57802C6.31188 2.85914 5.65881 3.23684 5.06799 3.70002C5.12799 4.73302 4.92299 5.79302 4.37099 6.75002C3.81799 7.70602 3.00299 8.41302 2.07799 8.87802C1.97275 9.62165 1.97275 10.3764 2.07799 11.12C3.00299 11.585 3.81799 12.292 4.37099 13.25C4.92299 14.205 5.12799 15.265 5.06799 16.298C5.65875 16.7615 6.31183 17.1396 7.00799 17.421C7.87399 16.851 8.89499 16.499 9.99999 16.499C11.105 16.499 12.126 16.852 12.992 17.421C13.6881 17.1399 14.3412 16.7622 14.932 16.299C14.872 15.265 15.077 14.205 15.629 13.249C16.181 12.292 16.997 11.585 17.922 11.119C18.027 10.376 18.027 9.62199 17.922 8.87902C16.997 8.41302 16.182 7.70602 15.629 6.74902C15.077 5.79302 14.872 4.73302 14.932 3.69902C14.3412 3.23584 13.6881 2.85914 12.992 2.57802ZM9.99999 6.00002C11.0609 6.00002 12.0783 6.42145 12.8284 7.17159C13.5786 7.92174 14 8.93915 14 10C14 11.0609 13.5786 12.0783 12.8284 12.8284C12.0783 13.5786 11.0609 14 9.99999 14C8.93913 14 7.92171 13.5786 7.17157 12.8284C6.42142 12.0783 5.99999 11.0609 5.99999 10C5.99999 8.93915 6.42142 7.92174 7.17157 7.17159C7.92171 6.42145 8.93913 6.00002 9.99999 6.00002ZM9.99999 8.00002C9.46956 8.00002 8.96085 8.21073 8.58578 8.5858C8.21071 8.96088 7.99999 9.46959 7.99999 10C7.99999 10.5305 8.21071 11.0392 8.58578 11.4142C8.96085 11.7893 9.46956 12 9.99999 12C10.5304 12 11.0391 11.7893 11.4142 11.4142C11.7893 11.0392 12 10.5305 12 10C12 9.46959 11.7893 8.96088 11.4142 8.5858C11.0391 8.21073 10.5304 8.00002 9.99999 8.00002Z" fill="#000000aa"/>
+                    </svg>
+                </button>
                 <button style={{paddingLeft:'0.75rem', paddingRight:'0.75rem'}}>+ New</button>
             </div>
             <div className="tabBar">
                 {
                     ChatConversationsService.getConversations().map((_, id) => (
-                    <button style={{columnGap:'1rem'}} key={'tabButton'+id}><span>Conversation {id}</span>
+                    <button className={activeConversation == id ? 'active' : ''} style={{columnGap:'1rem'}} key={'tabButton'+id} onClick={() => setActiveConversation(id)}><span>Conversation {id}</span>
                     </button>))
                 }
                 <button onClick={handleNewTabClick}>+</button>
             </div>
             <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
-            {/*<span className="textAreaTitle">Input</span>
-            <div className="textArea" ref={fakeTextareaRef} role="textbox"
-                onClick={() => {
-                    if (editableSpanRef.current) {
-                        editableSpanRef.current.focus();
-                    }
-                }} 
-                onInput={(e) => askAutoComplete((e.target as HTMLDivElement).innerText)}>
-                    <span style={{border:'none', outline:'none', color:'#000'}} ref={editableSpanRef} contentEditable="true"></span>
-                    <span style={{color:'#000000aa'}}>{suggestion}</span>
-            </div>*/}
             <CustomTextarea setTextareaValue={setTextareaValue} textareaValue={textareaValue}/>
             {followUpQuestions.length > 0 && <FollowUpQuestions questions={followUpQuestions} setTextareaValue={setTextareaValue}/>}
             <div className="sendButtonContainer">
@@ -195,6 +138,13 @@ export default Chat
 // save conversation by ticking the history pairs you want to keep
 
 // number of characters in textarea
+
+// interrupt reply
+
+// if the llm generates some code, put it in a separate div with the right formatting
+
+// download model config + agents from other users using a dedicated website & api
+// import prompts
 
 /*
 Valid Parameters and Values

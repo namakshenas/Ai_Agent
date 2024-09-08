@@ -1,23 +1,38 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChatService } from "../services/ChatService";
 
 function CustomTextarea ({textareaValue, setTextareaValue} : IProps) {
 
     const editableSpanRef = useRef<HTMLSpanElement | null>(null)
     const fakeTextareaRef = useRef<HTMLDivElement | null>(null)
+    const [suggestion, _setSuggestion] = useState("")
+    const suggestionRef = useRef("")
 
-    // const localRef = useRef()
+    function setSuggestion(text : string) {
+        suggestionRef.current = text
+        _setSuggestion(text)
+    }
 
-    // Expose methods to the parent
-    /*useImperativeHandle(ref, () => ({
-      setTextareaValue: (text : string) => {
-       if(editableSpanRef.current) editableSpanRef.current.innerText = text;
-      },
-      getTextareaValue: () => {
-        if(!editableSpanRef.current) return ""
-        return editableSpanRef.current.innerText
-      },
-    }));*/
+    useEffect(() => {
+        window.addEventListener('keydown', applyAutoCompleteOnTabPress)
+
+        return () => window.removeEventListener('keydown', applyAutoCompleteOnTabPress)
+    }, [])
+
+    async function askAutoComplete(sentence : string){
+        console.log('sentence to complete : ' + sentence)
+        const response = await ChatService.askTheActiveModelForAutoComplete(sentence, /*lastContext || */[])
+        setSuggestion(response.response)
+    }
+
+    function applyAutoCompleteOnTabPress(event : KeyboardEvent){
+        if(event.key === 'Tab') {
+            event.preventDefault();
+            setTextareaValue((prevValue : string) => prevValue + suggestionRef.current)
+            setSuggestion("")
+        }
+    }
 
     function setCursorAtEnd(){
         const range = document.createRange();
@@ -32,6 +47,7 @@ function CustomTextarea ({textareaValue, setTextareaValue} : IProps) {
     function handleInput(text : string){
         setTextareaValue(text)
         setCursorAtEnd()
+        askAutoComplete(text)
     }
     
     return(
@@ -48,7 +64,7 @@ function CustomTextarea ({textareaValue, setTextareaValue} : IProps) {
                     onInput={(e) => handleInput((e.target as HTMLSpanElement).innerText)}
                     onBlur={() => {(fakeTextareaRef.current as HTMLDivElement).style.outline = 'none'}}
                     >{textareaValue}</span>
-                    <span style={{color:'#000000aa'}}>suggestion</span>
+                    <span style={{color:'#000000aa'}}>{suggestion}</span>
             </div>
         </>
     )
@@ -58,5 +74,19 @@ export default CustomTextarea
 
 interface IProps{
     textareaValue : string
-    setTextareaValue : (text : string) => void
+    setTextareaValue : React.Dispatch<React.SetStateAction<string>>
 }
+
+
+// const localRef = useRef()
+
+// Expose methods to the parent
+/*useImperativeHandle(ref, () => ({
+    setTextareaValue: (text : string) => {
+    if(editableSpanRef.current) editableSpanRef.current.innerText = text;
+    },
+    getTextareaValue: () => {
+    if(!editableSpanRef.current) return ""
+    return editableSpanRef.current.innerText
+    },
+}));*/
