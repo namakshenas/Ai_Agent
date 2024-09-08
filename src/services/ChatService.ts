@@ -24,11 +24,32 @@ export class ChatService{
      * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
      * @returns {Promise<ReadableStreamDefaultReader<Uint8Array>>} A promise resolving to a ReadableStream of responses from the AI model.
      */
-    static async askTheActiveModelForAStreamedResponse(question : string, context:number[] = []) :  Promise<ReadableStreamDefaultReader<Uint8Array>>
+    static async askTheActiveModelForAStreamedResponse(question : string, displayCallback : (toDisplay : string) => void, context:number[] = []) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
     {
+        let newContext = []
+
         console.log('question : '+ question)
         const model = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).enableStreaming().setContextSize(8000).setContext(context).setSystemPrompt("You are an helpful assistant.")
-        return await model.askForAStreamedResponse(question)
+        const reader = await model.askForAStreamedResponse(question)
+        let content = ""
+        // keep reading the streamed response until the stream is closed
+        while(true){
+            const { done, value } = await reader.read()
+            if (done) {
+                break;
+            }
+            const json = JSON.parse(new TextDecoder().decode(value))
+
+            if(json.done && json?.context) newContext = json.context
+        
+            if (!json.done) {
+                content += json.response
+                if(json?.context?.length > 0) console.log("falsedone : " + json?.context)
+                displayCallback(content)
+            }
+        }
+
+        return newContext
     }
 
     static async askTheActiveModelForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
