@@ -6,6 +6,10 @@
   border-bottom: 1px solid #1e292c66;
 }
 
+.actorIcon {
+  border-radius: 100%;
+}
+
 .historyItem {
   display: flex;
   justify-content: space-between;
@@ -17,13 +21,8 @@
 
 .questionItem {
   background: #dfe4ea88;
-  /*background: linear-gradient(to right, #c5cfd335, #4d749422);*/
   color: #000000dd;
 }
-
-/*.chatHistorySection > div .historyItem:first-child {
-  border-bottom: none;
-}*/
 
 .clipboardIcon {
   width: 20px;
@@ -31,15 +30,12 @@
   align-self: center;
   flex-shrink: 0;
   justify-self: center;
+  opacity: 0.7;
 }
-
-/*.clipboardIcon:hover {
-  fill: #2292ee;
-}*/
 
 .iconButton {
   background: linear-gradient(to bottom, #ffffff, #f6f6f6);
-  box-shadow: 0 3px 6px #33333366;
+  box-shadow: 0 1px 2px #b3b8bb88, 0 4px 8px #b0c7daaa;
   border-radius: 3px;
   padding: 4px;
   box-sizing: border-box;
