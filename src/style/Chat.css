@@ -7,24 +7,21 @@
 .modelAgentContainer label {
   display: flex;
   align-items: center;
-  transform: translateY(2px);
+  transform: translateY(0px);
 }
 
 .modelDropdown {
   max-width: 300px;
   min-width: 300px;
   height: 3rem;
-  /*background-color: #c5cfd335;*/
   background-color: #dfe4ea88;
   border: 1px solid #4d749434;
 }
 
 .agentDropdown {
-  margin-left: auto;
   max-width: 300px;
   min-width: 300px;
   height: 3rem;
-  /*background-color: #c5cfd335;*/
   background-color: #dfe4ea88;
   border: 1px solid #4d749434;
 }
@@ -106,6 +103,10 @@ button:hover {
   box-shadow: 0 4px 8px #97c8f0, 0 12px 24px #97c8f066;
 }
 
+button:hover svg path {
+  fill: #fff;
+}
+
 .tabBar {
   display: flex;
   column-gap: 0.5rem;
@@ -118,11 +119,12 @@ button:hover {
   border-radius: 4px 4px 0 0;
   color: #000000aa;
   box-shadow: none;
+  font-weight: 500;
 }
 
-.tabBar button:first-of-type {
+.tabBar button.active {
   height: 3rem;
-  background: linear-gradient(to bottom, #498dc5, #2588d8);
+  background: linear-gradient(to bottom, #57a2e0, #2588d8);
   border-radius: 4px 4px 0 0;
   color: #fff;
 }
