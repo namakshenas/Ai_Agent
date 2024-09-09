@@ -1,0 +1,66 @@
+.answerContainer {
+  width: 100%;
+}
+
+.answerContainer p:has(strong):not(:first-of-type) {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.answerContainer h1,
+.answerContainer h2,
+.answerContainer h3,
+.answerContainer h4,
+.answerContainer h5,
+.answerContainer h6 {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.answerContainer ol {
+  margin-top: 1rem;
+}
+
+.answerIconsContainer {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  column-gap: 8px;
+}
+
+.stopIcon {
+  width: 22px;
+  height: 22px;
+  align-self: center;
+  flex-shrink: 0;
+  justify-self: center;
+  opacity: 0.7;
+  transform: translateX(-1px) translateY(-0.5px);
+}
+
+.codeBlock {
+  opacity: 0.85;
+  margin: 1rem 0;
+  background-color: #dfe4ea88;
+  border-radius: 4px;
+  border: 1px solid #4d749444;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.codeBlock .title {
+  height: 2rem;
+  width: 100%;
+  background-color: #4d749424;
+  color: #000000bb;
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+  border-bottom: 1px solid #4d749444;
+}
+
+.codeBlock .body {
+  width: 100%;
+  padding: 0.5rem;
+}
