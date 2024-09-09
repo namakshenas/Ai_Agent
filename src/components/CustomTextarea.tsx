@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useRef, useState } from "react";
-import { ChatService } from "../services/ChatService";
+// import { ChatService } from "../services/ChatService";
 
-function CustomTextarea ({textareaValue, setTextareaValue} : IProps) {
+function CustomTextarea ({textareaValue, setTextareaValue, currentContext} : IProps) {
 
     const editableSpanRef = useRef<HTMLSpanElement | null>(null)
     const fakeTextareaRef = useRef<HTMLDivElement | null>(null)
@@ -22,8 +22,8 @@ function CustomTextarea ({textareaValue, setTextareaValue} : IProps) {
 
     async function askAutoComplete(sentence : string){
         console.log('sentence to complete : ' + sentence)
-        const response = await ChatService.askTheActiveModelForAutoComplete(sentence, /*lastContext || */[])
-        setSuggestion(response.response)
+        /*const response = await ChatService.askTheActiveModelForAutoComplete(sentence, currentContext || [])
+        setSuggestion(response.response)*/
     }
 
     function applyAutoCompleteOnTabPress(event : KeyboardEvent){
@@ -75,6 +75,7 @@ export default CustomTextarea
 interface IProps{
     textareaValue : string
     setTextareaValue : React.Dispatch<React.SetStateAction<string>>
+    currentContext : number[]
 }
 
 
