@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
@@ -10,18 +10,19 @@ import { AgentLibraryService } from "../services/AgentLibraryService";
 import { AIAgent } from "../models/AIAgent";
 import useFetchModelsList from "../hooks/useFetchModelsList";
 import CustomTextarea from "../components/CustomTextarea";
+import ChatHistoryTabs from "../components/ChatHistoryTabs";
+// import { IConversation } from "../interfaces/IConversation";
 
 function Chat() {
    
     const [lastContext, setLastContext] = useState<number[]>([])
     const [textareaValue, setTextareaValue] = useState("")
-    // const textareaRef = useRef()
     const [history, _setHistory] = useState<IChatHistoryQAPair[]>([])
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
     const [agentsList, setAgentsList] = useState<string[]>([])
     const [activeConversation, setActiveConversation] = useState<number>(0)
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
-    // const [_, setSuggestion] = useState<string>("")
+    // const [allConversations, setAllConversations] = useState<IConversation[]>([])
 
     function setHistory(history: IChatHistoryQAPair[]) {
         recentHistory.current = history
@@ -31,7 +32,6 @@ function Chat() {
     const modelsList = useFetchModelsList()
 
     useEffect(() => {
-
         AgentLibraryService.addAgent(new AIAgent("helpfulAssistant"))
         setAgentsList(AgentLibraryService.getAgentsNameList())
         ChatConversationsService.pushConversation([])
@@ -73,12 +73,6 @@ function Chat() {
         setHistory(newHistory)
     }
 
-    // adding a new conversation tab
-    function handleNewTabClick(){
-        ChatConversationsService.pushConversation([])
-        setActiveConversation(ChatConversationsService.getNumberOfConversations() - 1)
-    }
-
     // generate three follow up questions
     async function generateFollowUpQuestions(question : string, iter : number = 0){
         const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
@@ -111,16 +105,9 @@ function Chat() {
                 </button>
                 <button style={{paddingLeft:'0.75rem', paddingRight:'0.75rem'}}>+ New</button>
             </div>
-            <div className="tabBar">
-                {
-                    ChatConversationsService.getConversations().map((_, id) => (
-                    <button className={activeConversation == id ? 'active' : ''} style={{columnGap:'1rem'}} key={'tabButton'+id} onClick={() => setActiveConversation(id)}><span>Conversation {id}</span>
-                    </button>))
-                }
-                <button onClick={handleNewTabClick}>+</button>
-            </div>
+            <ChatHistoryTabs activeConversation={activeConversation} setActiveConversation={setActiveConversation}/>
             <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
-            <CustomTextarea setTextareaValue={setTextareaValue} textareaValue={textareaValue}/>
+            <CustomTextarea setTextareaValue={setTextareaValue} textareaValue={textareaValue} currentContext={lastContext}/>
             {followUpQuestions.length > 0 && <FollowUpQuestions questions={followUpQuestions} setTextareaValue={setTextareaValue}/>}
             <div className="sendButtonContainer">
                 <input type="checkbox"/>Search the web for uptodate results
