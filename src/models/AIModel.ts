@@ -16,6 +16,9 @@ export class AIModel{
     #context : number[]
     #contextSize : number
     #temperature : number
+    #numPredict : number
+    #abortController = new AbortController()
+    #signal = this.#abortController.signal
 
     /**
      * @constructor
@@ -27,12 +30,13 @@ export class AIModel{
      * @param {number} [params.contextSize=2048] - The size of the context for the AI model.
      * @param {number} [params.temperature=0.8] - The temperature for the AI model.
      */
-    constructor({ modelName = "llama3.1:8b", stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8 } : IAIModelParams){
+    constructor({ modelName = "llama3.1:8b", stream = false, systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8, numPredict = 1024 } : IAIModelParams){
         this.#modelName = modelName
         this.#stream = stream
         this.#systemPrompt = systemPrompt
         this.#context = context
         this.#contextSize = contextSize
+        this.#numPredict = numPredict
         this.#temperature = temperature
     }
 
@@ -51,6 +55,7 @@ export class AIModel{
                 "Content-Type": "application/json",
             },
             body: this.#buildRequest(prompt),
+            signal: this.#signal
         });
 
         return await response.json()
@@ -63,6 +68,7 @@ export class AIModel{
                 "Content-Type": "application/json",
             },
             body: this.#buildRequest(prompt),
+            signal: this.#signal
         });
 
         const reader = response.body?.getReader()
@@ -86,6 +92,7 @@ export class AIModel{
                 "Content-Type": "application/json",
             },
             body: this.#buildEmbeddingRequest(sequence),
+            signal: this.#signal
         });
         return response.json()
     }
@@ -143,6 +150,10 @@ export class AIModel{
             return this
     }
 
+    setNumPredict(value : number){
+        this.#numPredict = value
+    }
+
     /**
      * @private
      * @function #buildRequest
@@ -158,7 +169,7 @@ export class AIModel{
             "prompt": prompt,
             "context" : this.#context
         }
-        baseRequest = {...baseRequest, "options": { "num_ctx": this.#contextSize, "temperature" : this.#temperature }}
+        baseRequest = {...baseRequest, "options": { "num_ctx": this.#contextSize, "temperature" : this.#temperature, "num_predict" : this.#numPredict }}
         return JSON.stringify(baseRequest)
     }
 
@@ -186,6 +197,14 @@ export class AIModel{
         this.#stream = false
         return this
     }
+
+    abortLastRequest(){
+        this.#abortController.abort()
+        // need to create a new abort controller and a new signal
+        // or subsequent request will be aborted from the get go
+        this.#abortController = new AbortController()
+        this.#signal = this.#abortController.signal
+    }
 }
 
 export interface IAIModelParams{
@@ -195,6 +214,7 @@ export interface IAIModelParams{
     context? : number[]
     contextSize? : number
     temperature? : number
+    numPredict? : number
 }
 
 export interface IBaseOllamaRequest{
