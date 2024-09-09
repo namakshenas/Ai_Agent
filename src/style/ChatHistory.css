@@ -17,20 +17,7 @@
   padding: 1rem;
   border-bottom: 1px dashed #abaeb1ee;
   column-gap: 1rem;
-}
-
-.questionItem {
-  background: #dfe4ea88;
-  color: #000000dd;
-}
-
-.clipboardIcon {
-  width: 20px;
-  height: 20px;
-  align-self: center;
-  flex-shrink: 0;
-  justify-self: center;
-  opacity: 0.7;
+  width: 100%;
 }
 
 .iconButton {
@@ -43,6 +30,7 @@
   cursor: pointer;
   opacity: 0.8;
   border: 1px solid #fff;
+  width: 30px;
 }
 
 .iconButton:hover {
