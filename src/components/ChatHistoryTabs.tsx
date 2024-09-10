@@ -4,15 +4,19 @@ function ChatHistoryTabs({activeConversation, setActiveConversation} : IProps){
 
     // adding a new conversation tab
     function handleNewTabClick(){
-        ChatConversationsService.pushConversation([])
+        ChatConversationsService.pushNewConversation("conversation " + (activeConversation + 1), [])
         setActiveConversation(ChatConversationsService.getNumberOfConversations() - 1)
+    }
+
+    function handleSwitchTabClick(id : number){
+        setActiveConversation(id)
     }
 
     return(
         <div className="tabBar">
             {
-                ChatConversationsService.getConversations().map((_, id) => (
-                <button className={activeConversation == id ? 'active' : ''} style={{columnGap:'1rem'}} key={'tabButton'+id} onClick={() => setActiveConversation(id)}><span>Conversation {id}</span>
+                ChatConversationsService.getConversations().map((conversation, id) => (
+                <button className={activeConversation == id ? 'active' : ''} style={{columnGap:'1rem'}} key={'tabButton'+id} onClick={() => handleSwitchTabClick(id)}><span>{conversation.name}</span>
                 </button>))
             }
             <button onClick={handleNewTabClick}>+</button>

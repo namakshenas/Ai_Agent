@@ -1,32 +1,45 @@
 import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair";
+import { IConversation } from "../interfaces/IConversation";
 
 
 export class ChatConversationsService{
 
-    static chatConversations : TChatConversation[] = [];
+    static chatConversations : IConversation[] = [];
     // lastContext should be added too !!!! >> all context in reality so question can be modified
 
-    static pushConversation(chatHistory : IChatHistoryQAPair[]){
-        this.chatConversations.push(chatHistory);
-        return;
+    static pushNewConversation(name : string, history : IChatHistoryQAPair[]){
+        this.chatConversations.push({name, history})
+        return
     }
 
-    static getConversation(id : number) : IChatHistoryQAPair[]{
+    static getConversation(id : number) : IConversation{
         return this.chatConversations[id]
     }
 
     static deleteConversation(id : number){
-        this.chatConversations.splice(id,1);
-        return;
+        this.chatConversations.splice(id,1)
+        return
     }
 
-    static updateConversation(id : number, chatHistory : IChatHistoryQAPair[]) {
-        this.chatConversations[id] = chatHistory;
-        return;
+    static replaceConversationHistory(id : number, history : IChatHistoryQAPair[]) {
+        this.chatConversations[id] = {...this.getConversation(id), history}
+        return
+    }
+
+    static pushToConversationHistory(id : number, history : IChatHistoryQAPair[]) {
+        const conversation = {...this.getConversation(id), history}
+        conversation.history = [...conversation.history,...history]
+        this.chatConversations[id] = {...this.getConversation(id), history}
+        return
     }
 
     static getConversations(){
         return this.chatConversations;
+    }
+
+    static renameConversation(id : number, newName : string){
+        this.chatConversations[id] = {...this.getConversation(id), name : newName }
+        return
     }
 
     static getNumberOfConversations() : number{
@@ -37,5 +50,3 @@ export class ChatConversationsService{
         this.chatConversations = []
     }
 }
-
-type TChatConversation = IChatHistoryQAPair[]
