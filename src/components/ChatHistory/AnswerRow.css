@@ -58,6 +58,7 @@
   align-items: center;
   padding-left: 0.5rem;
   border-bottom: 1px solid #4d749444;
+  font-weight: 500;
 }
 
 .codeBlock .body {
