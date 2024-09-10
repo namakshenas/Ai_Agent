@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { marked } from "marked";
 import { AIModel } from "../models/AIModel";
-// import hljs from 'highlight.js';
+import hljs from 'highlight.js';
 export class ChatService{
 
     /*static modelList = new Map<string, AIModel>()
@@ -32,13 +33,12 @@ export class ChatService{
         As such, you must follow those rules at all time : \n
         1- Don't write any code if you are not explicitly asked to.\n
         2- Don't forget to add a new line before a new section or a new paragraph.\n
-        3- All code produced should START with the following tag : <pre><code>\n 
-        3- All code produced should END with the following tag : </code></pre>\n\n
+        3- All the code produced should START with the following tag : <pre><code>\n 
+        4- All the code produced should END with the following tag : </code></pre>\n\n
         Exemple :\n
         <pre><code>code_produced</code></pre>
         Here come my request :\n\n
         `).enableStreaming()
-        //- Don't forget to add a new line before a new section or a new paragraph.
   
     /**
      * Asks a question to the AI model and returns the context and response.
@@ -81,11 +81,14 @@ export class ChatService{
             }
             const json = JSON.parse(new TextDecoder().decode(value))
 
-            if(json.done && json?.context) newContext = json.context
+            if(json.done) {
+                newContext = json.context || []
+                displayCallback(await marked(this.codetransformer(content)))
+            }
         
             if (!json.done) {
                 content += json.response
-                console.log(content)
+                // console.log(content)
                 if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
                 displayCallback(await marked(this.codetransformer(content)))
             }
@@ -109,22 +112,24 @@ export class ChatService{
 
     static codetransformer(text : string) : string{
         // [\s\S] includes new lines
-        const transformedText = text.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (match, codeContent) => {
+        // put a complete code block into a dedicated code container
+        let transformedText = text.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (match, codeContent) => {
+            /*
+            // text highlighting
+            return `<div class="codeBlock">
+            <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">Javascript</span></div>
+            <div class="body">${hljs.highlightAuto(codeContent).value}</div>
+            </div>`})*/
             return `<div class="codeBlock">
                         <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">Javascript</span></div>
                         <div class="body">${codeContent.replace(/</g, '&lt;').replace(/</g, '&gt;')}</div>
-                    </div>`
-        }).replace(/<pre><code>([\s\S]*?)$/, (match, codeContent) => {
+                    </div>`})
+        // put an incomplete code block into a dedicated code container
+        transformedText = transformedText.replace(/<pre><code([\s\S]*?)(?!<\/code><\/pre>)$/, (match, codeContent) => {
             return `<div class="codeBlock">
                         <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">Javascript</span></div>
-                        <div class="body">${codeContent.replace(/</g, '&lt;').replace(/</g, '&gt;')}</div>
-                    </div>`
-        })
-        /*.replace(/<code>([\s\S]*?)$/, (match, codeContent) => {
-            return `<pre><code>${hljs.highlightAuto(codeContent).value}</code></pre><br>`
-        })*/
-        /*.trimStart()*/
-        // console.log(transformedText)
-        return transformedText
+                        <div class="body">${codeContent.replace(/^>/, '').replace(/</g, '&lt;').replace(/</g, '&gt;')}</div>
+                    </div>`})
+        return transformedText  
     }
 }
