@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
@@ -11,7 +11,6 @@ import { AIAgent } from "../models/AIAgent";
 import useFetchModelsList from "../hooks/useFetchModelsList";
 import CustomTextarea from "../components/CustomTextarea";
 import ChatHistoryTabs from "../components/ChatHistoryTabs";
-// import { IConversation } from "../interfaces/IConversation";
 
 function Chat() {
    
@@ -21,8 +20,6 @@ function Chat() {
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
     const [agentsList, setAgentsList] = useState<string[]>([])
     const [activeConversation, setActiveConversation] = useState<number>(0)
-    const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
-    // const [allConversations, setAllConversations] = useState<IConversation[]>([])
 
     function setHistory(history: IChatHistoryQAPair[]) {
         recentHistory.current = history
@@ -34,7 +31,7 @@ function Chat() {
     useEffect(() => {
         AgentLibraryService.addAgent(new AIAgent("helpfulAssistant"))
         setAgentsList(AgentLibraryService.getAgentsNameList())
-        ChatConversationsService.pushConversation([])
+        ChatConversationsService.pushNewConversation("conversation 0", [])
         setActiveConversation(0)
 
         // Cleanup
@@ -45,7 +42,14 @@ function Chat() {
         };
     }, [])
 
-    // asking the model for a one block response
+    // triggered when switching between conversations
+    useEffect(() => {
+        ChatService.abortStreaming()
+        setTextareaValue("")
+        setHistory(ChatConversationsService.getConversation(activeConversation).history)
+    },[activeConversation])
+
+    // asking the model for a non streamed response
     async function handleSendMessage() : Promise<void>{
         if(textareaValue == null) return
         const response = await ChatService.askTheActiveModel(textareaValue, lastContext)
@@ -61,7 +65,7 @@ function Chat() {
         setHistory([...history, {question : textareaValue, answer : ""}])
         const context = await ChatService.askTheActiveModelForAStreamedResponse(textareaValue, displayStreamedAnswerCallback, lastContext)
         // ask the model for 3 follow up questions related to it's last answer
-        generateFollowUpQuestions(textareaValue);
+        // generateFollowUpQuestions(textareaValue);
         setTextareaValue("")
         // setSuggestion("")
         setLastContext(context)
@@ -70,21 +74,8 @@ function Chat() {
     function displayStreamedAnswerCallback(content : string){
         const newHistory = [...recentHistory.current]
         newHistory[newHistory.length-1].answer = content
+        ChatConversationsService.pushToConversationHistory(activeConversation, newHistory);
         setHistory(newHistory)
-    }
-
-    // generate three follow up questions
-    async function generateFollowUpQuestions(question : string, iter : number = 0){
-        const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
-        let response = []
-        const threeQuestions = await ChatService.askTheActiveModel(prompt, lastContext || [])
-        try{
-            response = JSON.parse(threeQuestions.response)
-        }catch(error){
-            if(iter + 1 > 4) return setFollowUpQuestions([])
-            generateFollowUpQuestions(question, iter + 1)
-        }
-        if(response.length == 3) setFollowUpQuestions(response)
     }
 
     return (
@@ -108,7 +99,7 @@ function Chat() {
             <ChatHistoryTabs activeConversation={activeConversation} setActiveConversation={setActiveConversation}/>
             <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
             <CustomTextarea setTextareaValue={setTextareaValue} textareaValue={textareaValue} currentContext={lastContext}/>
-            {followUpQuestions.length > 0 && <FollowUpQuestions questions={followUpQuestions} setTextareaValue={setTextareaValue}/>}
+            <FollowUpQuestions context={lastContext} history={recentHistory.current} setTextareaValue={setTextareaValue}/>
             <div className="sendButtonContainer">
                 <input type="checkbox"/>Search the web for uptodate results
                 <button onClick={handleSendMessageStreaming}>Send</button>
@@ -132,6 +123,10 @@ export default Chat
 
 // download model config + agents from other users using a dedicated website & api
 // import prompts
+
+// downvoting a reply should get it out of context
+
+// add multiline support to editable span
 
 /*
 Valid Parameters and Values
