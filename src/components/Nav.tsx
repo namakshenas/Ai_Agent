@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 function Nav(){
+    return
     return(
         <nav>
             <ul>

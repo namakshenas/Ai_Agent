@@ -2,8 +2,24 @@ import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair"
 import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
 import '../style/ChatHistory.css'
+import { useEffect, useRef } from "react"
 
 function ChatHistory({historyItems, setTextareaValue} : IProps) {
+
+  const historyContainerRef = useRef(null)
+
+  // setting up an observer that scroll the div to bottom to follow the text being printed
+  useEffect(() => {
+    if(historyContainerRef.current == null) return
+    const observer = new MutationObserver(() => {
+      if(historyContainerRef.current != null) scrollHistorySectionToBottom(historyContainerRef.current)
+    })
+    observer.observe(historyContainerRef.current, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})
@@ -31,8 +47,13 @@ function ChatHistory({historyItems, setTextareaValue} : IProps) {
     setTextareaValue(text)
   }
 
+  function scrollHistorySectionToBottom(element : HTMLDivElement) {
+    if (element== null) return
+    element.scrollTop = element.scrollHeight
+  }
+
   return (
-    <section className="chatHistorySection">
+    <section ref={historyContainerRef} className="chatHistorySection">
         {
           historyItems.map((item, index) => (
             <div key={'historyItem'+index}>
