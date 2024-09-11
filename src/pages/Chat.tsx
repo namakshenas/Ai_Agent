@@ -9,21 +9,27 @@ import FollowUpQuestions from "../components/FollowUpQuestions";
 import { AgentLibraryService } from "../services/AgentLibraryService";
 import { AIAgent } from "../models/AIAgent";
 import useFetchModelsList from "../hooks/useFetchModelsList";
-import CustomTextarea from "../components/CustomTextarea";
 import ChatHistoryTabs from "../components/ChatHistoryTabs";
+import CustomTextareaAlt from "../components/CustomTextareaAlt";
 
 function Chat() {
    
     const [lastContext, setLastContext] = useState<number[]>([])
-    const [textareaValue, setTextareaValue] = useState("")
+    const [_, _setTextareaValue] = useState("")
     const [history, _setHistory] = useState<IChatHistoryQAPair[]>([])
     const recentHistory = useRef<IChatHistoryQAPair[]>([])
+    const textareaValueRef = useRef<string>("")
     const [agentsList, setAgentsList] = useState<string[]>([])
     const [activeConversation, setActiveConversation] = useState<number>(0)
 
     function setHistory(history: IChatHistoryQAPair[]) {
         recentHistory.current = history
         _setHistory(history)
+    }
+
+    function setTextareaValue(value: string) {
+        textareaValueRef.current = value
+        _setTextareaValue(value)
     }
 
     const modelsList = useFetchModelsList()
@@ -51,27 +57,24 @@ function Chat() {
 
     // asking the model for a non streamed response
     async function handleSendMessage() : Promise<void>{
-        if(textareaValue == null) return
-        const response = await ChatService.askTheActiveModel(textareaValue, lastContext)
-        setHistory([...history, { question: textareaValue, answer: response.response }])
+        if(textareaValueRef.current == null) return
+        const response = await ChatService.askTheActiveModel(textareaValueRef.current, lastContext)
+        setHistory([...history, { question: textareaValueRef.current, answer: response.response }])
         setTextareaValue("")
-        // setSuggestion("")
         setLastContext(response.context)
     }
 
     // asking the model for a streamed response
-    async function handleSendMessageStreaming() : Promise<string | void>{
-        if(textareaValue == null) return
-        setHistory([...history, {question : textareaValue, answer : ""}])
-        const context = await ChatService.askTheActiveModelForAStreamedResponse(textareaValue, displayStreamedAnswerCallback, lastContext)
-        // ask the model for 3 follow up questions related to it's last answer
-        // generateFollowUpQuestions(textareaValue);
+    async function handleSendMessageStreaming() : Promise<void>{
+        console.log(textareaValueRef.current)
+        if(textareaValueRef.current == null) return
+        setHistory([...recentHistory.current, {question : textareaValueRef.current, answer : ""}])
+        const context = await ChatService.askTheActiveModelForAStreamedResponse(textareaValueRef.current, displayStreamedAnswerCallback, lastContext)
         setTextareaValue("")
-        // setSuggestion("")
         setLastContext(context)
     }
 
-    function displayStreamedAnswerCallback(content : string){
+    function displayStreamedAnswerCallback(content : string) : void{
         const newHistory = [...recentHistory.current]
         newHistory[newHistory.length-1].answer = content
         ChatConversationsService.pushToConversationHistory(activeConversation, newHistory);
@@ -98,7 +101,7 @@ function Chat() {
             </div>
             <ChatHistoryTabs activeConversation={activeConversation} setActiveConversation={setActiveConversation}/>
             <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
-            <CustomTextarea setTextareaValue={setTextareaValue} textareaValue={textareaValue} currentContext={lastContext}/>
+            <CustomTextareaAlt setTextareaValue={setTextareaValue} textareaValue={textareaValueRef.current} currentContext={lastContext} handleSendMessageStreaming={handleSendMessageStreaming}/>
             <FollowUpQuestions context={lastContext} history={recentHistory.current} setTextareaValue={setTextareaValue}/>
             <div className="sendButtonContainer">
                 <input type="checkbox"/>Search the web for uptodate results
@@ -127,6 +130,14 @@ export default Chat
 // downvoting a reply should get it out of context
 
 // add multiline support to editable span
+
+// collapse previous history
+
+// only delete the textarea content if it's the same as the last question, if it has been modified after requesting an answer, let it be
+
+// the answer transformation to html should be done right before display, not before it being save into history
+
+// when clicking on modify question, jump to textarea
 
 /*
 Valid Parameters and Values
