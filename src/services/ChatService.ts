@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { marked } from "marked";
 import { AIModel } from "../models/AIModel";
-import hljs from 'highlight.js';
+import AnswerFormatingService from "./AnswerFormatingService";
 export class ChatService{
 
     /*static modelList = new Map<string, AIModel>()
@@ -16,10 +15,10 @@ export class ChatService{
         .setSystemPrompt(`You act like a search engine specialized in questions auto-completion.
         As such, your role is to produce complete the last sentence of a given piece of text. 
         Meaning : 
-        -Your output should ALWAYS ouput a string of characters transforming the incomplete last sentence into a question.
-        -Your output should NEVER BE AN ANSWER to this incomplete sentence.
-        -Your output should not be if the last sentence is already a valid question.
-        Here is some examples showing you have to structure your output:\n\n
+        1- Your output should ALWAYS ouput a string of characters transforming the incomplete last sentence into a question.
+        2- Your output should NEVER BE AN ANSWER to this incomplete sentence.
+        3- Your output should not be non-existent if the last sentence is already a valid question.
+        Some examples showing the expected structure for your output:\n\n
         * last sentence example : "Should I buy a" => output : " new car?"
         * last sentence example : "Who is the president " => output : "of the United States?"
         * last sentence example : "What is the capit" => output : "al of France?"
@@ -28,17 +27,43 @@ export class ChatService{
         Here follows the given piece of text to produce an output for :\n\n
     `)
 
-    static #baseModel = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).setContextSize(8000).setSystemPrompt("You are an helpful assistant.")
-    static #baseModelStreaming = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).setContextSize(8000).setSystemPrompt(`You are an helpful assistant. 
-        As such, you must follow those rules at all time : \n
-        1- Don't write any code if you are not explicitly asked to.\n
-        2- Don't forget to add a new line before a new section or a new paragraph.\n
-        3- All the code produced should START with the following tag : <pre><code>\n 
-        4- All the code produced should END with the following tag : </code></pre>\n\n
-        Exemple :\n
-        <pre><code>code_produced</code></pre>
+    static #baseModel = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.3).setContextSize(8000).setSystemPrompt("You are an helpful assistant.")
+    static #baseModelStreaming = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.1).setContextSize(8000)
+    .setSystemPrompt(`You are an helpful assistant. 
+        And you MUST follow the 5 following rules when replying to my request : \n
+        1- Don't write any programming code if the request topic is not related.\n
+        2- Add a new line before a new section or a new paragraph.\n
+        3- All the programming code produced should encapsulated within markdown delimiters called triple backticks followed by the programming language used : \`\`\`.\n
+        4- DON'T USE <pre> and <code> tags!\n
+        5- DON'T USE triple backticks for non-code related text.\n
         Here come my request :\n\n
         `).enableStreaming()
+
+    /*
+    `You are an helpful assistant. 
+        As such, you must follow those rules at all time : \n
+        1- Don't write any programming code if you are not explicitly asked to.\n
+        2- Don't forget to add a new line before a new section or a new paragraph.\n
+        3- All the programming code produced should encapsulated between pre and code tags. Example :\n
+        <pre><code>programming_code_produced</code></pre>\n
+        4- The code tag should never have any attribute like language or class!\n
+        5- NEVER put any text non code related into the <pre><code> tags.\n
+        Here come my request :\n\n
+        `
+    */
+    /*
+    `You are an helpful assistant. 
+        As such, you must follow those rules at all time : \n
+        1- Don't write any programming code if you are not explicitly asked to.\n
+        2- Don't forget to add a new line before a new section or a new paragraph.\n
+        3- All the programming code produced should START with the following tag : <pre><code>\n 
+        4- All the programming code produced should END with the following tag : </code></pre>\n\n
+        Exemple in case of programming code needing to be produced :\n
+        <pre><code>code_programming_produced</code></pre>
+        5- NEVER put any text non code related into the <pre><code> tags.
+        Here come my request :\n\n
+        `
+    */
   
     /**
      * Asks a question to the AI model and returns the context and response.
@@ -83,14 +108,14 @@ export class ChatService{
 
             if(json.done) {
                 newContext = json.context || []
-                displayCallback(await marked(this.codetransformer(content)))
+                displayCallback(await AnswerFormatingService.format(content))
             }
         
             if (!json.done) {
                 content += json.response
                 // console.log(content)
                 if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
-                displayCallback(await marked(this.codetransformer(content)))
+                displayCallback(await AnswerFormatingService.format(content))
             }
         }
 
@@ -108,28 +133,5 @@ export class ChatService{
         // setTimeout(() => {}, 2000)
         const answer = (await this.#completionModel.ask(promptToComplete))
         return {context : answer.context as number[], response : answer.response}
-    }
-
-    static codetransformer(text : string) : string{
-        // [\s\S] includes new lines
-        // put a complete code block into a dedicated code container
-        let transformedText = text.replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (match, codeContent) => {
-            /*
-            // text highlighting
-            return `<div class="codeBlock">
-            <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">Javascript</span></div>
-            <div class="body">${hljs.highlightAuto(codeContent).value}</div>
-            </div>`})*/
-            return `<div class="codeBlock">
-                        <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">Javascript</span></div>
-                        <div class="body">${codeContent.replace(/</g, '&lt;').replace(/</g, '&gt;')}</div>
-                    </div>`})
-        // put an incomplete code block into a dedicated code container
-        transformedText = transformedText.replace(/<pre><code([\s\S]*?)(?!<\/code><\/pre>)$/, (match, codeContent) => {
-            return `<div class="codeBlock">
-                        <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">Javascript</span></div>
-                        <div class="body">${codeContent.replace(/^>/, '').replace(/</g, '&lt;').replace(/</g, '&gt;')}</div>
-                    </div>`})
-        return transformedText  
     }
 }
