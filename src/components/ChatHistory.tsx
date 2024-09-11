@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair"
 import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
@@ -9,7 +10,7 @@ function ChatHistory({historyItems, setTextareaValue} : IProps) {
   const historyContainerRef = useRef(null)
 
   // setting up an observer that scroll the div to bottom to follow the text being printed
-  useEffect(() => {
+  /*useEffect(() => {
     if(historyContainerRef.current == null) return
     const observer = new MutationObserver(() => {
       if(historyContainerRef.current != null) scrollHistorySectionToBottom(historyContainerRef.current)
@@ -19,7 +20,7 @@ function ChatHistory({historyItems, setTextareaValue} : IProps) {
     return () => {
       observer.disconnect()
     }
-  }, [])
+  }, [])*/
 
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})

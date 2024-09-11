@@ -4,8 +4,8 @@
   width: 100%;
   border-top: 1px solid #1e292c66;
   border-bottom: 1px solid #1e292c66;
-  max-height: 500px;
-  overflow-y: scroll;
+  /*max-height: 500px;
+  overflow-y: scroll;*/
 }
 
 .actorIcon {
@@ -63,6 +63,6 @@
 }
 
 .chatHistorySection::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #ffffffff, #e1edf8);
+  background: linear-gradient(to bottom, #ffffffff, #f5faff);
   cursor: pointer;
 }

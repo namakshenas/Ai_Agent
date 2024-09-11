@@ -2,6 +2,18 @@
   width: 100%;
 }
 
+.answerContainer > p > strong {
+  font-size: 1rem;
+}
+
+.answerContainer > p:has(strong) {
+  min-height: 1.75rem;
+}
+
+.answerContainer p:not(.codeBlock *) {
+  min-height: 24px;
+}
+
 .answerContainer p:has(strong):not(:first-of-type) {
   margin-top: 1rem;
   width: 100%;
@@ -13,12 +25,65 @@
 .answerContainer h4,
 .answerContainer h5,
 .answerContainer h6 {
-  margin-top: 1rem;
   width: 100%;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
-.answerContainer ol {
+.answerContainer h1 {
+  width: 100%;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.answerContainer h1:not(:first-child),
+.answerContainer h2:not(:first-child),
+.answerContainer h3:not(:first-child),
+.answerContainer h4:not(:first-child),
+.answerContainer h5:not(:first-child),
+.answerContainer h6:not(:first-child) {
+  margin-top: 1.5rem;
+}
+
+.answerContainer h1 > strong {
+  font-size: 1.2rem;
+}
+
+.answerContainer .codeBlock h1,
+.answerContainer .codeBlock h2,
+.answerContainer .codeBlock h3,
+.answerContainer .codeBlock h4,
+.answerContainer .codeBlock h5,
+.answerContainer .codeBlock h6 {
+  font-size: 1rem;
+}
+
+.answerContainer ol,
+.answerContainer ul {
+  margin: 1rem 0;
+}
+
+.answerContainer ol strong,
+.answerContainer ul strong {
+  font-weight: 600;
+}
+
+.answerContainer ol li,
+.answerContainer ul li {
+  margin-left: 2rem;
   margin-top: 1rem;
+  min-height: 24px;
+  list-style: square;
+}
+
+.answerContainer ol li li,
+.answerContainer ul li li {
+  list-style: disc;
+}
+
+.answerContainer ol li li li,
+.answerContainer ul li li li {
+  list-style: lower-alpha;
 }
 
 .answerIconsContainer {
@@ -47,6 +112,22 @@
   padding: 0;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.textBlock {
+  opacity: 0.85;
+  margin: 1rem 0;
+  background-color: #dfe4ea77;
+  border: 1px dashed #4d749444;
+  border-radius: 4px;
+  /*border: 1px dashed #000000aa;*/
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .codeBlock .title {
@@ -64,4 +145,47 @@
 .codeBlock .body {
   width: 100%;
   padding: 0.5rem;
+}
+
+.codeBlock .body pre,
+.textBlock .body pre {
+  width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.codeBlock .body code {
+  width: 100%;
+}
+
+/*pre {
+  opacity: 0.85;
+  margin: 1rem 0;
+  background-color: #dfe4ea88;
+  border-radius: 4px;
+  border: 1px solid #4d749444;
+  padding: 0.5rem;
+  width: 100%;
+}*/
+
+table {
+  border: 1px solid #4d749444;
+  margin: 1rem 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table thead,
+table tr {
+  border-bottom: 1px solid #4d749444;
+}
+
+table td,
+table th {
+  padding: 0.5rem;
+  border-right: 1px solid #4d749444;
+}
+
+table th {
+  background-color: #dfe4ea77;
 }
