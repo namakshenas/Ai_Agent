@@ -1,6 +1,6 @@
 import { AIAgent } from "../models/AIAgent"
 
-export class AgentLibraryService {
+export class AgentLibrary {
     static #agentsLibrary = new Map()
     /*.set('helpfulAssistant', new AIAgent("helpfulAssistant"))
     .set('autocompleteAssistant', new AIAgent("autocompleteAssistant").setSystemPrompt(
