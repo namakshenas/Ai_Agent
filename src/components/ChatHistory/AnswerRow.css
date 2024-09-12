@@ -91,6 +91,7 @@
   flex-direction: row;
   flex-shrink: 0;
   column-gap: 8px;
+  row-gap: 8px;
 }
 
 .stopIcon {
@@ -188,4 +189,20 @@ table th {
 
 table th {
   background-color: #dfe4ea77;
+}
+
+.answerItem {
+  background-color: #ffffff;
+  color: #000000dd;
+}
+
+.answerItem figure {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #56987ecc;
+  outline: 2px solid #56987ecc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
