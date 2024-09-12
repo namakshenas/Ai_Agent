@@ -8,17 +8,17 @@ import './QuestionRow.css'
 function QuestionRow({index, question, onDownload, onCopyToClipboard, onModify} : IProps){
 
     return(
-       <div className="historyItem questionItem" style={{borderBottom:'1px solid #22222211'}} key={'question' + index}>
-            <div style={{height:'34px', width:'34px', borderRadius:'100%', outline:'2px solid #fff', flexShrink:'0', display:'flex', justifyContent:'center', alignItems:'center'}}>
+       <article className="historyItem questionItem" style={{borderBottom:'1px solid #22222211'}} key={'question' + index}>
+            <figure>
                 <img className="actorIcon" src={userIcon} width={34} style={{opacity:'0.6'}}/>
-            </div>
+            </figure>
             <div style={{width:'100%', display:'flex', alignItems:'center'}}>{question}</div>
             <div className='questionIconsContainer'>
                 <div className='iconButton' role="button"><img className="clipboardIcon" src={retryIcon} onClick={() => onModify(question)}/></div>
                 <div className='iconButton' role="button"><img className="clipboardIcon" src={downloadIcon} onClick={() => onDownload(question)}/></div>
                 <div className='iconButton' role="button"><img className="clipboardIcon" src={clipboardIcon} onClick={() => onCopyToClipboard(question)}/></div>
             </div>
-       </div>
+       </article>
     )
    }
    
