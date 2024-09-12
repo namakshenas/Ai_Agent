@@ -9,18 +9,21 @@ function ChatHistory({historyItems, setTextareaValue} : IProps) {
 
   const historyContainerRef = useRef(null)
 
-  // setting up an observer that scroll the div to bottom to follow the text being printed
-  /*useEffect(() => {
+  // setting up an observer that keep scrolling to the bottom of the main window
+  // when new text is displayed within the history
+  useEffect(() => {
     if(historyContainerRef.current == null) return
-    const observer = new MutationObserver(() => {
-      if(historyContainerRef.current != null) scrollHistorySectionToBottom(historyContainerRef.current)
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if(historyContainerRef.current != null && (mutation.type === 'childList' || mutation.type === 'attributes')) window.scrollTo(0, document.body.scrollHeight)
+      })
     })
-    observer.observe(historyContainerRef.current, { childList: true, subtree: true })
+    observer.observe(historyContainerRef.current, { attributes : true, childList: true, subtree: true })
 
     return () => {
       observer.disconnect()
     }
-  }, [])*/
+  }, [])
 
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})
@@ -44,23 +47,17 @@ function ChatHistory({historyItems, setTextareaValue} : IProps) {
   }
 
   function handleModifyQuestion(text : string){
-    // if(textareaRef.current != null) textareaRef.current.innerText = text;
     setTextareaValue(text)
-  }
-
-  function scrollHistorySectionToBottom(element : HTMLDivElement) {
-    if (element== null) return
-    element.scrollTop = element.scrollHeight
   }
 
   return (
     <section ref={historyContainerRef} className="chatHistorySection">
         {
           historyItems.map((item, index) => (
-            <div key={'historyItem'+index}>
+            <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               <AnswerRow key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
-            </div>
+            </article>
           ))
         }
     </section>
