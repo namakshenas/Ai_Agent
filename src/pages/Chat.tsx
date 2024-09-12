@@ -6,7 +6,7 @@ import '../style/Chat.css'
 import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair";
 import { ChatConversationsService } from "../services/ChatConversationsService";
 import FollowUpQuestions from "../components/FollowUpQuestions";
-import { AgentLibraryService } from "../services/AgentLibraryService";
+import { AgentLibrary } from "../services/AgentLibrary";
 import { AIAgent } from "../models/AIAgent";
 import useFetchModelsList from "../hooks/useFetchModelsList";
 import ChatHistoryTabs from "../components/ChatHistoryTabs";
@@ -21,6 +21,8 @@ function Chat() {
     const textareaValueRef = useRef<string>("")
     const [agentsList, setAgentsList] = useState<string[]>([])
     const [activeConversation, setActiveConversation] = useState<number>(0)
+    const historyContainerRef = useRef<HTMLDivElement>(null)
+    const [isStreaming, setIsStreaming] = useState<boolean>(false);
 
     function setHistory(history: IChatHistoryQAPair[]) {
         recentHistory.current = history
@@ -35,15 +37,15 @@ function Chat() {
     const modelsList = useFetchModelsList()
 
     useEffect(() => {
-        AgentLibraryService.addAgent(new AIAgent("helpfulAssistant"))
-        setAgentsList(AgentLibraryService.getAgentsNameList())
+        AgentLibrary.addAgent(new AIAgent("helpfulAssistant"))
+        setAgentsList(AgentLibrary.getAgentsNameList())
         ChatConversationsService.pushNewConversation("conversation 0", [])
         setActiveConversation(0)
 
         // Cleanup
         return () => {
             ChatConversationsService.clearAll()
-            AgentLibraryService.removeAllAgents()
+            AgentLibrary.removeAllAgents()
             setActiveConversation(0)
         };
     }, [])
@@ -66,20 +68,42 @@ function Chat() {
 
     // asking the model for a streamed response
     async function handleSendMessageStreaming() : Promise<void>{
-        console.log(textareaValueRef.current)
+        // console.log(textareaValueRef.current)
+        // const observer = startHistoryHeightTracking()
         if(textareaValueRef.current == null) return
+        setIsStreaming(true)
         setHistory([...recentHistory.current, {question : textareaValueRef.current, answer : ""}])
         const context = await ChatService.askTheActiveModelForAStreamedResponse(textareaValueRef.current, displayStreamedAnswerCallback, lastContext)
         setTextareaValue("")
+        setIsStreaming(false)
         setLastContext(context)
+        // observer.disconnect()
     }
 
     function displayStreamedAnswerCallback(content : string) : void{
         const newHistory = [...recentHistory.current]
         newHistory[newHistory.length-1].answer = content
-        ChatConversationsService.pushToConversationHistory(activeConversation, newHistory);
+        ChatConversationsService.pushToConversationHistory(activeConversation, newHistory)
         setHistory(newHistory)
     }
+
+    function handleCancelStreamingClick(){
+        ChatService.abortStreaming()
+        setIsStreaming(false)
+    }
+
+    /*function startHistoryHeightTracking() : MutationObserver {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                window.scrollTo(0, document.body.scrollHeight)
+              }
+            })
+        })
+        const config = { attributes: true, childList: true, subtree: true }
+        if(historyContainerRef.current) observer.observe(historyContainerRef.current, config)
+        return observer
+    }*/
 
     return (
         <>
@@ -100,12 +124,17 @@ function Chat() {
                 <button style={{paddingLeft:'0.75rem', paddingRight:'0.75rem'}}>+ New</button>
             </div>
             <ChatHistoryTabs activeConversation={activeConversation} setActiveConversation={setActiveConversation}/>
-            <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
-            <CustomTextareaAlt setTextareaValue={setTextareaValue} textareaValue={textareaValueRef.current} currentContext={lastContext} handleSendMessageStreaming={handleSendMessageStreaming}/>
-            <FollowUpQuestions context={lastContext} history={recentHistory.current} setTextareaValue={setTextareaValue}/>
-            <div className="sendButtonContainer">
-                <input type="checkbox"/>Search the web for uptodate results
-                <button onClick={handleSendMessageStreaming}>Send</button>
+            <div style={{display:'flex', flexDirection:'column', width:'100%'}} ref={historyContainerRef}>
+                <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
+            </div>
+            <div className="stickyBottomContainer">
+                <CustomTextareaAlt setTextareaValue={setTextareaValue} textareaValue={textareaValueRef.current} currentContext={lastContext} handleSendMessageStreaming={handleSendMessageStreaming}/>
+                <FollowUpQuestions context={lastContext} history={recentHistory.current} setTextareaValue={setTextareaValue}/>
+                <div className="sendButtonContainer">
+                    <div className="searchWebCheck" role="button"><input type="checkbox"/>Search the web for uptodate results</div>
+                    <button onClick={handleSendMessageStreaming}>Send</button>
+                    {isStreaming && <button className="cancelSendButton" onClick={handleCancelStreamingClick}>C</button>}
+                </div>
             </div>
         </>
       )
@@ -120,8 +149,6 @@ export default Chat
 
 // number of characters in textarea
 
-// interrupt reply
-
 // if the llm generates some code, put it in a separate div with the right formatting
 
 // download model config + agents from other users using a dedicated website & api
@@ -129,15 +156,20 @@ export default Chat
 
 // downvoting a reply should get it out of context
 
-// add multiline support to editable span
-
 // collapse previous history
 
 // only delete the textarea content if it's the same as the last question, if it has been modified after requesting an answer, let it be
 
-// the answer transformation to html should be done right before display, not before it being save into history
-
 // when clicking on modify question, jump to textarea
+
+// refresh three questions with a button and close three questions
+
+// adjust the size of the textarea when adding more lines
+
+// scroll down when follow up questions appears
+
+// stop historyheight track if the user scroll
+// since now autoscroll, put the cancel button next to the send button
 
 /*
 Valid Parameters and Values
