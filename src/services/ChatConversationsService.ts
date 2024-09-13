@@ -21,14 +21,12 @@ export class ChatConversationsService{
         return
     }
 
-    static replaceConversationHistory(id : number, history : IChatHistoryQAPair[]) {
-        this.chatConversations[id] = {...this.getConversation(id), history}
+    static replaceConversationHistory(conversationId : number, history : IChatHistoryQAPair[]) {
+        this.chatConversations[conversationId].history = history
         return
     }
 
-    static pushToConversationHistory(id : number, history : IChatHistoryQAPair[]) {
-        const conversation = {...this.getConversation(id), history}
-        conversation.history = [...conversation.history,...history]
+    static pushHistoryToConversation(id : number, history : IChatHistoryQAPair[]) {
         this.chatConversations[id] = {...this.getConversation(id), history}
         return
     }

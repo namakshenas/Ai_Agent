@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
@@ -10,22 +11,32 @@ import { AgentLibrary } from "../services/AgentLibrary";
 import { AIAgent } from "../models/AIAgent";
 import useFetchModelsList from "../hooks/useFetchModelsList";
 import ChatHistoryTabs from "../components/ChatHistoryTabs";
-import CustomTextareaAlt from "../components/CustomTextareaAlt";
+import CustomTextareaAlt, { ImperativeHandle } from "../components/CustomTextareaAlt";
 
 function Chat() {
    
+    // conversation = {question, answer : {md, html}, context}
+    // conversationRef
+
     const [lastContext, setLastContext] = useState<number[]>([])
-    const [_, _setTextareaValue] = useState("")
-    const [history, _setHistory] = useState<IChatHistoryQAPair[]>([])
-    const recentHistory = useRef<IChatHistoryQAPair[]>([])
+
+    const [textareaValue, _setTextareaValue] = useState("")
     const textareaValueRef = useRef<string>("")
-    const [agentsList, setAgentsList] = useState<string[]>([])
-    const [activeConversation, setActiveConversation] = useState<number>(0)
+    // forwarded to the textarea to extract it's focus method
+    const customTextareaRef = useRef<ImperativeHandle>(null)
+    
+    const [history, _setHistory] = useState<IChatHistoryQAPair[]>([])
+    const historyValueRef = useRef<IChatHistoryQAPair[]>([])
     const historyContainerRef = useRef<HTMLDivElement>(null)
-    const [isStreaming, setIsStreaming] = useState<boolean>(false);
+
+    const [agentsList, setAgentsList] = useState<string[]>([])
+
+    const [activeConversationId, setActiveConversationId] = useState<number>(0)
+
+    const [isStreaming, setIsStreaming] = useState<boolean>(false)  
 
     function setHistory(history: IChatHistoryQAPair[]) {
-        recentHistory.current = history
+        historyValueRef.current = history
         _setHistory(history)
     }
 
@@ -40,50 +51,62 @@ function Chat() {
         AgentLibrary.addAgent(new AIAgent("helpfulAssistant"))
         setAgentsList(AgentLibrary.getAgentsNameList())
         ChatConversationsService.pushNewConversation("conversation 0", [])
-        setActiveConversation(0)
 
-        // Cleanup
+        // cleanup
         return () => {
             ChatConversationsService.clearAll()
             AgentLibrary.removeAllAgents()
-            setActiveConversation(0)
         };
     }, [])
 
     // triggered when switching between conversations
     useEffect(() => {
-        ChatService.abortStreaming()
+        if(isStreaming) ChatService.abortStreaming()
+        setIsStreaming(false)
         setTextareaValue("")
-        setHistory(ChatConversationsService.getConversation(activeConversation).history)
-    },[activeConversation])
+        setHistory(ChatConversationsService.getConversation(activeConversationId).history) // Cannot read properties of undefined (reading 'history')
+    },[activeConversationId])
 
     // asking the model for a non streamed response
     async function handleSendMessage() : Promise<void>{
-        if(textareaValueRef.current == null) return
-        const response = await ChatService.askTheActiveModel(textareaValueRef.current, lastContext)
-        setHistory([...history, { question: textareaValueRef.current, answer: response.response }])
+        if(textareaValue == null) return
+        const response = await ChatService.askTheActiveModel(textareaValue, lastContext)
+        setHistory([...history, { question: textareaValue, answer: response.response }])
         setTextareaValue("")
         setLastContext(response.context)
     }
 
     // asking the model for a streamed response
-    async function handleSendMessageStreaming() : Promise<void>{
-        // console.log(textareaValueRef.current)
-        // const observer = startHistoryHeightTracking()
-        if(textareaValueRef.current == null) return
-        setIsStreaming(true)
-        setHistory([...recentHistory.current, {question : textareaValueRef.current, answer : ""}])
-        const context = await ChatService.askTheActiveModelForAStreamedResponse(textareaValueRef.current, displayStreamedAnswerCallback, lastContext)
-        setTextareaValue("")
-        setIsStreaming(false)
-        setLastContext(context)
-        // observer.disconnect()
+    async function handleSendMessageStreaming(message : string) : Promise<void>{
+        try{
+            if(message == "") return
+            setIsStreaming(true)
+            // create a new QA pair with a blank answer
+            setHistory([...historyValueRef.current, {question : message, answer : ""}])
+            const context = await ChatService.askTheActiveModelForAStreamedResponse(message, pushStreamedAnswerToHistoryCallback, lastContext)
+            clearTextAreaPostStreaming()
+            setIsStreaming(false)
+            setLastContext(context)
+            updateConversation(activeConversationId)
+        }
+        catch(error : unknown){
+            console.log(error)
+        }
     }
 
-    function displayStreamedAnswerCallback(content : string) : void{
-        const newHistory = [...recentHistory.current]
+    function updateConversation(id : number){
+        ChatConversationsService.replaceConversationHistory(id, historyValueRef.current)
+    }
+
+    function clearTextAreaPostStreaming() : void {
+        // only if the textarea hasn't been modified by the user during streaming
+        if(historyValueRef.current[historyValueRef.current.length-1].question == textareaValue) setTextareaValue("")
+    }
+
+    // callback passed to the chatservice to display the streamed answer / !!! should be renamed answerSaverCallback
+    function pushStreamedAnswerToHistoryCallback(content : string) : void{
+        const newHistory = [...historyValueRef.current]
         newHistory[newHistory.length-1].answer = content
-        ChatConversationsService.pushToConversationHistory(activeConversation, newHistory)
         setHistory(newHistory)
     }
 
@@ -92,23 +115,14 @@ function Chat() {
         setIsStreaming(false)
     }
 
-    /*function startHistoryHeightTracking() : MutationObserver {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-              if (mutation.type === 'childList' || mutation.type === 'attributes') {
-                window.scrollTo(0, document.body.scrollHeight)
-              }
-            })
-        })
-        const config = { attributes: true, childList: true, subtree: true }
-        if(historyContainerRef.current) observer.observe(historyContainerRef.current, config)
-        return observer
-    }*/
+    function handleCustomTextareaFocus(){
+        customTextareaRef.current?.focusTextarea()
+    }
 
     return (
         <>
             <div className="modelAgentContainer">
-                <label>Select a Model</label>
+                <label onClick={() => console.log(JSON.stringify(ChatConversationsService.getConversations()))}>Select a Model</label>
                 <select className="modelDropdown">
                     {modelsList.map((model,id) => <option key={'model'+id}>{model}</option>)}
                 </select>
@@ -123,16 +137,16 @@ function Chat() {
                 </button>
                 <button style={{paddingLeft:'0.75rem', paddingRight:'0.75rem'}}>+ New</button>
             </div>
-            <ChatHistoryTabs activeConversation={activeConversation} setActiveConversation={setActiveConversation}/>
+            <ChatHistoryTabs activeConversation={activeConversationId} setActiveConversation={setActiveConversationId}/>
             <div style={{display:'flex', flexDirection:'column', width:'100%'}} ref={historyContainerRef}>
                 <ChatHistory historyItems={history} setTextareaValue={setTextareaValue}/>
             </div>
             <div className="stickyBottomContainer">
-                <CustomTextareaAlt setTextareaValue={setTextareaValue} textareaValue={textareaValueRef.current} currentContext={lastContext} handleSendMessageStreaming={handleSendMessageStreaming}/>
-                <FollowUpQuestions context={lastContext} history={recentHistory.current} setTextareaValue={setTextareaValue}/>
+                <CustomTextareaAlt ref={customTextareaRef} setTextareaValue={setTextareaValue} textareaValue={textareaValue} currentContext={lastContext} handleSendMessageStreaming={handleSendMessageStreaming} activeConversationId={activeConversationId}/>
+                <FollowUpQuestions context={lastContext} history={historyValueRef.current} setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus}/>
                 <div className="sendButtonContainer">
-                    <div className="searchWebCheck" role="button"><input type="checkbox"/>Search the web for uptodate results</div>
-                    <button onClick={handleSendMessageStreaming}>Send</button>
+                    <div className="searchWebCheck" role="button"><input type="checkbox"/>Search the web</div>
+                    <button onClick={() => handleSendMessageStreaming(textareaValue)}>Send</button>
                     {isStreaming && <button className="cancelSendButton" onClick={handleCancelStreamingClick}>C</button>}
                 </div>
             </div>
@@ -142,34 +156,22 @@ function Chat() {
   
 export default Chat
 
-// lorsque je vois certains elements textuels, par exemple : bulletpoint list. je peux extraire toute la partie de la phrase relative a cette
-// instruction utilisateur grace au llm et la remplacer par quelque chose de plus effectif
-
 // save conversation by ticking the history pairs you want to keep
-
 // number of characters in textarea
-
-// if the llm generates some code, put it in a separate div with the right formatting
-
 // download model config + agents from other users using a dedicated website & api
 // import prompts
-
 // downvoting a reply should get it out of context
-
 // collapse previous history
-
-// only delete the textarea content if it's the same as the last question, if it has been modified after requesting an answer, let it be
-
 // when clicking on modify question, jump to textarea
-
 // refresh three questions with a button and close three questions
-
-// adjust the size of the textarea when adding more lines
-
-// scroll down when follow up questions appears
-
-// stop historyheight track if the user scroll
+// stop autoscroll down when streaming if the user scroll up
 // since now autoscroll, put the cancel button next to the send button
+// deal with ollama request not manually aborted leading to cancel request button not disappearing
+// switching conversation should lead to scrollbottom : check useeffect triggered by history state update
+// issue when i start a second conversation and the first one is blank
+// conversation button blinking when switching conversation
+// deal with json failing on some streaming
+// issue : switching between conversations when the conversation hasn't been saved in chatconvservice
 
 /*
 Valid Parameters and Values
