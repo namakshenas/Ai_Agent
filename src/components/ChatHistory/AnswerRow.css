@@ -159,16 +159,6 @@
   width: 100%;
 }
 
-/*pre {
-  opacity: 0.85;
-  margin: 1rem 0;
-  background-color: #dfe4ea88;
-  border-radius: 4px;
-  border: 1px solid #4d749444;
-  padding: 0.5rem;
-  width: 100%;
-}*/
-
 table {
   border: 1px solid #4d749444;
   margin: 1rem 0;
@@ -205,4 +195,18 @@ table th {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.answerItem figure.actorFigureAnimation {
+  animation: fadeInOut 2s ease-in-out infinite;
 }
