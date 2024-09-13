@@ -199,7 +199,7 @@ export class AIModel{
     }
 
     abortLastRequest(){
-        this.#abortController.abort()
+        this.#abortController.abort("Signal aborted.")
         // need to create a new abort controller and a new signal
         // or subsequent request will be aborted from the get go
         this.#abortController = new AbortController()
