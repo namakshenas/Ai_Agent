@@ -1,10 +1,11 @@
 import { ChatConversationsService } from "../services/ChatConversationsService"
+import '../style/ChatHistoryTabs.css'
 
 function ChatHistoryTabs({activeConversation, setActiveConversation} : IProps){
 
     // adding a new conversation tab
     function handleNewTabClick(){
-        ChatConversationsService.pushNewConversation("conversation " + (activeConversation + 1), [])
+        ChatConversationsService.pushNewConversation("conversation " + ChatConversationsService.getNumberOfConversations(), [])
         setActiveConversation(ChatConversationsService.getNumberOfConversations() - 1)
     }
 
@@ -28,5 +29,5 @@ export default ChatHistoryTabs
 
 interface IProps{
     activeConversation : number
-    setActiveConversation : React.Dispatch<React.SetStateAction<number>>
+    setActiveConversation : (index : number) => void
 }

@@ -11,7 +11,7 @@ function AnswerRow({index, answer, onDownload, onCopyToClipboard} : IProps){
 
     return(
         <article className="historyItem answerItem" key={'answer' + index}>
-            <figure>
+            <figure className={ answer=="" ? "actorFigureAnimation" : ""}>
                 <img className="actorIcon" src={computerIcon} width={32} style={{opacity:'0.60', filter: 'saturate(75%)'}}/>
             </figure>
             {
