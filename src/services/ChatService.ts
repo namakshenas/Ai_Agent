@@ -6,8 +6,6 @@ export class ChatService{
 
     /*static modelList = new Map<string, AIModel>()*/
 
-    static regexRepository = new Map<string, string>().set("incomplete code block", "/<code>.*$/").set("complete code block", "/<code>.*?</code>/")
-
     static #completionModel = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).setContextSize(8000)
         .setSystemPrompt(PromptLibrary.getPrompt("completionAssistant"))
 
@@ -37,7 +35,7 @@ export class ChatService{
      * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
      * @returns {Promise<ReadableStreamDefaultReader<Uint8Array>>} A promise resolving to a ReadableStream of responses from the AI model.
      */
-    static async askTheActiveModelForAStreamedResponse(question : string, displayCallback : (toDisplay : string/*string*/) => void, context:number[] = []) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
+    static async askTheActiveModelForAStreamedResponse(question : string, answerProcessorCallback : (toDisplay : string/*string*/) => void, context:number[] = []) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
     {
         let newContext = []
 
@@ -49,23 +47,31 @@ export class ChatService{
 
         let content = ""
         // keep reading the streamed response until the stream is closed
-        while(true){
-            const { done, value } = await reader.read()
-            if (done) {
-                break;
-            }
-            const json = JSON.parse(new TextDecoder().decode(value))
+        try{
+            while(true){
+                const { done, value } = await reader.read()
+                if (done) {
+                    break;
+                }
+                const json = JSON.parse(new TextDecoder().decode(value))
 
-            if(json.done) {
-                newContext = json.context || []
-                displayCallback(await AnswerFormatingService.format(content))
+                if(json.done) {
+                    newContext = json.context || []
+                    answerProcessorCallback(await AnswerFormatingService.format(content))
+                }
+            
+                if (!json.done) {
+                    content += json.response
+                    // console.log(content)
+                    if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
+                        answerProcessorCallback(await AnswerFormatingService.format(content))
+                }
             }
-        
-            if (!json.done) {
-                content += json.response
-                // console.log(content)
-                if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
-                displayCallback(await AnswerFormatingService.format(content))
+        } catch (error : unknown) {
+            if (error instanceof Error && error.name === 'AbortError') {
+              console.log('Stream aborted.');
+            } else {
+              console.error('Stream error : ', error);
             }
         }
 
@@ -78,9 +84,7 @@ export class ChatService{
 
     static async askTheActiveModelForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
     {
-        // this.#completionModel.abortLastRequest()
         this.#completionModel.setContext(context)
-        // setTimeout(() => {}, 2000)
         const answer = (await this.#completionModel.ask(promptToComplete))
         return {context : answer.context as number[], response : answer.response}
     }
