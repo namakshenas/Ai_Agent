@@ -3,17 +3,23 @@ import '../style/FollowUpQuestions.css'
 import { ChatService } from '../services/ChatService'
 import { IChatHistoryQAPair } from '../interfaces/IChatHistoryQAPair'
 
-function FollowUpQuestions({history, context, setTextareaValue} : IProps){
+function FollowUpQuestions({history, context, setTextareaValue, focusTextarea} : IProps){
 
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
 
     function handleFollowUpQuestionClick(text : string){
+        focusTextarea()
         setTextareaValue(text)
     }
 
     useEffect(() => {
         if(history.length > 0) generateFollowUpQuestions(history[history.length-1].question)
     }, [context])
+
+    // scrolldown when the followup questions appear
+    useEffect(() => {
+        window.scrollTo(0, document.body.scrollHeight)
+    }, [followUpQuestions])
 
     // generate three follow up questions
     async function generateFollowUpQuestions(question : string, iter : number = 0){
@@ -45,4 +51,5 @@ interface IProps{
     history : IChatHistoryQAPair[]
     context : number[]
     setTextareaValue : (text : string) => void
+    focusTextarea : () => void
 }
