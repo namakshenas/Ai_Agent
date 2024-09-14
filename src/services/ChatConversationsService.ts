@@ -1,18 +1,16 @@
-import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair";
-import { IConversation } from "../interfaces/IConversation";
+import { IConversationElement, INewConversation } from "../interfaces/INewConversation";
 
 
 export class ChatConversationsService{
 
-    static chatConversations : IConversation[] = [];
-    // lastContext should be added too !!!! >> all context in reality so question can be modified
+    static chatConversations : INewConversation[] = [];
 
-    static pushNewConversation(name : string, history : IChatHistoryQAPair[]){
+    static pushNewConversation(name : string, history : IConversationElement[]){
         this.chatConversations.push({name, history})
         return
     }
 
-    static getConversation(id : number) : IConversation{
+    static getConversation(id : number) : INewConversation{
         return this.chatConversations[id]
     }
 
@@ -21,13 +19,17 @@ export class ChatConversationsService{
         return
     }
 
-    static replaceConversationHistory(conversationId : number, history : IChatHistoryQAPair[]) {
-        this.chatConversations[conversationId].history = history
+    static replaceConversation(conversationId : number, conversation : INewConversation) {
+        this.chatConversations[conversationId] = conversation
         return
     }
 
-    static pushHistoryToConversation(id : number, history : IChatHistoryQAPair[]) {
-        this.chatConversations[id] = {...this.getConversation(id), history}
+    static replaceTargetConversationHistory(id : number, history : IConversationElement[]){
+        this.chatConversations[id].history = history
+    }
+
+    static pushConversationElementToTargetConversation(id : number, element : IConversationElement) {
+        this.chatConversations[id].history.push(element)
         return
     }
 

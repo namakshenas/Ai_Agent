@@ -6,11 +6,11 @@ export class ChatService{
 
     /*static modelList = new Map<string, AIModel>()*/
 
-    static #completionModel = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).setContextSize(8000)
+    static #completionModel = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).setContextSize(8192)
         .setSystemPrompt(PromptLibrary.getPrompt("completionAssistant"))
 
-    static #baseModel = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.3).setContextSize(8000).setSystemPrompt("You are an helpful assistant.")
-    static #baseModelStreaming = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.1).setContextSize(8000)
+    static #baseModel = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.3).setContextSize(8192).setSystemPrompt("You are an helpful assistant.")
+    static #baseModelStreaming = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.1).setContextSize(8192)
     .setSystemPrompt(PromptLibrary.getPrompt("HelpfulAssistant")).enableStreaming()
   
     /**
@@ -35,7 +35,7 @@ export class ChatService{
      * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
      * @returns {Promise<ReadableStreamDefaultReader<Uint8Array>>} A promise resolving to a ReadableStream of responses from the AI model.
      */
-    static async askTheActiveModelForAStreamedResponse(question : string, answerProcessorCallback : (toDisplay : string/*string*/) => void, context:number[] = []) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
+    static async askTheActiveModelForAStreamedResponse(question : string, answerProcessorCallback : (toProcessAsMarkdown : string, toProcessAsHTML : string) => void, context:number[] = []) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
     {
         let newContext = []
 
@@ -57,14 +57,14 @@ export class ChatService{
 
                 if(json.done) {
                     newContext = json.context || []
-                    answerProcessorCallback(await AnswerFormatingService.format(content))
+                    answerProcessorCallback(content, await AnswerFormatingService.format(content))
                 }
             
                 if (!json.done) {
                     content += json.response
                     // console.log(content)
                     if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
-                        answerProcessorCallback(await AnswerFormatingService.format(content))
+                        answerProcessorCallback(content, await AnswerFormatingService.format(content))
                 }
             }
         } catch (error : unknown) {
@@ -75,6 +75,7 @@ export class ChatService{
             }
         }
 
+        // console.log(newContext)
         return newContext
     }
 

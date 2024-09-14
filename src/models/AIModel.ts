@@ -19,6 +19,8 @@ export class AIModel{
     #numPredict : number
     #abortController = new AbortController()
     #signal = this.#abortController.signal
+    // add keep alive!!!!!
+    // add format : json
 
     /**
      * @constructor
@@ -62,6 +64,7 @@ export class AIModel{
     }
 
     async askForAStreamedResponse(prompt : string) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
+        //console.log('request : ' + JSON.stringify(this.#buildRequest(prompt)))
         const response = await fetch("http://127.0.0.1:11434/api/generate", {
             method: "POST",
             headers: {
@@ -123,7 +126,7 @@ export class AIModel{
      * @description Sets the size of the context for the AI model.
      */
     setContext(context : number[]) : AIModel {
-        this.#context = context
+        this.#context = [...context]
         return this
     }
 
@@ -167,9 +170,14 @@ export class AIModel{
             "stream": this.#stream,
             "system": this.#systemPrompt,
             "prompt": prompt,
-            "context" : this.#context
+            "context" : [...this.#context],
         }
-        baseRequest = {...baseRequest, "options": { "num_ctx": this.#contextSize, "temperature" : this.#temperature, "num_predict" : this.#numPredict }}
+        baseRequest = {...baseRequest, 
+            "options": { 
+                "num_ctx": this.#contextSize,
+                "temperature" : this.#temperature, 
+                "num_predict" : this.#numPredict 
+        }}
         return JSON.stringify(baseRequest)
     }
 
