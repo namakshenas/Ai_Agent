@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IChatHistoryQAPair } from "../interfaces/IChatHistoryQAPair"
 import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
 import '../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
+import { IConversationElement } from "../interfaces/INewConversation"
 
-function ChatHistory({historyItems, setTextareaValue} : IProps) {
+function ChatHistory({history, setTextareaValue} : IProps) {
 
   const historyContainerRef = useRef(null)
 
@@ -53,10 +53,10 @@ function ChatHistory({historyItems, setTextareaValue} : IProps) {
   return (
     <section ref={historyContainerRef} className="chatHistorySection">
         {
-          historyItems.map((item, index) => (
+          history.map((item, index) => (
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
-              <AnswerRow key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
+              <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
             </article>
           ))
         }
@@ -67,7 +67,7 @@ function ChatHistory({historyItems, setTextareaValue} : IProps) {
 export default ChatHistory
 
 interface IProps{
-  historyItems : IChatHistoryQAPair[]
+  history : IConversationElement[]
   // textareaRef : React.MutableRefObject<HTMLSpanElement | null>
   setTextareaValue : (text : string) => void
 }
