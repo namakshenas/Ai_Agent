@@ -18,6 +18,7 @@
   text-align: left;
   padding: 1rem;
   border-bottom: 1px dashed #abaeb1ee;
+  /*border-bottom: 2px dashed #56b8af;*/
   column-gap: 1rem;
   width: 100%;
 }

@@ -17,6 +17,12 @@
   height: 3rem;
   background-color: #dfe4ea88;
   border: 1px solid #4d749434;
+  accent-color: #56b8af;
+}
+
+.modelDropdown option:hover {
+  background-color: #56b8af;
+  color: white;
 }
 
 .agentDropdown {
@@ -111,11 +117,21 @@ button:hover svg path {
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #cdcdcdaa;
-  width: 300px;
+  width: 260px;
+}
+
+.searchWebCheck.activated {
+  box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
+  border: 2px dashed #86e5ce;
+  outline: none;
 }
 
 .searchWebCheck:hover {
   box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
   border: 2px solid #86e5ce;
   outline: none;
+}
+
+.searchWebCheck input[type="checkbox"] {
+  accent-color: #56b8af;
 }
