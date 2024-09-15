@@ -1,0 +1,22 @@
+div.checkbox {
+  height: 13px;
+  width: 13px;
+  border: 1px solid #00000066;
+  border-radius: 2px;
+  background-color: #e1e6ecaa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  flex-grow: 0;
+  transform: translateY(-1px);
+}
+
+div.checkbox.checked {
+  background-color: #56b8af;
+}
+
+div.checkbox img {
+  width: 11px;
+  height: 11px;
+}
