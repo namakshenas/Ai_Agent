@@ -8,7 +8,7 @@ export function useConversationReducer() {
 
     function conversationReducer(state : INewConversation, action : TAction){
         switch(action.type){
-            case ActionType.NEWBASEHISTORYELEMENT : {
+            case ActionType.NEW_BLANK_HISTORY_ELEMENT : {
                 const newState = {...state, 
                     history : [...state.history, {
                         question : action.payload, 
@@ -20,7 +20,7 @@ export function useConversationReducer() {
                 return {...newState}
             }
 
-            case ActionType.UPDATELASTHISTORYANSWER : {
+            case ActionType.UPDATE_LAST_HISTORY_ANSWER : {
                 const newState = {...state, 
                     history : [...state.history]
                 }
@@ -30,7 +30,7 @@ export function useConversationReducer() {
                 return {...newState}
             }
 
-            case ActionType.UPDATELASTHISTORYCONTEXT : {
+            case ActionType.UPDATE_LAST_HISTORY_CONTEXT : {
                 const newState = {...state, 
                     history : [...state.history]
                 }
@@ -52,9 +52,18 @@ export function useConversationReducer() {
                 return {...newState}
             }
 
-            case ActionType.SETCONVERSATION : {
+            case ActionType.SET_CONVERSATION : {
                 conversationStateRef.current = {...action.payload}
                 return {...action.payload}
+            }
+
+            case ActionType.DELETE_LAST_HISTORY_ELEMENT : {
+                if(state.history.length < 1 ) return {...state}
+                const newState = {...state, 
+                    history : [...state.history].slice(0, -1)
+                }
+                conversationStateRef.current = {...newState}
+                return {...newState}
             }
             
             default : return state
@@ -69,16 +78,19 @@ export function useConversationReducer() {
 export type reducerDispatchType = React.Dispatch<{type: string, payload: any}>
 
 export enum ActionType {
-    NEWBASEHISTORYELEMENT = "NEWBASEHISTORYELEMENT",
-    UPDATELASTHISTORYANSWER = "UPDATELASTHISTORYANSWER",
+    NEW_BLANK_HISTORY_ELEMENT = "NEW_BLANK_HISTORY_ELEMENT",
+    UPDATE_LAST_HISTORY_ANSWER = "UPDATE_LAST_HISTORY_ANSWER",
     PUSHNEWHISTORYELEMENT = "PUSHNEWHISTORYELEMENT",
-    SETCONVERSATION = "SETCONVERSATION",
-    UPDATELASTHISTORYCONTEXT = "UPDATELASTHISTORYCONTEXT",
+    SET_CONVERSATION = "SET_CONVERSATION",
+    UPDATE_LAST_HISTORY_CONTEXT = "UPDATE_LAST_HISTORY_CONTEXT",
+    DELETE_LAST_HISTORY_ELEMENT = "DELETE_LAST_HISTORY_ELEMENT",
 }
 
 type TAction = 
-    | { type: ActionType.NEWBASEHISTORYELEMENT; payload: string }
-    | { type: ActionType.UPDATELASTHISTORYANSWER; payload: { html : string, markdown : string }}
-    | { type: ActionType.UPDATELASTHISTORYCONTEXT; payload: number[]}
+    | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: string }
+    | { type: ActionType.UPDATE_LAST_HISTORY_ANSWER; payload: { html : string, markdown : string }}
+    | { type: ActionType.UPDATE_LAST_HISTORY_CONTEXT; payload: number[]}
     | { type: ActionType.PUSHNEWHISTORYELEMENT; payload: { question : string, html : string, markdown : string, context : number[] }}
-    | { type: ActionType.SETCONVERSATION; payload: INewConversation};
+    | { type: ActionType.SET_CONVERSATION; payload: INewConversation}
+    | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
+    ;

@@ -1,82 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
-import { ChatConversationsService } from "../services/ChatConversationsService";
+import { ConversationsService } from "../services/ConversationsService";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import { AgentLibrary } from "../services/AgentLibrary";
 import { AIAgent } from "../models/AIAgent";
 import useFetchModelsList from "../hooks/useFetchModelsList";
 import ChatHistoryTabs from "../components/ChatHistoryTabs";
-import CustomTextareaAlt, { ImperativeHandle } from "../components/CustomTextareaAlt";
+import CustomTextarea, { ImperativeHandle } from "../components/CustomTextarea";
 import { ActionType, useConversationReducer } from "../hooks/useConversationReducer";
+import { CustomCheckbox } from "../components/CustomCheckbox/CustomCheckbox";
+import internetIcon2 from '../assets/internetIcon2.png';
+import { WebSearchService } from "../services/WebSearchService";
+
 
 function Chat() {
    
-    // conversation typology : {name , history : {question, answer : {asMarkdown, asHTML}, context}}[]
-    // const [conversation, _setConversation] = useState<INewConversation>({name : "conversation0", history : []})
-    /*const conversationStateRef = useRef<INewConversation>({name : "conversation0", history : []})
-
-    function conversationReducer(state : INewConversation, action : TAction){
-        switch(action.type){
-            case ActionType.NEWBASEHISTORYELEMENT : {
-                const newState = {...state, 
-                    history : [...state.history, {
-                        question : action.payload, 
-                        answer : {asMarkdown : "", asHTML : ""}, 
-                        context : []
-                    }]
-                }
-                conversationStateRef.current = {...newState}
-                return {...newState}
-            }
-
-            case ActionType.UPDATELASTHISTORYANSWER : {
-                const newState = {...state, 
-                    history : [...state.history]
-                }
-                const historyId = newState.history.length -1
-                newState.history[historyId].answer = {asHTML : action.payload.html, asMarkdown : action.payload.markdown}
-                conversationStateRef.current = {...newState}
-                return {...newState}
-            }
-
-            case ActionType.UPDATELASTHISTORYCONTEXT : {
-                const newState = {...state, 
-                    history : [...state.history]
-                }
-                const historyId = newState.history.length -1
-                newState.history[historyId].context = [...action.payload]
-                conversationStateRef.current = {...newState}
-                return {...newState}
-            }
-
-            case ActionType.PUSHNEWHISTORYELEMENT : {
-                const newState = {...state, 
-                    history : [...state.history, {
-                        question : action.payload.question, 
-                        answer : {asMarkdown : action.payload.markdown, asHTML : action.payload.html}, 
-                        context : action.payload.context
-                    }]
-                }
-                conversationStateRef.current = {...newState}
-                return {...newState}
-            }
-
-            case ActionType.SETCONVERSATION : {
-                conversationStateRef.current = {...action.payload}
-                return {...action.payload}
-            }
-            
-            default : return state
-        }
-    }
-
-    const [conversationState, dispatch] = useReducer(conversationReducer, {name : "conversation0", history : []})*/
-
+    // contains all the logic used to update the conversation history and its context
     const {conversationState, dispatch, conversationStateRef} = useConversationReducer()
 
     const historyContainerRef = useRef<HTMLDivElement>(null)
@@ -92,10 +34,7 @@ function Chat() {
 
     const [isStreaming, setIsStreaming] = useState<boolean>(false)  
 
-    /*function setConversation(conversation: INewConversation) {
-        conversationStateRef.current = conversation
-        _setConversation(conversation)
-    }*/
+    const [isWebSearchActivated, setWebSearchActivated] =  useState(false)
 
     function setTextareaValue(value: string) {
         textareaValueRef.current = value
@@ -107,11 +46,11 @@ function Chat() {
     useEffect(() => {
         AgentLibrary.addAgent(new AIAgent("helpfulAssistant"))
         setAgentsList(AgentLibrary.getAgentsNameList())
-        ChatConversationsService.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history)
+        ConversationsService.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history)
 
         // cleanup
         return () => {
-            ChatConversationsService.clearAll()
+            ConversationsService.clearAll()
             AgentLibrary.removeAllAgents()
         };
     }, [])
@@ -121,26 +60,8 @@ function Chat() {
         if(isStreaming) ChatService.abortStreaming()
         setIsStreaming(false)
         setTextareaValue("")
-        /* new */ // setConversation(ChatConversationsService.getConversation(activeConversationId))
-        dispatch({type : ActionType.SETCONVERSATION, payload : ChatConversationsService.getConversation(activeConversationId)})
+        dispatch({type : ActionType.SET_CONVERSATION, payload : ConversationsService.getConversation(activeConversationId)})
     },[activeConversationId])
-
-    // asking the model for a non streamed response
-    async function handleSendMessage(message : string) : Promise<void>{
-        if(textareaValue == null) return
-        const response = await ChatService.askTheActiveModel(message, conversationStateRef.current.history[conversationStateRef.current?.history.length-1]?.context || [])
-        /* new */ /*setConversation({
-                name : conversationValueRef.current.name, 
-                history : [...conversationValueRef.current.history, 
-                    { question : message, 
-                    answer : 
-                        {asMarkdown : response.response, asHTML : response.response}, 
-                    context : [...response.context] }
-                ]
-            })*/
-        dispatch({ type: ActionType.PUSHNEWHISTORYELEMENT, payload: {question : message, html : response.response, markdown : response.response, context : response.context} })
-        setTextareaValue("")
-    }
 
     // asking the model for a streamed response
     async function handleSendMessage_Streaming(message : string) : Promise<void>{
@@ -148,60 +69,47 @@ function Chat() {
             if(message == "") return
             const currentContext = conversationStateRef.current.history[conversationStateRef.current.history.length-1]?.context || []
             setIsStreaming(true)
-            // pushNewBaseElementToHistory(message)
-            dispatch({ type: ActionType.NEWBASEHISTORYELEMENT, payload: message})
-            const newContext = await ChatService.askTheActiveModelForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext)
-            clearTextAreaPostStreaming()
+            dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: message})
+            let newContext
+            if(isWebSearchActivated) {
+                const webDatas = await WebSearchService.getRelatedWebpagesDatas(message)
+                newContext = await ChatService.askTheActiveModelForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext, webDatas)
+            }else{
+                newContext = await ChatService.askTheActiveModelForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext)
+            }
+            clearTextAreaIfQuestionReplied(conversationStateRef.current.history[conversationStateRef.current.history.length-1].question, textareaValueRef.current)
             setIsStreaming(false)
-            // updateHistoryLastContext(newContext)
-            dispatch({ type: ActionType.UPDATELASTHISTORYCONTEXT, payload : newContext})
-            ChatConversationsService.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history)
+            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload : newContext})
+            ConversationsService.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history)
         }
         catch(error : unknown){
             console.log(error)
         }
     }
 
-    /*function pushNewBaseElementToHistory(message : string){
-        setConversation({
-            name : conversationStateRef.current.name, 
-            history : [...conversationStateRef.current.history, 
-                { question : message, 
-                answer : 
-                    {asMarkdown : "", asHTML : ""}, 
-                context : [] }
-            ]
-        }) // !!! if abort should get rid of that new element
-    }
-
-    function updateHistoryLastContext(context : number[]){
-        const history = [...conversationStateRef.current.history]
-        const lastConversationElement = {...history[history.length-1]}
-        lastConversationElement.context = context
-        setConversation({...conversationStateRef.current, history : [...history.slice(0, -1), lastConversationElement]})
-    }*/
-
-    function clearTextAreaPostStreaming() : void {
+    function clearTextAreaIfQuestionReplied(lastQuestion : string, textareaValue : string) : void {
         // only if the textarea hasn't been modified by the user during streaming
-        if(conversationStateRef.current.history[conversationStateRef.current.history.length-1].question == textareaValue) setTextareaValue("")
+        if(lastQuestion == textareaValue) setTextareaValue("")
     }
 
     // callback passed to the chatservice to display the streamed answer / !!! should be renamed answerSaverCallback
     function pushStreamingAnswerToHistoryCallback(contentAsMarkdown : string, contentAsHTML : string) : void{
-        /*const newHistory = [...conversationStateRef.current.history]
-        newHistory[newHistory.length-1].answer.asMarkdown = contentAsMarkdown
-        newHistory[newHistory.length-1].answer.asHTML = contentAsHTML*/
-        // setConversation({...conversationStateRef.current, history : newHistory})
-        dispatch({type : ActionType.UPDATELASTHISTORYANSWER, payload : {html : contentAsHTML, markdown : contentAsMarkdown}})
+        dispatch({type : ActionType.UPDATE_LAST_HISTORY_ANSWER, payload : {html : contentAsHTML, markdown : contentAsMarkdown}})
     }
 
-    function handleCancelStreamingClick(){
+    function handleAbortStreamingClick(){
         ChatService.abortStreaming()
         setIsStreaming(false)
+        dispatch({ type : ActionType.DELETE_LAST_HISTORY_ELEMENT})
     }
 
     function handleCustomTextareaFocus(){
         customTextareaRef.current?.focusTextarea()
+    }
+
+    function handleSearchWebClick(e : React.MouseEvent<HTMLDivElement>){
+        e.preventDefault()
+        setWebSearchActivated(!isWebSearchActivated)
     }
 
     return (
@@ -224,17 +132,22 @@ function Chat() {
             </div>
             <ChatHistoryTabs activeConversation={activeConversationId} setActiveConversation={setActiveConversationId}/>
             <div style={{display:'flex', flexDirection:'column', width:'100%'}} ref={historyContainerRef}>
-                <ChatHistory history={conversationState?.history || []} setTextareaValue={setTextareaValue}/>
+                <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue}/>
             </div>
             <div className="stickyBottomContainer">
-                <CustomTextareaAlt ref={customTextareaRef} setTextareaValue={setTextareaValue} textareaValue={textareaValue} currentContext={conversationState.history[conversationState.history.length-1]?.context || []} handleSendMessage_Streaming={handleSendMessage_Streaming} activeConversationId={activeConversationId}/>
+                <CustomTextarea ref={customTextareaRef} setTextareaValue={setTextareaValue} textareaValue={textareaValue} currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length-1]?.context || []} handleSendMessage_Streaming={handleSendMessage_Streaming} activeConversationId={activeConversationId}/>
                 <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]} setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus}/>
                 <div className="sendButtonContainer">
-                    <div className="searchWebCheck" role="button"><input type="checkbox"/>Search the web</div>
+                    <div className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
+                        <CustomCheckbox checked={isWebSearchActivated}/>
+                        Search the web
+                        <img src={internetIcon2} width="20px" height="20px"/>
+                    </div>
                     <button onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
-                    {isStreaming && <button className="cancelSendButton" onClick={handleCancelStreamingClick}>C</button>}
+                    {isStreaming && <button className="cancelSendButton" onClick={handleAbortStreamingClick}>C</button>}
                 </div>
             </div>
+            {/*<div>Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length-1]?.context.length}</div>*/}
         </>
       )
 }
@@ -251,12 +164,11 @@ export default Chat
 // stop autoscroll down when streaming if the user scroll up
 // since now autoscroll, put the cancel button next to the send button
 // deal with ollama request not manually aborted leading to cancel request button not disappearing
-// switching conversation should lead to scrollbottom : check useeffect triggered by history state update
-// issue when i start a second conversation and the first one is blank
+// switching conversation shouldnt lead to scrollbottom : check useeffect triggered by history state update
 // conversation button blinking when switching conversation
 // deal with json failing on some streaming
 // issue : switching between conversations when the conversation hasn't been saved in chatconvservice
-// context issue with triggering request with keyboard
+// edit question sometimes takes two clicks
 
 /*
 Valid Parameters and Values
@@ -276,3 +188,12 @@ top_k	Reduces the probability of generating nonsense. A higher value (e.g. 100) 
 top_p	Works together with top-k. A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5) will generate more focused and conservative text. (Default: 0.9)	float	top_p 0.9
 min_p	Alternative to the top_p, and aims to ensure a balance of quality and variety. The parameter p represents the minimum probability for a token to be considered, relative to the probability of the most likely token. For example, with p=0.05 and the most likely token having a probability of 0.9, logits with a value less than 0.045 are filtered out. (Default: 0.0)
 */
+
+
+// asking the model for a non streamed response
+/*async function handleSendMessage(message : string) : Promise<void>{
+    if(textareaValue == null) return
+    const response = await ChatService.askTheActiveModel(message, conversationStateRef.current.history[conversationStateRef.current?.history.length-1]?.context || [])
+    dispatch({ type: ActionType.PUSHNEWHISTORYELEMENT, payload: {question : message, html : response.response, markdown : response.response, context : response.context} })
+    setTextareaValue("")
+}*/
