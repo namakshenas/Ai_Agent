@@ -1,134 +1,147 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef, useState } from "react";
+import { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import '../style/CustomTextarea.css'
+import { ChatService } from "../services/ChatService";
+import useKeyboardListener from "../hooks/CustomTextarea.tsx/useKeyboardListener";
 
-function CustomTextarea ({textareaValue, setTextareaValue, currentContext} : IProps) {
+const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, handleSendMessage_Streaming, activeConversationId} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
 
-    const editableSpanRef = useRef<HTMLDivElement | null>(null)
-    const fakeTextareaRef = useRef<HTMLDivElement | null>(null)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const suggestionDivRef = useRef<HTMLDivElement>(null)
     const [suggestion, _setSuggestion] = useState("")
     const suggestionRef = useRef("")
-    const cursorPosition = useRef(0)
+    const autoCompletion = useRef(false)
 
     function setSuggestion(text : string) {
         suggestionRef.current = text
         _setSuggestion(text)
     }
 
+    useKeyboardListener(textareaRef, handleSendMessage_Streaming, activeConversationId, currentContext)
+
     useEffect(() => {
-        window.addEventListener('keydown', applyAutoCompleteOnTabPress)
+        if(textareaValue == "" && textareaRef.current) textareaRef.current.style.height = '100px'
+    }, [textareaValue])
 
-        return () => window.removeEventListener('keydown', applyAutoCompleteOnTabPress)
-    }, [])
+    // exposing the textarea focus method to the parent component
+    useImperativeHandle(ref, () => ({
+        focusTextarea: () => {
+            textareaRef.current?.focus()
+        },
+    }))
 
-    // move the cursor at the right position after a character has been inputed into the editable span
-    // without this useeffect, the cursor position would be reseted back at position 0
-    useEffect(() => {
-        setCursorPosition(cursorPosition.current)
-    },[textareaValue])
-
-
-    async function askAutoComplete(sentence : string){
-        /*console.log('sentence to complete : ' + sentence)
+    // the three fn below should integrate a custom completion hook
+    async function askAutoComplete(sentence : string) : Promise<void>{
         const response = await ChatService.askTheActiveModelForAutoComplete(sentence, currentContext || [])
-        setSuggestion(response.response)*/
+        setSuggestion(response.response)
     }
 
-    function applyAutoCompleteOnTabPress(event : KeyboardEvent){
-        if(document.activeElement?.id == "editableSpan" && event.key === 'Tab') {
-            event.preventDefault();
-            setTextareaValue((prevValue : string) => prevValue + suggestionRef.current)
+    function applyAutoCompleteOnTabPress(event : KeyboardEvent) : void {
+        if(document.activeElement?.id == "mainTextArea" && event.key === 'Tab') {
+            event.preventDefault()
+            setTextareaValue(textareaValue + suggestionRef.current)
+            if(textareaRef.current) (textareaRef.current as HTMLTextAreaElement).value = textareaRef.current?.value + suggestionRef.current
             setSuggestion("")
         }
     }
 
-    function setCursorAtEnd(){
-        const range = document.createRange();
-        const selection = window.getSelection();
-        if(!selection || !editableSpanRef.current) return
-        range.selectNodeContents(editableSpanRef.current) // select the whole text
-        range.collapse(false) // collapse the range to the end point
-        selection.removeAllRanges() // clear all existing selections
-        selection.addRange(range) // add the range as a selection
-    }
-
-    function getCursorPosition(){
-        const selection = window.getSelection()
-        if(!selection || !editableSpanRef.current || !editableSpanRef.current.textContent) return 0
-        const range = selection.getRangeAt(0);
-        const preCaretRange = range.cloneRange()
-        preCaretRange.selectNodeContents(editableSpanRef.current as HTMLSpanElement)
-        preCaretRange.setEnd(range.endContainer, range.endOffset)
-        return preCaretRange.toString().length
-    }
-
-    const setCursorPosition = (position: number) => {
-        const selection = window.getSelection();
-        const editableSpan = editableSpanRef.current;
-        if (!selection || !editableSpan) return;
-      
-        const textNode = editableSpan.firstChild;
-      
-        // Ensure the text node exists and is a text node
-        if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-          const textContent = textNode.textContent || '';
-          
-          // Clamp the position to be within the text content length
-          const clampedPosition = Math.max(0, Math.min(position, textContent.length));
-          const range = document.createRange();
-          range.setStart(textNode, clampedPosition);
-          range.setEnd(textNode, clampedPosition);
-          selection.removeAllRanges();
-          selection.addRange(range);
+    function updateSuggestionPosition(textarea : HTMLTextAreaElement) : void {
+        const coordinates = getLastCharCoordinates(textarea)
+        if(suggestionDivRef.current) {
+            suggestionDivRef.current.style.left = coordinates.x+8+`px`
+            suggestionDivRef.current.style.top = coordinates.y+`px`
         }
-      };
+    }
 
-    function handleInput(text : string){
-        cursorPosition.current = getCursorPosition()
+    function handleInput(text : string) : void{
         setTextareaValue(text)
-        askAutoComplete(text)
+        if(textareaRef.current) autoGrow(textareaRef.current)
+        if(autoCompletion.current){
+            askAutoComplete(text)
+            const textarea = textareaRef.current as HTMLTextAreaElement
+            updateSuggestionPosition(textarea)
+        }
+    }
+
+    // the textarea grows automatically when new lines are inputted
+    function autoGrow(textarea : HTMLTextAreaElement) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
     }
     
     return(
         <>
-            <span className="textAreaTitle">Input</span>
-            <div className="textArea" role="textbox" ref={fakeTextareaRef}
-                onClick={(e) => {
-                    if (editableSpanRef.current) {
-                        e.currentTarget.style.outline = '2px solid #2292ee'
-                        editableSpanRef.current.focus();
-                        // setCursorAtEnd()
-                    }
-                }}>
-                    <div id="editableSpan" style={{border:'none', outline:'none', color:'#000'}} ref={editableSpanRef} contentEditable="true" suppressContentEditableWarning={true}
-                    onInput={(e) => handleInput((e.target as HTMLDivElement).innerText)}
-                    onBlur={() => {(fakeTextareaRef.current as HTMLDivElement).style.outline = 'none'}}
-                    >{textareaValue}</div>
-                    <span style={{color:'#000000aa'}}>{suggestion}</span>
+            {/*<span className="textAreaTitle">Input</span>*/}
+            <div className="textAreaContainer">
+                <textarea ref={textareaRef} id="mainTextArea" spellCheck="false" onInput={(e) => handleInput((e.target as HTMLTextAreaElement).value)} value={textareaValue}></textarea>
+                {/*<div ref={suggestionDivRef} id="suggestions">{suggestion}</div>*/}
             </div>
         </>
     )
-}
+})
 
 export default CustomTextarea
 
 interface IProps{
     textareaValue : string
-    setTextareaValue : React.Dispatch<React.SetStateAction<string>>
+    setTextareaValue : (text : string) => void
     currentContext : number[]
+    handleSendMessage_Streaming : (message : string) => Promise<void>
+    activeConversationId : number
+}
+
+export interface ImperativeHandle {
+    focusTextarea: () => void
 }
 
 
-// const localRef = useRef()
+function getLastCharCoordinates(textarea: HTMLTextAreaElement) : { x: number, y: number } {
+    // Create a mirrored div of the textarea
+    const mirror = document.createElement('div')
+    
+    // Copy the textarea's style to the div
+    const style = window.getComputedStyle(textarea);
 
-// Expose methods to the parent
-/*useImperativeHandle(ref, () => ({
-    setTextareaValue: (text : string) => {
-    if(editableSpanRef.current) editableSpanRef.current.innerText = text;
-    },
-    getTextareaValue: () => {
-    if(!editableSpanRef.current) return ""
-    return editableSpanRef.current.innerText
-    },
-}));*/
+    ['font-family', 'font-size', 'font-weight', 'line-height', 'text-transform', 'letter-spacing', 'word-spacing', 'padding', 'border-width', 'box-sizing', 'white-space'].forEach(property => {
+        if (property in style) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (mirror.style as any)[property] = (style as any)[property]
+        }
+    })
+    
+    // Set the div's dimensions and position
+    mirror.style.position = 'absolute'
+    mirror.style.top = '0px'
+    mirror.style.left = '0px'
+    mirror.style.visibility = 'hidden'
+    mirror.style.width = textarea.offsetWidth + 'px'
+    mirror.style.height = textarea.offsetHeight + 'px'
+    
+    // Preserve line breaks and spaces using <br> and &nbsp
+    const content = textarea.value.slice(0, -1).replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')
+    const lastChar = textarea.value.slice(-1) || ' '
+    
+    // Set the content and append the last character
+    mirror.innerHTML = content
+    const span = document.createElement('span')
+    span.textContent = lastChar
+    mirror.appendChild(span)
+    
+    // Append to body
+    document.body.appendChild(mirror)
+    
+    // Get the coordinates
+    const rect = span.getBoundingClientRect()
+    const coordinates = { y: rect.top + window.scrollY, x: rect.left + window.scrollX }
 
-// https://phuoc.ng/collection/html-dom/get-or-set-the-cursor-position-in-a-content-editable-element/
+    if((textarea.value.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')).endsWith('<br>')){
+            coordinates.x = 6;
+            coordinates.y += 24;
+    }
+    
+    // Clean up
+    document.body.removeChild(mirror)
+    
+    return coordinates;
+}
