@@ -1,15 +1,26 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-useless-escape */
-import { SafeSearchType, search, SearchResult } from "duck-duck-scrape"
 import * as cheerio from 'cheerio'
-
 export class AIBrowser {
 
-    static async search(topic : string) : Promise<SearchResult[]>{
+    /*static async search(topic : string) : Promise<SearchResult[]>{
         const searchResults = await search(topic, {
             safeSearch: SafeSearchType.STRICT
         })
         
         return searchResults.results
+    }*/
+
+    static async altSearch(topic : string) : Promise<string[]>{
+        const response = await fetch('https://duckduckgo.com/?q=what+was+the+last+combat+of+dustin+poirier&ia=web')
+        const text = await response.text()
+        const $ = cheerio.load(text)
+        console.log(JSON.stringify($))
+        const links = $('li[data-layout="organic"] a').map((i, el) => {
+            return $(el).attr('href')
+        }).get()
+        console.log(JSON.stringify(links))
+        return links
     }
 
     static async fetchPage(url : string) : Promise<string| undefined>{
@@ -41,6 +52,38 @@ export class AIBrowser {
             return cleanText
         }catch(error){
             console.log(error)
+        }
+    }
+
+    static async callScraper(query : string) : Promise<string[]>{
+        try {
+            const response = await fetch('http://127.0.0.1:3000/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ query : query }),
+            });
+    
+            // Check if the response is OK (status in the range 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+
+            console.log(data)
+    
+            // Validate the data structure if necessary
+            if (!Array.isArray(data)) {
+                throw new Error('Invalid response format: Expected an array');
+            }
+    
+            return data;
+        } catch (error) {
+            console.error('Error calling scraper:', error);
+            throw error; // Rethrow the error for further handling
         }
     }
 }
