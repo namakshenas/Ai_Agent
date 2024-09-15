@@ -35,7 +35,7 @@ export class ChatService{
      * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
      * @returns {Promise<ReadableStreamDefaultReader<Uint8Array>>} A promise resolving to a ReadableStream of responses from the AI model.
      */
-    static async askTheActiveModelForAStreamedResponse(question : string, answerProcessorCallback : (toProcessAsMarkdown : string, toProcessAsHTML : string) => void, context:number[] = []) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
+    static async askTheActiveModelForAStreamedResponse(question : string, answerProcessorCallback : (toProcessAsMarkdown : string, toProcessAsHTML : string) => void, context:number[] = [], webDatas?: string[]) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
     {
         let newContext = []
 
@@ -43,7 +43,9 @@ export class ChatService{
         model.setContext(context)
         const reader = await model.askForAStreamedResponse(question)*/
         this.#baseModelStreaming.setContext(context)
-        const reader = await this.#baseModelStreaming.askForAStreamedResponse(question)
+        const concatenatedWebDatas = webDatas ? webDatas.reduce((acc, curr)=> acc + '\n\n' + curr, "Use the following datas as your preferred source of information when replying to **MY QUESTION** :") : ""
+        // console.log(concatenatedWebDatas.slice(0, 8000) + '\n**MY QUESTION** :\n' + question)
+        const reader = await this.#baseModelStreaming.askForAStreamedResponse(concatenatedWebDatas + '\n**MY QUESTION** :\n' + question)
 
         let content = ""
         // keep reading the streamed response until the stream is closed
