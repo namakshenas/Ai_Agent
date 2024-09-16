@@ -6,7 +6,7 @@ import '../style/Chat.css'
 import { ConversationsService } from "../services/ConversationsService";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import { AgentLibrary } from "../services/AgentLibrary";
-import { AIAgent } from "../models/AIAgent";
+// import { AIAgent } from "../models/AIAgent";
 import useFetchModelsList from "../hooks/useFetchModelsList";
 import ChatHistoryTabs from "../components/ChatHistoryTabs";
 import CustomTextarea, { ImperativeHandle } from "../components/CustomTextarea";
@@ -44,15 +44,13 @@ function Chat() {
     const modelsList = useFetchModelsList()
 
     useEffect(() => {
-        AgentLibrary.addAgent(new AIAgent("helpfulAssistant"))
         setAgentsList(AgentLibrary.getAgentsNameList())
         ConversationsService.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history)
 
         // cleanup
         return () => {
             ConversationsService.clearAll()
-            AgentLibrary.removeAllAgents()
-        };
+        }
     }, [])
 
     // triggered when switching between conversations
@@ -73,9 +71,9 @@ function Chat() {
             let newContext
             if(isWebSearchActivated) {
                 const webDatas = await WebSearchService.getRelatedWebpagesDatas(message)
-                newContext = await ChatService.askTheActiveModelForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext, webDatas)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext, webDatas)
             }else{
-                newContext = await ChatService.askTheActiveModelForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext)
             }
             clearTextAreaIfQuestionReplied(conversationStateRef.current.history[conversationStateRef.current.history.length-1].question, textareaValueRef.current)
             setIsStreaming(false)
@@ -120,7 +118,7 @@ function Chat() {
                     {modelsList.map((model,id) => <option key={'model'+id}>{model}</option>)}
                 </select>
                 <label style={{marginLeft:'auto'}}>Select an Agent</label>
-                <select className="agentDropdown">
+                <select className="agentDropdown" onChange={(e) => ChatService.setActiveAgent(e.target.value)}>
                     {agentsList.map((agent,id) => <option key={'agent'+id}>{agent}</option>)}
                 </select>
                 <button style={{padding:'0 0.85rem'}}>
