@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-private-class-members */
 export default class PromptLibrary{
 
     static #helpfulAssistantPrompt = `You are an helpful assistant. 
@@ -27,7 +28,46 @@ export default class PromptLibrary{
         Here is the given block of text :\n\n
     `
 
-    static prompts = new Map([["helpfulAssistant", this.#helpfulAssistantPrompt], ["completionAssistant", this.#completionAssistantPrompt]])
+    static #COTPrompt = `You are an assistant writing a step-by-step mental reflection plan on how to fulfill a user's request.\n
+        Give an exhaustive list of all the granular mental tasks a human would have to go through to reach the perfect answer to the request.\n
+        This list of tasks should always be returned as a table.\n
+        Don't use the <pre> and <code> tags.\n
+        Don't reply to the request. Only reply with your list of mental tasks.
+    `
+
+    /*static #COTPrompt2 = `You are an assistant writing a step-by-step mental reflexion plan on how to fulfill a user's request.\n
+        Give an exhaustive list of all the granular mental tasks a human would have to go through to reach the perfect answer to the request.\n
+        This list of tasks should always be returned between <SOLVINGPLAN></SOLVINGPLAN> tags, like this :\n
+        <SOLVINGPLAN>list_of_mental_tasks</SOLVINGPLAN>\n
+        Don't reply to the request. Only reply with your list of mental tasks.
+    `*/
+
+    static #COTAnalyzePrompt = `You are an assistant analyzing a step-by-step mental reflection plan on how to fulfill a user's request.\n
+        Go through the given plan presented as a table and check if each task would be easier to tackle with informations gathered through a web search.\n
+        If a task would benefit from a web search, add to it the best search query to find the needed informations.\n
+        Don't reply to the request. Only reply with your list of mental tasks.\n
+    `
+
+    static #COTTaskSolverPrompt = `You are an assistant solving one unique task from a list of tasks aiming at fulfilling a user's request.\n
+        The task you have to resolve will be encapsulated between <TASK></TASK> tags.\n
+        The list of tasks it originates from will be encapsulated between <SOLVINGPLAN></SOLVINGPLAN> tags.\n
+        The original user's request representing the goal to reach once the tasks are all solved and combined will be encapsulated between <REQUEST></REQUEST> tags.\n
+        Don't reply to the request. Only resolve your one assigned task.\n
+    `
+
+    static #SearchQueryGeneratorPrompt = `You have a deep technical understanding of the theory behind search engines.\n
+    The task you have to resolve will be encapsulated between <TASK></TASK> tags.\n
+    The list of tasks it originates from will be encapsulated between <SOLVINGPLAN></SOLVINGPLAN> tags.\n
+    The original user's request representing the goal to reach once the tasks are all solved and combined will be encapsulated between <REQUEST></REQUEST> tags.\n
+    Don't reply to the request. Only resolve your one assigned task.\n
+    `
+
+
+    static prompts = new Map([["helpfulAssistant", this.#helpfulAssistantPrompt], 
+        ["completionAssistantPrompt", this.#completionAssistantPrompt],
+        ["COTGeneratorPrompt", this.#COTPrompt],
+        ["COTAnalyzeAssistantPrompt", this.#COTAnalyzePrompt]
+    ])
 
     static getPrompt(promptName : string) : string{
         return this.prompts.get(promptName) || this.#defaultAssistantPrompt
