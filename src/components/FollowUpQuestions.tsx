@@ -30,7 +30,7 @@ function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea} : I
     async function generateFollowUpQuestions(question : string, iter : number = 0){
         const prompt = "Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge : \n\n" + question + `\n\nFormat those three questions as an array of strings such as : ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`
         let response = []
-        const threeQuestions = await ChatService.askTheActiveModel(prompt, historyElement.context || [])
+        const threeQuestions = await ChatService.askTheActiveAgent(prompt, historyElement.context || [])
         try{
             response = JSON.parse(threeQuestions.response)
         }catch(error){
