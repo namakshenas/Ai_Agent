@@ -1,185 +1,49 @@
 /* eslint-disable no-unused-private-class-members */
 import { AIModel } from "./AIModel.js"
 
-export class AIAgent {
+export class AIAgent extends AIModel {
 
-    #name! : string
-    #maxIter = 5
-    #model! : AIModel
-    #request = ""
-    #lastOutput : unknown = ""
-    #regexValidator : RegExp | undefined
-    #verifyParsability = false
-    #stream = false
-    #responseParsingFn : ((llmResponse : string) => object) | undefined = undefined
+    #name: string
+    protected nextAgent: AIAgent | null = null
 
     models = ["mistral-nemo:latest", "phi3.5", "llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
 
     defaultModel = "llama3.1:8b"
 
     constructor(name : string, model : string = "llama3.1:8b"){
+        super({modelName : model})
         this.#name = name
-        this.#model = new AIModel({modelName : model}).setTemperature(0.1).setContextSize(8000).setContext([]).setSystemPrompt("You are an helpful assistant.")
     }
 
-    setModel(model : AIModel) : AIAgent{
-        this.#model = model
-        return this
+    setName(name : string) : void {
+        this.#name = name
     }
 
-    get model() : AIModel{
-        return this.#model
-    }
-
-    async rawCall(iter : number = 0) : Promise<string>{
-        const currentIter: number = iter
-        console.log('\n\u001b[1;32m... In ' + (currentIter+1) + ' attempt.\n\n')
-        if(this.#request == "") throw new Error("Request is missing.")
-        const response = await this.#model.ask(this.#request)
-        /*console.log(response.response)
-        let formatedResponse = (response.response).match(/\[{.*?}\]/gs)
-        if(formatedResponse == null) {
-            formatedResponse = (response.response).match(/\{"\s*([^}]*)\s*"\}/g)
-            if(formatedResponse == null) return this.rawCall(currentIter + 1)
-        }*/
-        // this.#log(response.response)
-        this.#lastOutput = response.response
-        // test response ability to be parsing
-        if(this.#verifyParsability && !this.parsingCheck(response.response) && currentIter+1 < this.#maxIter) return this.rawCall(currentIter + 1)
-        // test response formatting
-        if(this.#regexValidator && !this.checkOutputValidity(response.response, this.#regexValidator as RegExp) && currentIter+1 < this.#maxIter) return this.rawCall(currentIter + 1)
-        // if not formatted properly after all the iterations => throws
-        if(currentIter+1 >= this.#maxIter) throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
-        return response.response
-    }
-
-    call = this.rawCall
-
-    async parsedCall(iter : number = 0) : Promise<string | object>{
-        if(this.#responseParsingFn == undefined) throw new Error("Parsing function is undefined")
-        const currentIter: number = iter
-        console.log('\n\u001b[1;32m... In ' + (currentIter+1) + ' attempt.\n\n')
-        if(this.#request == "") throw new Error("Request is missing.")
-        const response = await this.#model.ask(this.#request)
-        // this.#log(response.response)
-        this.#lastOutput = this.#responseParsingFn(response.response)
-        // test response ability to be parsing
-        if(this.#verifyParsability && !this.parsingCheck(response.response) && currentIter+1 < this.#maxIter) return this.parsedCall(currentIter + 1)
-        // test response formatting
-        if(this.#regexValidator && !this.checkOutputValidity(response.response, this.#regexValidator as RegExp) && currentIter+1 < this.#maxIter) return this.parsedCall(currentIter + 1)
-        // if not formatted properly after all the iterations => throws
-        if(currentIter+1 >= this.#maxIter) throw new Error(`Couldn't format the reponse the right way despite the ${this.#maxIter} iterations.`)
-        return this.#responseParsingFn(response.response)
-    }
-
-
-    async callStream() : Promise<ReadableStreamDefaultReader<Uint8Array>>{
-        return await this.#model.askForAStreamedResponse(this.#request)
-    }
-
-    checkOutputValidity(output : string, regex : RegExp) : boolean{
-        return regex.test(output)
-    }
-
-    enableParsabilityCheck(): AIAgent{
-        this.#verifyParsability = true
-        return this
-    }
-
-    parsingCheck(jsonString : string): boolean{
-        try {
-            JSON.parse(jsonString);
-            return true;  // Parsing succeeded
-        } catch (error) {
-            console.error(error)
-            return false; // Parsing failed
-        }
-    }
-
-    #log(text : string){
-        console.log("\n\n\u001b[1;35m" + this.#name + ' :\n\u001b[1;36m' + text)
-    }
-
-    setRequest(request : string) : AIAgent{
-        this.#request = request
-        return this
-    }
-
-    setTemperature(temp : number): AIAgent{
-        this.model.setTemperature(temp)
-        return this
-    }
-
-    setSystemPrompt(prompt : string) : AIAgent{
-        this.#model.setSystemPrompt(prompt)
-        return this
-    }
-
-    resetContext(): AIAgent{
-        this.#model.setContext([])
-        return this
-    }
-
-    setMaxIter(iter : number) : AIAgent{
-        this.#maxIter = iter
-        return this
-    }
-
-    setRegexOutputValidator(regex : RegExp): AIAgent{
-        this.#regexValidator = regex
-        return this
-    }
-
-    getRequest() : string{
-        return this.#request
-    }
-
-    getModel() : AIModel{
-        return this.#model
-    }
-
-    getLog() : (text : string) => void {
-        return this.#log
-    }
-
-    getMaxIter() : number{
-        return this.#maxIter
-    }
-
-    getLastOutput() : unknown{
-        return this.#lastOutput
-    }
-
-    getRegexValidator() : RegExp | undefined{
-        return this.#regexValidator
-    }
-
-    setLastOutput(lastOutput : string) : void{
-        this.#lastOutput = lastOutput
-    }
-
-    enableStreaming(){
-        this.#model.enableStreaming()
-        this.#stream = true
-        return this
-    }
-
-    disableStreaming(){
-        this.#model.disableStreaming()
-        this.#stream = false
-        return this
-    }
-
-    setReplyParsingFn(parsingFn : (llmResponse : string) => object){
-        this.#responseParsingFn = parsingFn
-        return this
-    }
-
-    get name() : string {
+    getName() : string{
         return this.#name
     }
 
-    //setAction
+    setNextAgent(agent: AIAgent): AIAgent {
+        this.nextAgent = agent
+        return agent
+    }
+
+    getNextAgent(): AIAgent | null {
+        return this.nextAgent
+    }
+    
+    async handle(request: string): Promise<string>{
+        // should contain all the pre and post inference related to this agent
+        return (await this.ask(request)).response // !!! should pass context too with response
+    }
+
+    protected async passToNext(response: string): Promise<string> {
+        if (this.nextAgent) {
+            return await this.nextAgent.handle(response)
+        }
+        return response // if there is not next agent, this is the final reply
+    }
+
     //setOutputSchema
 }
 
