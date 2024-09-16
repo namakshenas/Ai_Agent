@@ -1,17 +1,10 @@
+/* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { AIModel } from "../models/AIModel";
+import { AgentLibrary } from "./AgentLibrary";
 import AnswerFormatingService from "./AnswerFormatingService";
-import PromptLibrary from "./PromptLibrary";
 export class ChatService{
 
-    /*static modelList = new Map<string, AIModel>()*/
-
-    static #completionModel = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).setContextSize(8192)
-        .setSystemPrompt(PromptLibrary.getPrompt("completionAssistant"))
-
-    static #baseModel = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.3).setContextSize(8192).setSystemPrompt("You are an helpful assistant.")
-    static #baseModelStreaming = new AIModel({modelName : /*"llama3.1:8b"*/"mistral-nemo:latest"}).setTemperature(0.1).setContextSize(8192)
-    .setSystemPrompt(PromptLibrary.getPrompt("HelpfulAssistant")).enableStreaming()
+    static #activeAgentName = "helpfulAssistant"
   
     /**
      * Asks a question to the AI model and returns the context and response.
@@ -20,11 +13,11 @@ export class ChatService{
      * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
      * @returns {Promise<{context: number[], response: string}>} A promise resolving to an object with the context and response from the AI model.
      */
-    static async askTheActiveModel(question : string, context:number[] = []) : Promise<{context : number[], response : string}>
+    static async askTheActiveAgent(question : string, context:number[] = []) : Promise<{context : number[], response : string}>
     {
-        // console.log('question : '+ question)
-        this.#baseModel.setContext(context)
-        const answer = await this.#baseModel.ask(question)
+        if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
+        AgentLibrary.library[this.#activeAgentName].setContext(context)
+        const answer = await AgentLibrary.library[this.#activeAgentName].ask(question)
         return {context : answer.context as number[], response : answer.response}
     }
 
@@ -35,17 +28,15 @@ export class ChatService{
      * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
      * @returns {Promise<ReadableStreamDefaultReader<Uint8Array>>} A promise resolving to a ReadableStream of responses from the AI model.
      */
-    static async askTheActiveModelForAStreamedResponse(question : string, answerProcessorCallback : (toProcessAsMarkdown : string, toProcessAsHTML : string) => void, context:number[] = [], webDatas?: string[]) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
+    static async askTheActiveAgentForAStreamedResponse(question : string, answerProcessorCallback : (toProcessAsMarkdown : string, toProcessAsHTML : string) => void, context:number[] = [], webDatas?: string[]) : Promise<number[]>  /*Promise<ReadableStreamDefaultReader<Uint8Array>>*/
     {
-        let newContext = []
+        console.log(this.#activeAgentName)
+        let newContext = [];
 
-        /*const model = new AIModel({modelName : "llama3.1:8b"}).setTemperature(0.1).enableStreaming().setContextSize(8000).setContext(context).setSystemPrompt("You are an helpful assistant.")
-        model.setContext(context)
-        const reader = await model.askForAStreamedResponse(question)*/
-        this.#baseModelStreaming.setContext(context)
-        const concatenatedWebDatas = webDatas ? webDatas.reduce((acc, curr)=> acc + '\n\n' + curr, "Use the following datas as your preferred source of information when replying to **MY QUESTION** :") : ""
-        // console.log(concatenatedWebDatas.slice(0, 8000) + '\n**MY QUESTION** :\n' + question)
-        const reader = await this.#baseModelStreaming.askForAStreamedResponse(concatenatedWebDatas + '\n**MY QUESTION** :\n' + question)
+        if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
+        AgentLibrary.library[this.#activeAgentName].setContext(context)
+        const concatenatedWebDatas = webDatas ? webDatas.reduce((acc, curr)=> acc + '\n\n' + curr, "Use the following datas as your preferred source of information when replying to **MY REQUEST** :") : ""
+        const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas + '\n<MYREQUEST>' + question + '</MYREQUEST>')
 
         let content = ""
         // keep reading the streamed response until the stream is closed
@@ -64,7 +55,6 @@ export class ChatService{
             
                 if (!json.done) {
                     content += json.response
-                    // console.log(content)
                     if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
                         answerProcessorCallback(content, await AnswerFormatingService.format(content))
                 }
@@ -77,18 +67,22 @@ export class ChatService{
             }
         }
 
-        // console.log(newContext)
         return newContext
     }
 
     static abortStreaming(){
-        this.#baseModelStreaming.abortLastRequest()
+        AgentLibrary.library["helpfulAssistant"].abortLastRequest()
     }
 
-    static async askTheActiveModelForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
+    static setActiveAgent(name : string){
+        if(!AgentLibrary.library[name]) return
+        this.#activeAgentName = name
+    }
+
+    /*static async askTheActiveModelForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
     {
         this.#completionModel.setContext(context)
         const answer = (await this.#completionModel.ask(promptToComplete))
         return {context : answer.context as number[], response : answer.response}
-    }
+    }*/
 }
