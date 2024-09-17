@@ -216,3 +216,8 @@ table th {
 .answerItem figure.actorFigureAnimation {
   animation: fadeInOut 2s ease-in-out infinite;
 }
+
+.source {
+  font-size: 14px;
+  font-weight: 400;
+}

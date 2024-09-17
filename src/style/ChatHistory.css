@@ -37,10 +37,10 @@
 }
 
 .iconButton:hover {
-  background: #0078d7;
+  background: #56b8af;
   box-shadow: none;
-  outline: 1px solid #2f4e68dd;
-  border: 1px solid #0078d7;
+  outline: 1px solid #3e8079;
+  border: 1px solid #56b8af;
 }
 
 .chatHistorySection::-webkit-scrollbar {

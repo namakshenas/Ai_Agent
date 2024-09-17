@@ -6,11 +6,15 @@
   flex-direction: column;
 }
 
+/*html {
+  scroll-behavior: smooth;
+  scroll-timeline: 0.5s;
+}*/
+
 main {
   display: flex;
   flex-direction: column;
   width: 100%;
-  /*padding-bottom: 3rem;*/
   min-height: 100vh;
 }
 
