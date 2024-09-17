@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
-import { ConversationsService } from "../services/ConversationsService";
+import { ConversationsRepository } from "../repositories/ConversationsRepository";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import { AgentLibrary } from "../services/AgentLibrary";
 // import { AIAgent } from "../models/AIAgent";
@@ -14,6 +15,7 @@ import { ActionType, useConversationReducer } from "../hooks/useConversationRedu
 import { CustomCheckbox } from "../components/CustomCheckbox/CustomCheckbox";
 import internetIcon2 from '../assets/internetIcon2.png';
 import { WebSearchService } from "../services/WebSearchService";
+import Select, { IOption } from "../components/CustomSelect/Select";
 
 
 function Chat() {
@@ -45,11 +47,11 @@ function Chat() {
 
     useEffect(() => {
         setAgentsList(AgentLibrary.getAgentsNameList())
-        ConversationsService.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history)
+        ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history)
 
         // cleanup
         return () => {
-            ConversationsService.clearAll()
+            ConversationsRepository.clearAll()
         }
     }, [])
 
@@ -58,27 +60,30 @@ function Chat() {
         if(isStreaming) ChatService.abortStreaming()
         setIsStreaming(false)
         setTextareaValue("")
-        dispatch({type : ActionType.SET_CONVERSATION, payload : ConversationsService.getConversation(activeConversationId)})
+        dispatch({type : ActionType.SET_CONVERSATION, payload : ConversationsRepository.getConversation(activeConversationId)})
     },[activeConversationId])
 
     // asking the model for a streamed response
     async function handleSendMessage_Streaming(message : string) : Promise<void>{
         try{
+            console.log("call")
             if(message == "") return
             const currentContext = conversationStateRef.current.history[conversationStateRef.current.history.length-1]?.context || []
             setIsStreaming(true)
             dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: message})
             let newContext
             if(isWebSearchActivated) {
-                const webDatas = await WebSearchService.getRelatedWebpagesDatas(message)
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext, webDatas)
+                console.log("websearch")
+                const scrapedPages = await WebSearchService.getRelatedWebpagesDatas(message)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedAnswerToHistoryCallback, currentContext, scrapedPages)
+                dispatch({ type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, payload : scrapedPages.map((page) => page.source)})
             }else{
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamingAnswerToHistoryCallback, currentContext)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedAnswerToHistoryCallback, currentContext)
             }
             clearTextAreaIfQuestionReplied(conversationStateRef.current.history[conversationStateRef.current.history.length-1].question, textareaValueRef.current)
             setIsStreaming(false)
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload : newContext})
-            ConversationsService.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history)
+            ConversationsRepository.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history)
         }
         catch(error : unknown){
             console.log(error)
@@ -91,7 +96,7 @@ function Chat() {
     }
 
     // callback passed to the chatservice to display the streamed answer / !!! should be renamed answerSaverCallback
-    function pushStreamingAnswerToHistoryCallback(contentAsMarkdown : string, contentAsHTML : string) : void{
+    function pushStreamedAnswerToHistoryCallback(contentAsMarkdown : string, contentAsHTML : string) : void{
         dispatch({type : ActionType.UPDATE_LAST_HISTORY_ANSWER, payload : {html : contentAsHTML, markdown : contentAsMarkdown}})
     }
 
@@ -114,10 +119,8 @@ function Chat() {
         <>
             <div className="modelAgentContainer">
                 <label>Select a Model</label>
-                <select className="modelDropdown">
-                    {modelsList.map((model,id) => <option key={'model'+id}>{model}</option>)}
-                </select>
-                <label style={{marginLeft:'auto'}}>Select an Agent</label>
+                <Select onValueChange={(activeOption : IOption) => console.log(activeOption.value)} options={modelsList.map((model) => ({label : model, value : model}))} id={"selectModel"}></Select>
+                <label style={{marginLeft:'auto'}} id="selectAgentLabel">Select an Agent</label>
                 <select className="agentDropdown" onChange={(e) => ChatService.setActiveAgent(e.target.value)}>
                     {agentsList.map((agent,id) => <option key={'agent'+id}>{agent}</option>)}
                 </select>
@@ -141,6 +144,7 @@ function Chat() {
                         Search the web
                         <img src={internetIcon2} width="20px" height="20px"/>
                     </div>
+                    <button onClick={() => document.getElementById("selectAgentLabel")?.scrollIntoView({behavior: "smooth"})}>a</button>
                     <button onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
                     {isStreaming && <button className="cancelSendButton" onClick={handleAbortStreamingClick}>C</button>}
                 </div>
@@ -167,6 +171,8 @@ export default Chat
 // deal with json failing on some streaming
 // issue : switching between conversations when the conversation hasn't been saved in chatconvservice
 // edit question sometimes takes two clicks
+// browse through previous questions / scroll to the question?
+// should be able to open a panel under the textarea to tweak the current model settings
 
 /*
 Valid Parameters and Values

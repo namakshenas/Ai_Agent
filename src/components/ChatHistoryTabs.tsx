@@ -1,12 +1,12 @@
-import { ConversationsService } from "../services/ConversationsService";
+import { ConversationsRepository } from '../repositories/ConversationsRepository'
 import '../style/ChatHistoryTabs.css'
 
 function ChatHistoryTabs({activeConversation, setActiveConversation} : IProps){
 
     // adding a new conversation tab
     function handleNewTabClick(){
-        ConversationsService.pushNewConversation("conversation " + ConversationsService.getNumberOfConversations(), [])
-        setActiveConversation(ConversationsService.getNumberOfConversations() - 1)
+        ConversationsRepository.pushNewConversation("conversation " + ConversationsRepository.getNumberOfConversations(), [])
+        setActiveConversation(ConversationsRepository.getNumberOfConversations() - 1)
     }
 
     function handleSwitchTabClick(id : number){
@@ -16,7 +16,7 @@ function ChatHistoryTabs({activeConversation, setActiveConversation} : IProps){
     return(
         <div className="tabBar">
             {
-                ConversationsService.getConversations().map((conversation, id) => (
+                ConversationsRepository.getConversations().map((conversation, id) => (
                 <button className={activeConversation == id ? 'active' : ''} style={{columnGap:'1rem'}} key={'tabButton'+id} onClick={() => handleSwitchTabClick(id)}><span>{conversation.name}</span>
                 </button>))
             }
