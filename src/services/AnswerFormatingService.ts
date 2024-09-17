@@ -4,7 +4,6 @@ import { marked } from "marked"
 class AnswerFormatingService{
 
     static async format(answer : string) : Promise<string>{
-        // console.log(answer)
         return this.#codetransformer(await marked(answer))
     }
 
@@ -30,5 +29,4 @@ class AnswerFormatingService{
 export default AnswerFormatingService
 
 // code regex (?:^|\n)(?:\s*(?:[\w.]+\s*(?:\(.*?\))?\s*(?:->|=>)?\s*(?:\{|\:)|\b(?:function|def|class|if|for|while|switch)\b|\#|\$|\/\/|\/\*|\*\/|<\?php|\?>|import\s+[\w.]+|from\s+[\w.]+\s+import))
-
 // static regexRepository = new Map<string, string>().set("incomplete code block", "/<code>.*$/").set("complete code block", "/<code>.*?</code>/")

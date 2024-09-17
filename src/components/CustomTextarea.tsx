@@ -33,7 +33,7 @@ const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentCont
 
     // the three fn below should integrate a custom completion hook
     async function askAutoComplete(sentence : string) : Promise<void>{
-        const response = await ChatService.askTheActiveModelForAutoComplete(sentence, currentContext || [])
+        const response = await ChatService.askTheActiveAgentForAutoComplete(sentence, currentContext || [])
         setSuggestion(response.response)
     }
 

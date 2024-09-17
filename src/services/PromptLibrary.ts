@@ -30,7 +30,7 @@ export default class PromptLibrary{
 
     static #COTPrompt = `You are an assistant writing a step-by-step mental reflection plan on how to fulfill a user's request.\n
         Give an exhaustive list of all the granular mental tasks a human would have to go through to reach the perfect answer to the request.\n
-        This list of tasks should always be returned as a table.\n
+        This list of tasks should always be returned as a table with 3 columns : id, task, description.\n
         Don't use the <pre> and <code> tags.\n
         Don't reply to the request. Only reply with your list of mental tasks.
     `

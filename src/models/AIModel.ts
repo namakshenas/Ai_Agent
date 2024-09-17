@@ -161,20 +161,20 @@ export class AIModel{
      * @description Builds the request body for the AI model with the given prompt and other parameters.
      */
     #buildRequest({prompt, stream} : {prompt : string, stream : boolean}) : string {
-        let baseRequest : IBaseOllamaRequest = {
+        const baseRequest : IBaseOllamaRequest = {
             "model": this.#modelName,
             "stream": stream,
             "system": this.#systemPrompt,
             "prompt": prompt,
             "context" : [...this.#context],
         }
-        baseRequest = {...baseRequest, 
+        const requestWithOptions = {...baseRequest, 
             "options": { 
                 "num_ctx": this.#contextSize,
                 "temperature" : this.#temperature, 
                 "num_predict" : this.#numPredict 
         }}
-        return JSON.stringify(baseRequest)
+        return JSON.stringify(requestWithOptions)
     }
 
     /**
@@ -191,16 +191,6 @@ export class AIModel{
             /*"stream": false,*/
         })
     }
-
-    /*enableStreaming(){
-        this.#stream = true
-        return this
-    }
-
-    disableStreaming(){
-        this.#stream = false
-        return this
-    }*/
 
     abortLastRequest(){
         this.#abortController.abort("Signal aborted.")
