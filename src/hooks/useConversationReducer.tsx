@@ -40,7 +40,7 @@ export function useConversationReducer() {
                 return {...newState}
             }
 
-            case ActionType.PUSHNEWHISTORYELEMENT : {
+            case ActionType.PUSH_NEW_HISTORY_ELEMENT : {
                 const newState = {...state, 
                     history : [...state.history, {
                         question : action.payload.question, 
@@ -65,8 +65,17 @@ export function useConversationReducer() {
                 conversationStateRef.current = {...newState}
                 return {...newState}
             }
+
+            case ActionType.ADD_SOURCES_TO_LAST_ANSWER : {
+                // console.log(JSON.stringify(action.payload))
+                const newState = {...state}
+                const payload = [...action.payload]
+                newState.history[newState.history.length -1].answer.asMarkdown += convertSourcesArrayToMarkdown(payload)
+                newState.history[newState.history.length -1].answer.asHTML += convertSourcesArrayToHTML(payload) // !!! create ScrapedPage class with such methods
+                return {...newState}
+            }
             
-            default : return state
+            default : return {...state}
         }
     }
 
@@ -80,17 +89,27 @@ export type reducerDispatchType = React.Dispatch<{type: string, payload: any}>
 export enum ActionType {
     NEW_BLANK_HISTORY_ELEMENT = "NEW_BLANK_HISTORY_ELEMENT",
     UPDATE_LAST_HISTORY_ANSWER = "UPDATE_LAST_HISTORY_ANSWER",
-    PUSHNEWHISTORYELEMENT = "PUSHNEWHISTORYELEMENT",
+    PUSH_NEW_HISTORY_ELEMENT = "PUSHNEWHISTORYELEMENT",
     SET_CONVERSATION = "SET_CONVERSATION",
     UPDATE_LAST_HISTORY_CONTEXT = "UPDATE_LAST_HISTORY_CONTEXT",
     DELETE_LAST_HISTORY_ELEMENT = "DELETE_LAST_HISTORY_ELEMENT",
+    ADD_SOURCES_TO_LAST_ANSWER = "ADD_SOURCES_TO_LAST_ANSWER",
 }
 
 type TAction = 
     | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: string }
     | { type: ActionType.UPDATE_LAST_HISTORY_ANSWER; payload: { html : string, markdown : string }}
     | { type: ActionType.UPDATE_LAST_HISTORY_CONTEXT; payload: number[]}
-    | { type: ActionType.PUSHNEWHISTORYELEMENT; payload: { question : string, html : string, markdown : string, context : number[] }}
+    | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: { question : string, html : string, markdown : string, context : number[] }}
     | { type: ActionType.SET_CONVERSATION; payload: INewConversation}
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
+    | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: string[] }
     ;
+
+function convertSourcesArrayToMarkdown(sourcesArray : string[]){
+    return sourcesArray.reduce((acc, source) => acc + "\n" + source, "\nSources :\n\n").slice(0, -1)
+}
+
+function convertSourcesArrayToHTML(sourcesArray : string[]){
+    return sourcesArray.reduce((acc, source) => acc + '<span class="source">' + source + '</span><br>', '<br><span style="font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
+}
