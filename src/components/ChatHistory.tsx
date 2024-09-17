@@ -15,7 +15,11 @@ function ChatHistory({history, setTextareaValue} : IProps) {
     if(historyContainerRef.current == null) return
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if(historyContainerRef.current != null && (mutation.type === 'childList' || mutation.type === 'attributes')) window.scrollTo(0, document.body.scrollHeight)
+        if(historyContainerRef.current != null && (mutation.type === 'childList' || mutation.type === 'attributes')) 
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+          })
       })
     })
     observer.observe(historyContainerRef.current, { attributes : true, childList: true, subtree: true })
