@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-useless-escape */
 import * as cheerio from 'cheerio'
+import IScrapedPages from '../interfaces/IScrapedPages'
 export class AIBrowser {
 
     /*static async search(topic : string) : Promise<SearchResult[]>{
@@ -55,7 +56,7 @@ export class AIBrowser {
         }
     }
 
-    static async callScraper(query : string) : Promise<string[]>{
+    static async callScraper(query : string) : Promise<IScrapedPages[]>{
         try {
             const response = await fetch('http://127.0.0.1:3000/scrape', {
                 method: 'POST',
@@ -71,16 +72,16 @@ export class AIBrowser {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
     
-            const data = await response.json();
+            const scrapedPages = await response.json();
 
-            console.log(data)
+            console.log(scrapedPages)
     
             // Validate the data structure if necessary
-            if (!Array.isArray(data)) {
+            if (!Array.isArray(scrapedPages)) {
                 throw new Error('Invalid response format: Expected an array');
             }
     
-            return data;
+            return scrapedPages;
         } catch (error) {
             console.error('Error calling scraper:', error);
             throw error; // Rethrow the error for further handling

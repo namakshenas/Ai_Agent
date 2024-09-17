@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import IScrapedPages from "../interfaces/IScrapedPages";
 import { AIBrowser } from "../models/AIBrowser";
 
 export class WebSearchService{
 
-    static async getRelatedWebpagesDatas(topic : string, topWebpages : number = 3) : Promise<string[]>{       
+    static async getRelatedWebpagesDatas(topic : string, topWebpages : number = 3) : Promise<IScrapedPages[]>{       
         /*const resultlList = await AIBrowser.altSearch(topic)
         const pagesDatas = []
         let i = 0
@@ -14,7 +15,7 @@ export class WebSearchService{
             if(i >= topWebpages) break
         }
         return pagesDatas*/
-        const pagesDatas = await AIBrowser.callScraper(topic)
-        return pagesDatas
+        const scrapedPages = await AIBrowser.callScraper(topic)
+        return scrapedPages
     }
 }
