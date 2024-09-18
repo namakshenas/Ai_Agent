@@ -6,8 +6,15 @@ import downloadIcon from '../../assets/downloadicon2.png';
 import stopIcon from '../../assets/stopicon.png';
 import { ChatService } from '../../services/ChatService';
 import './AnswerRow.css'
+import { ISource } from '../../interfaces/INewConversation';
 
-function AnswerRow({index, answer, onDownload, onCopyToClipboard} : IProps){
+function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IProps){
+
+    // !!! should sanitize source
+    function convertSourcesArrayToHTML(sourcesArray : ISource[]) : string{
+        if(sourcesArray.length == 0) return ''
+        return sourcesArray.reduce((acc, source) => acc + source.asHTML + '<br>', '<br><span style="font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
+    }
 
     return(
         <article className="historyItem answerItem" key={'answer' + index} id={'answer' + index}>
@@ -15,7 +22,7 @@ function AnswerRow({index, answer, onDownload, onCopyToClipboard} : IProps){
                 <img className="actorIcon" src={computerIcon} width={32} style={{opacity:'0.60', filter: 'saturate(75%)'}}/>
             </figure>
             {
-                answer == '' ? <AnswerWaitingAnim/> : <div className='answerContainer' dangerouslySetInnerHTML={{ __html: answer?.toString() || "" }}></div>
+                answer == '' ? <AnswerWaitingAnim/> : <div className='answerContainer' dangerouslySetInnerHTML={{ __html: (answer?.toString() + convertSourcesArrayToHTML(sources)) || "" }}></div>
             }
             {   answer &&
                 <div className='answerIconsContainer'>
@@ -35,6 +42,7 @@ export default AnswerRow
 interface IProps{
     index : number
     answer : string
+    sources : ISource[]
     onDownload : (text : string) => void
     onCopyToClipboard : (text : string) => Promise<void>
 }

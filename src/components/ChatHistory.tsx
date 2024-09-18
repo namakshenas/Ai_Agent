@@ -60,7 +60,7 @@ function ChatHistory({history, setTextareaValue} : IProps) {
           history.map((item, index) => (
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
-              <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
+              <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
             </article>
           ))
         }

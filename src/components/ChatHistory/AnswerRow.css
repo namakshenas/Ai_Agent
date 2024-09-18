@@ -217,7 +217,13 @@ table th {
   animation: fadeInOut 2s ease-in-out infinite;
 }
 
-.source {
+.answerItem a:any-link {
+  color: #000000bb;
+  text-decoration: underline;
+}
+
+.answerItem span.source a {
   font-size: 14px;
   font-weight: 400;
+  text-decoration: none;
 }
