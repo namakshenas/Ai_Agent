@@ -16,7 +16,7 @@ function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea} : I
     useEffect(() => {
         if(historyElement?.question && historyElement.question != "" && historyElement?.context?.length) {
             generateFollowUpQuestions(historyElement.question)
-            console.log(historyElement.context)
+            // console.log(historyElement.context)
         }
         
     }, [historyElement?.context])
