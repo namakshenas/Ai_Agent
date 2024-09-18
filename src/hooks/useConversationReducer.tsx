@@ -13,7 +13,8 @@ export function useConversationReducer() {
                     history : [...state.history, {
                         question : action.payload, 
                         answer : {asMarkdown : "", asHTML : ""}, 
-                        context : []
+                        context : [],
+                        sources : [],
                     }]
                 }
                 conversationStateRef.current = {...newState}
@@ -45,7 +46,8 @@ export function useConversationReducer() {
                     history : [...state.history, {
                         question : action.payload.question, 
                         answer : {asMarkdown : action.payload.markdown, asHTML : action.payload.html}, 
-                        context : action.payload.context
+                        context : action.payload.context,
+                        sources : []
                     }]
                 }
                 conversationStateRef.current = {...newState}
@@ -67,11 +69,12 @@ export function useConversationReducer() {
             }
 
             case ActionType.ADD_SOURCES_TO_LAST_ANSWER : {
-                // console.log(JSON.stringify(action.payload))
                 const newState = {...state}
-                const payload = [...action.payload]
+                newState.history[newState.history.length -1].sources = [...action.payload].map((source) => ({asMarkdown : source, asHTML : convertSourceToHTMLSpan(source)}))
+                conversationStateRef.current = {...newState}
+                /*const payload = [...action.payload]
                 newState.history[newState.history.length -1].answer.asMarkdown += convertSourcesArrayToMarkdown(payload)
-                newState.history[newState.history.length -1].answer.asHTML += convertSourcesArrayToHTML(payload) // !!! create ScrapedPage class with such methods
+                newState.history[newState.history.length -1].answer.asHTML += convertSourcesArrayToHTML(payload) // !!! create ScrapedPage class with such methods*/
                 return {...newState}
             }
             
@@ -106,10 +109,16 @@ type TAction =
     | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: string[] }
     ;
 
-function convertSourcesArrayToMarkdown(sourcesArray : string[]){
+
+function convertSourceToHTMLSpan(source : string){
+    return `<span class="source"><a href="${source}">${source}</a></span>`
+}
+
+/*function convertSourcesArrayToMarkdown(sourcesArray : string[]){
     return sourcesArray.reduce((acc, source) => acc + "\n" + source, "\nSources :\n\n").slice(0, -1)
 }
 
+/*
 function convertSourcesArrayToHTML(sourcesArray : string[]){
     return sourcesArray.reduce((acc, source) => acc + '<span class="source">' + source + '</span><br>', '<br><span style="font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
-}
+}*/
