@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-private-class-members */
 import { AIModel } from "./AIModel.js"
 
 export class AIAgent extends AIModel {
 
     #name: string
+    #processFn : (request : any) => any = (request : string) => request
     protected nextAgent: AIAgent | null = null
 
     models = ["mistral-nemo:latest", "phi3.5", "llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
@@ -31,15 +33,20 @@ export class AIAgent extends AIModel {
     getNextAgent(): AIAgent | null {
         return this.nextAgent
     }
+
+    setProcessFn(fn : (params : unknown) => unknown){
+        this.#processFn = fn
+    }
     
-    async handle(request: string): Promise<string>{
+    async process(request: string): Promise<string>{
         // should contain all the pre and post inference related to this agent
-        return (await this.ask(request)).response // !!! should pass context too with response
+        this.#processFn(request)
+        return this.passToNext((await this.ask(request)).response) // !!! should pass context too with response
     }
 
     protected async passToNext(response: string): Promise<string> {
         if (this.nextAgent) {
-            return await this.nextAgent.handle(response)
+            return await this.nextAgent.process(response)
         }
         return response // if there is not next agent, this is the final reply
     }
