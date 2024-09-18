@@ -4,19 +4,27 @@ import PromptLibrary from "./PromptLibrary"
 
 export class AgentLibrary {
 
-    static #helpfulAssistantAgent = new AIAgent("helpfulAssistant", "mistral-nemo:latest").setTemperature(0.1).setContextSize(8192)
-    .setSystemPrompt(PromptLibrary.getPrompt("helpfulAssistantPrompt"))
+    static #helpfulAssistantAgent = new AIAgent("helpfulAssistant", "mistral-nemo:latest").setTemperature(0.1).setContextSize(16384)
+    .setSystemPrompt(PromptLibrary.helpfulAssistantPrompt)
 
     static #COTAgent = new AIAgent("COTGenerator", "mistral-nemo:latest").setTemperature(0.1).setContextSize(8192)
-    .setSystemPrompt(PromptLibrary.getPrompt("COTGeneratorPrompt"))
+    .setSystemPrompt(PromptLibrary.COTGeneratorPrompt)
 
     static #completionAgent = new AIAgent("completionAgent", "mistral-nemo:latest").setTemperature(0.1).setContextSize(8192)
-    .setSystemPrompt(PromptLibrary.getPrompt("completionAssistantPrompt"))
+    .setSystemPrompt(PromptLibrary.completionAssistantPrompt)
+
+    static #searchQueryOptimizer = new AIAgent("searchQueryOptimizer", "phi3.5").setTemperature(0.3).setContextSize(8192)
+    .setSystemPrompt(PromptLibrary.searchQueryOptimizerPrompt)
+
+    static #scrapedDatasSummarizer = new AIAgent("scrapedDatasSummarizer", "phi3.5").setTemperature(0.3).setContextSize(8192)
+    .setSystemPrompt(PromptLibrary.scrapedDatasSummarizerPrompt)
     
     static library : ILibrary = {
-        'helpfulAssistant': AgentLibrary.#helpfulAssistantAgent,
-        'COTGenerator': AgentLibrary.#COTAgent,
-        'CompletionAgent': AgentLibrary.#completionAgent,
+        'helpfulAssistant': this.#helpfulAssistantAgent,
+        'COTGenerator': this.#COTAgent,
+        'CompletionAgent': this.#completionAgent,
+        'searchQueryOptimizer' : this.#searchQueryOptimizer,
+        'scrapedDatasSummarizer' : this.#scrapedDatasSummarizer
     }
 
     static addAgent(agent: AIAgent) {

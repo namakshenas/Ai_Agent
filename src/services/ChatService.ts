@@ -35,8 +35,9 @@ export class ChatService{
 
         if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
         AgentLibrary.library[this.#activeAgentName].setContext(context)
+        scrapedPages?.forEach(page => console.log(page.datas))
         const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, curr)=> acc + '\n\n' + curr.datas, "Use the following datas as your prioritary source of information when replying to **MY REQUEST** :") : ""
-        const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
+        const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, 8000) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
 
         let content = ""
         // keep reading the streamed response until the stream is closed
@@ -44,13 +45,14 @@ export class ChatService{
             while(true){
                 const { value } = await reader.read()
 
-                const json = JSON.parse(new TextDecoder().decode(value))
+                const decodedValue = new TextDecoder().decode(value)
+                // console.log(decodedValue)
+                const json = JSON.parse(decodedValue)
 
                 if(json.done) {
-                    console.log("done")
                     newContext = json.context || []
                     answerProcessorCallback(content /*markdown*/, await AnswerFormatingService.format(content) /*html*/)
-                    break;
+                    break
                 }
             
                 if (!json.done) {
@@ -82,10 +84,9 @@ export class ChatService{
 
     static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
     {
-        // !!! replace with completion agent
-        if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
-        AgentLibrary.library[this.#activeAgentName].setContext(context)
-        const answer = (await AgentLibrary.library[this.#activeAgentName].ask(promptToComplete))
+        if(!AgentLibrary.library['CompletionAgent']) throw new Error(`CompletionAgent is not available`)
+        AgentLibrary.library['CompletionAgent'].setContext(context)
+        const answer = (await AgentLibrary.library['CompletionAgent'].ask(promptToComplete))
         return {context : answer.context as number[], response : answer.response}
     }
 }

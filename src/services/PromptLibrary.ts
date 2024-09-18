@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-private-class-members */
 export default class PromptLibrary{
 
-    static #helpfulAssistantPrompt = `You are an helpful assistant. 
+    static helpfulAssistantPrompt = `You are an helpful assistant. 
         You MUST follow the 5 following rules when replying to my request : \n
         1- Don't write any programming code if the topic of the request is not related.\n
         2- Add a new line before a new section or a new paragraph.\n
@@ -11,9 +11,9 @@ export default class PromptLibrary{
         Here is my request :\n\n
     `
 
-    static #defaultAssistantPrompt = `You are an helpful assistant.`
+    static defaultAssistantPrompt = `You are an helpful assistant.`
 
-    static #completionAssistantPrompt = `You act like a search engine specialized in questions auto-completion.\n
+    static completionAssistantPrompt = `You act like a search engine specialized in questions auto-completion.\n
         Your role is to complete the last sentence of a given block of text.\n
         Meaning : \n
         1- Your output should ALWAYS ouput a string of characters transforming the incomplete last sentence into a question.\n
@@ -28,53 +28,46 @@ export default class PromptLibrary{
         Here is the given block of text :\n\n
     `
 
-    static #COTPrompt = `You are an assistant writing a step-by-step mental reflection plan on how to fulfill a user's request.\n
+    static COTGeneratorPrompt = `You are an assistant writing a step-by-step mental reflection plan on how to fulfill a user's request.\n
         Give an exhaustive list of all the granular mental tasks a human would have to go through to reach the perfect answer to the request.\n
         This list of tasks should always be returned as a table with 3 columns : id, task, description.\n
         Don't use the <pre> and <code> tags.\n
         Don't reply to the request. Only reply with your list of mental tasks.
     `
 
-    /*static #COTPrompt2 = `You are an assistant writing a step-by-step mental reflexion plan on how to fulfill a user's request.\n
-        Give an exhaustive list of all the granular mental tasks a human would have to go through to reach the perfect answer to the request.\n
-        This list of tasks should always be returned between <SOLVINGPLAN></SOLVINGPLAN> tags, like this :\n
-        <SOLVINGPLAN>list_of_mental_tasks</SOLVINGPLAN>\n
-        Don't reply to the request. Only reply with your list of mental tasks.
-    `*/
-
-    static #COTAnalyzePrompt = `You are an assistant analyzing a step-by-step mental reflection plan on how to fulfill a user's request.\n
+    static COTAnalyzePrompt = `You are an assistant analyzing a step-by-step mental reflection plan on how to fulfill a user's request.\n
         Go through the given plan presented as a table and check if each task would be easier to tackle with informations gathered through a web search.\n
         If a task would benefit from a web search, add to it the best search query to find the needed informations.\n
         Don't reply to the request. Only reply with your list of mental tasks.\n
     `
 
-    static #COTTaskSolverPrompt = `You are an assistant solving one unique task from a list of tasks aiming at fulfilling a user's request.\n
+    static COTTaskSolverPrompt = `You are an assistant solving one unique task from a list of tasks aiming at fulfilling a user's request.\n
         The task you have to resolve will be encapsulated between <TASK></TASK> tags.\n
         The list of tasks it originates from will be encapsulated between <SOLVINGPLAN></SOLVINGPLAN> tags.\n
         The original user's request representing the goal to reach once the tasks are all solved and combined will be encapsulated between <REQUEST></REQUEST> tags.\n
         Don't reply to the request. Only resolve your one assigned task.\n
     `
 
-    static #SearchQueryGeneratorPrompt = `You have a deep technical understanding of the theory behind search engines.\n
-    The task you have to resolve will be encapsulated between <TASK></TASK> tags.\n
-    The list of tasks it originates from will be encapsulated between <SOLVINGPLAN></SOLVINGPLAN> tags.\n
-    The original user's request representing the goal to reach once the tasks are all solved and combined will be encapsulated between <REQUEST></REQUEST> tags.\n
-    Don't reply to the request. Only resolve your one assigned task.\n
-    `
+    static searchQueryOptimizerPrompt = `You are a SEO specialist with a deep technical understanding of web search engines like Google Search.\n
+        Use your expertise to convert the given question into a short search query. This search query, with optimized keywords, should lead Google Search to the pages needed to answer the question.\n
+        Follow the instructions below at all time :\n
+        1- Don't reply to the question.\n
+        2- Reply with ONE search query, with no delimiting quotes or commentaries.\n
+        Here follows the question to optimize :\n\n`
 
-
-    static prompts = new Map([["helpfulAssistant", this.#helpfulAssistantPrompt], 
-        ["completionAssistantPrompt", this.#completionAssistantPrompt],
-        ["COTGeneratorPrompt", this.#COTPrompt],
-        ["COTAnalyzeAssistantPrompt", this.#COTAnalyzePrompt]
-    ])
-
-    static getPrompt(promptName : string) : string{
-        return this.prompts.get(promptName) || this.#defaultAssistantPrompt
-    }
-  
+    static scrapedDatasSummarizerPrompt = `Extract from the given scraped datas the informations you need to answer the request then summarize those informations.\n
+    More informations can be included in the output if they are closely related AND really interesting.\n
+    The given scraped datas will be encapsulated between the tags : <SCRAPEDDATAS></SCRAPEDDATAS>.\n
+    The request will be encapsulated between the tags : <REQUEST></REQUEST>\n
+    Only output the produced summary.`  
 }
 
+/*static #COTPrompt2 = `You are an assistant writing a step-by-step mental reflexion plan on how to fulfill a user's request.\n
+    Give an exhaustive list of all the granular mental tasks a human would have to go through to reach the perfect answer to the request.\n
+    This list of tasks should always be returned between <SOLVINGPLAN></SOLVINGPLAN> tags, like this :\n
+    <SOLVINGPLAN>list_of_mental_tasks</SOLVINGPLAN>\n
+    Don't reply to the request. Only reply with your list of mental tasks.
+`*/
 
 // do not hesitate to write regex that modify the user prompt to improve it
 
@@ -115,3 +108,9 @@ export default class PromptLibrary{
         Here come my request :\n\n
         `
     */
+
+    /*
+        static searchQueryOptimizerPrompt = `You are a SEO specialist with a deep technical understanding of the theory behind web search engines like Google.
+    Use your expertise to transform any given question into an optimized short search query containing keywords which will lead any search engine toward the optimal results needed to answer the question.\n
+    !!! DON'T REPLY to the question. ONLY ouput one single search engine optimized version of the question with no delimiters or quotes added.\n
+    Here follows the question to optimize :\n\n`*/
