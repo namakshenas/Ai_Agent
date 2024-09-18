@@ -8,10 +8,16 @@ export interface INewConversation {
 export interface IConversationElement{
     question : string
     answer : IConversationAnswer
-    context : number[]
+    context : number[],
+    sources : ISource[]
 }
 
 export interface IConversationAnswer{
+    asMarkdown : string
+    asHTML : string
+}
+
+export interface ISource{
     asMarkdown : string
     asHTML : string
 }

@@ -1,27 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-useless-escape */
 import * as cheerio from 'cheerio'
-import IScrapedPages from '../interfaces/IScrapedPages'
+import { SafeSearchType, search, SearchResult } from 'duck-duck-scrape';
 export class AIBrowser {
 
-    /*static async search(topic : string) : Promise<SearchResult[]>{
+    static async search(topic : string) : Promise<SearchResult[]>{
         const searchResults = await search(topic, {
             safeSearch: SafeSearchType.STRICT
         })
         
         return searchResults.results
-    }*/
-
-    static async altSearch(topic : string) : Promise<string[]>{
-        const response = await fetch('https://duckduckgo.com/?q=what+was+the+last+combat+of+dustin+poirier&ia=web')
-        const text = await response.text()
-        const $ = cheerio.load(text)
-        console.log(JSON.stringify($))
-        const links = $('li[data-layout="organic"] a').map((i, el) => {
-            return $(el).attr('href')
-        }).get()
-        console.log(JSON.stringify(links))
-        return links
     }
 
     static async fetchPage(url : string) : Promise<string| undefined>{
@@ -56,7 +44,7 @@ export class AIBrowser {
         }
     }
 
-    static async callScraper(query : string) : Promise<IScrapedPages[]>{
+    /*static async callExternalScraper(query : string) : Promise<IScrapedPages[]>{
         try {
             const response = await fetch('http://127.0.0.1:3000/scrape', {
                 method: 'POST',
@@ -86,5 +74,5 @@ export class AIBrowser {
             console.error('Error calling scraper:', error);
             throw error; // Rethrow the error for further handling
         }
-    }
+    }*/
 }
