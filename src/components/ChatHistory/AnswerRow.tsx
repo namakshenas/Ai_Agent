@@ -1,7 +1,6 @@
 import '../../style/ChatHistory.css'
 import AnswerWaitingAnim from './AnswerWaitingAnim'
 import computerIcon from '../../assets/chaticon8.png';
-import clipboardIcon from '../../assets/clipboardicon2.png';
 import downloadIcon from '../../assets/downloadicon2.png';
 import stopIcon from '../../assets/stopicon.png';
 import { ChatService } from '../../services/ChatService';
@@ -29,8 +28,12 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IPr
                     <div className='iconButton' role="button">
                         <img className="stopIcon" src={stopIcon} onClick={() => ChatService.abortStreaming()}/>
                     </div>
-                    <div className='iconButton' role="button"><img className="clipboardIcon" src={downloadIcon} onClick={() => onDownload(answer.toString())}/></div>
-                    <div className='iconButton' role="button"><img className="clipboardIcon" src={clipboardIcon} onClick={() => onCopyToClipboard(answer?.toString())}/></div>
+                    <div className='iconButton' role="button" onClick={() => onDownload(answer.toString())}>
+                        <img className="clipboardIcon" src={downloadIcon}/>
+                    </div>
+                    <div className='iconButton' role="button" onClick={() => onCopyToClipboard(answer?.toString())}>
+                        <svg style={{width:'16px', opacity:1}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
+                    </div>
                 </div>
             }
         </article>
