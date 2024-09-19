@@ -19,7 +19,6 @@
   flex-grow: 1;
   flex-shrink: 1;
   border-radius: 3px;
-  /*box-shadow: 0 4px 8px #97c8f066;*/
   box-shadow: 0 2px 4px #b3b8bb44, 0 4px 8px #b3b8bb77;
   background-color: #fff;
   justify-content: center;
@@ -34,7 +33,5 @@
 
 .followUpQuestionsContainer span:hover {
   box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
-  /*border: 2px solid #2292ee;*/
-  /*background: linear-gradient(to bottom, #fff, #effffe);*/
   border: 2px solid #86e5ce;
 }

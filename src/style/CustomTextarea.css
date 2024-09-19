@@ -4,10 +4,8 @@
 }
 
 .textAreaContainer {
-  /*position: relative;*/
   display: flex;
   flex-direction: column;
-  margin-top: 1.5rem;
 }
 
 textarea:focus {
@@ -28,8 +26,6 @@ textarea {
   height: 100px;
   min-height: 100px;
   transition: outline 0.1s ease-in;
-  /*background-color: #dfe4ea77;*/
-  /*background-color: #efefef99;*/
 }
 
 .textAreaContainer .suggestionOverlay {

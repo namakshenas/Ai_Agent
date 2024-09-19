@@ -20,7 +20,6 @@
 
 .tabBar button.active:hover {
   height: 3rem;
-  /*background: linear-gradient(to bottom, #57a2e0, #2588d8);*/
   background: linear-gradient(to bottom, #86e5ce, #75d8d8);
   color: #fff;
   text-shadow: 0 2px 2px #25665b44;
@@ -30,7 +29,7 @@
 .tabBar button.active {
   height: 3rem;
   border-radius: 4px 4px 0 0;
-  background: #56b8af /*#0078d7aa*/;
+  background: #56b8af;
   color: #fff;
   box-shadow: 0 4px 8px #97e3f0, 0 12px 24px #97f0ec66;
   text-shadow: none;
