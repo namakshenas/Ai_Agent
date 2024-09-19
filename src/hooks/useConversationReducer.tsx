@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useReducer } from "react"
 import { INewConversation } from "../interfaces/INewConversation"
+import ScrapedPage from "../models/ScrapedPage"
 
 export function useConversationReducer() {
 
@@ -70,11 +71,12 @@ export function useConversationReducer() {
 
             case ActionType.ADD_SOURCES_TO_LAST_ANSWER : {
                 const newState = {...state}
-                newState.history[newState.history.length -1].sources = [...action.payload].map((source) => ({asMarkdown : source, asHTML : convertSourceToHTMLSpan(source)}))
+                newState.history[newState.history.length -1].sources = [...action.payload].map((page) => (
+                    {
+                        asMarkdown : page.source, 
+                        asHTML : page.sourceAsHTMLSpan(),
+                    }))
                 conversationStateRef.current = {...newState}
-                /*const payload = [...action.payload]
-                newState.history[newState.history.length -1].answer.asMarkdown += convertSourcesArrayToMarkdown(payload)
-                newState.history[newState.history.length -1].answer.asHTML += convertSourcesArrayToHTML(payload) // !!! create ScrapedPage class with such methods*/
                 return {...newState}
             }
             
@@ -106,19 +108,5 @@ type TAction =
     | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: { question : string, html : string, markdown : string, context : number[] }}
     | { type: ActionType.SET_CONVERSATION; payload: INewConversation}
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
-    | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: string[] }
+    | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: ScrapedPage[]/*string[]*/ }
     ;
-
-
-function convertSourceToHTMLSpan(source : string){
-    return `<span class="source"><a href="${source}">${source}</a></span>`
-}
-
-/*function convertSourcesArrayToMarkdown(sourcesArray : string[]){
-    return sourcesArray.reduce((acc, source) => acc + "\n" + source, "\nSources :\n\n").slice(0, -1)
-}
-
-/*
-function convertSourcesArrayToHTML(sourcesArray : string[]){
-    return sourcesArray.reduce((acc, source) => acc + '<span class="source">' + source + '</span><br>', '<br><span style="font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
-}*/

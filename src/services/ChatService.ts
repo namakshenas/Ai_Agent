@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import IScrapedPages from "../interfaces/IScrapedPages";
+import IScrapedPages from "../interfaces/IScrapedPage";
 import { AgentLibrary } from "./AgentLibrary";
 import AnswerFormatingService from "./AnswerFormatingService";
 export class ChatService{
