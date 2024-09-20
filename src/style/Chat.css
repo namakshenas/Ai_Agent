@@ -58,11 +58,7 @@ button:hover {
   color: #fff;
   text-shadow: 0 2px 2px #25665b44;
   border: 1px solid #7fe1c7aa;
-  /*box-shadow: 0 4px 8px #97c8f0, 0 12px 24px #97c8f066;*/
   box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
-  /*text-shadow: 0 2px 2px #25665b33;
-  background: linear-gradient(to bottom, #7fe1c8, #80e2e2);
-  color: #fff;*/
 }
 
 button:hover svg path {

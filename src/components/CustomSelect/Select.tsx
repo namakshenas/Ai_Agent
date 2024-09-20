@@ -21,7 +21,7 @@ import { basePreset } from './presets/basePreset'
  * @param {function} props.onValueChange - Function triggered when selecting a new option.
  * @return ( <Select formGroupState={formGroupState} options={options} selectId={selectId} labelledBy={labelledBy} onValueChange={onValueChange}/> )
  */
-export function Select({ options, id, labelledBy, defaultOption, onValueChange, preset, width } : IProps){ // should be able to pass the id of the element labelling the select
+function Select({ options, id, labelledBy, defaultOption, onValueChange, preset, width } : IProps){ // should be able to pass the id of the element labelling the select
 
     // !!! should verify no duplicates in options
 

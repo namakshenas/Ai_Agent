@@ -25,15 +25,15 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IPr
             }
             {   answer &&
                 <div className='answerIconsContainer'>
-                    <div className='iconButton' role="button">
+                    <button className='iconButton'>
                         <img className="stopIcon" src={stopIcon} onClick={() => ChatService.abortStreaming()}/>
-                    </div>
-                    <div className='iconButton' role="button" onClick={() => onDownload(answer.toString())}>
+                    </button>
+                    <button className='iconButton' onClick={() => onDownload(answer.toString())}>
                         <img className="clipboardIcon" src={downloadIcon}/>
-                    </div>
-                    <div className='iconButton' role="button" onClick={() => onCopyToClipboard(answer?.toString())}>
+                    </button>
+                    <button className='iconButton' onClick={() => onCopyToClipboard(answer?.toString())}>
                         <svg style={{width:'16px', opacity:1}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
-                    </div>
+                    </button>
                 </div>
             }
         </article>
