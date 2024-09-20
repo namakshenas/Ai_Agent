@@ -1,15 +1,15 @@
-import { IConversationElement, INewConversation } from "../interfaces/INewConversation";
+import { IConversationElement, IConversation } from "../interfaces/IConversation";
 
 export class ConversationsRepository{
 
-    static chatConversations : INewConversation[] = [];
+    static chatConversations : IConversation[] = [];
 
     static pushNewConversation(name : string, history : IConversationElement[]){
         this.chatConversations.push({name, history})
         return
     }
 
-    static getConversation(id : number) : INewConversation{
+    static getConversation(id : number) : IConversation{
         return this.chatConversations[id]
     }
 
@@ -26,7 +26,7 @@ export class ConversationsRepository{
         return
     }
 
-    static replaceConversation(conversationId : number, conversation : INewConversation) {
+    static replaceConversation(conversationId : number, conversation : IConversation) {
         this.chatConversations[conversationId] = conversation
         return
     }

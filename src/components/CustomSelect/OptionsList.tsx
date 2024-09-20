@@ -12,7 +12,7 @@ const OptionsList = () => {
 
     const { id, options, listbox, preset } = useContext(SelectContext)
     
-    const optionsContainerStyle = {background : preset.optionsContainerBackgroundColor, border : '1px solid ' + preset.optionsContainerBorderColor}
+    const optionsContainerStyle = {width : preset.width, background : preset.optionsContainerBackgroundColor, border : '1px solid ' + preset.optionsContainerBorderColor}
 
     return(
         listbox.isExpanded ? 

@@ -25,9 +25,9 @@ export function Select({ options, id, labelledBy, defaultOption, onValueChange, 
 
     // !!! should verify no duplicates in options
 
-    const currentPreset = preset == null ? basePreset.get() : preset
+    const currentPreset = preset == null ? {...basePreset.get()} : {...preset}
     if(typeof width === "number") currentPreset.width = width.toString()+'px'
-    if(typeof width === "string") currentPreset.width = width
+    if(typeof width === "string" && (width.includes("px")||width.includes("%")||width.includes("em")||width.includes("rem"))) currentPreset.width = width
 
     const activeOptionRef = useRef<IOption>({...options[0]}) // should be default options
     const [_activeOption, _setActiveOption] = useState({...options[0]}) // should be default options

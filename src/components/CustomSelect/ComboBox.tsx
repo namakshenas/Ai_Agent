@@ -20,7 +20,7 @@ const ComboBox = (() => {
         width: preset.width,
         height: preset.height,
         background: preset.selectBackgroundColor , 
-        border: "1px solid "+ preset.selectBorderColor.default,
+        outline: "1px solid "+ preset.selectBorderColor.default,
         borderRadius : preset.borderRadius,
         color: preset.selectTextColor
     }
@@ -29,9 +29,9 @@ const ComboBox = (() => {
         width: preset.width,
         height: preset.height,
         background: preset.selectBackgroundColor,
-        border:  "1px solid "+ preset.selectBorderColor.focus,
+        /*border:  "1px solid "+ preset.selectBorderColor.focus,*/
         borderRadius : preset.borderRadius,
-        outline: "1px solid "+ preset.selectBorderColor.focus, 
+        outline: "2px solid "+ preset.selectBorderColor.focus, 
         color: preset.selectTextColor
     }
 
