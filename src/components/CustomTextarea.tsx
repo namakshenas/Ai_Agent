@@ -3,7 +3,7 @@
 import { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import '../style/CustomTextarea.css'
 import { ChatService } from "../services/ChatService";
-import useKeyboardListener from "../hooks/CustomTextarea.tsx/useKeyboardListener";
+import useKeyboardListener from "../hooks/CustomTextarea/useKeyboardListener";
 
 const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, handleSendMessage_Streaming, activeConversationId} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
 
@@ -72,7 +72,6 @@ const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentCont
     
     return(
         <>
-            {/*<span className="textAreaTitle">Input</span>*/}
             <div className="textAreaContainer">
                 <textarea ref={textareaRef} id="mainTextArea" spellCheck="false" onInput={(e) => handleInput((e.target as HTMLTextAreaElement).value)} value={textareaValue}></textarea>
                 {/*<div ref={suggestionDivRef} id="suggestions">{suggestion}</div>*/}
