@@ -199,6 +199,26 @@ export class AIModel{
         this.#abortController = new AbortController()
         this.#signal = this.#abortController.signal
     }
+
+    getSystemPrompt() : string{
+        return this.#systemPrompt
+    }
+
+    getTemperature() : number {
+        return this.#temperature
+    }
+
+    getContextSize() : number {
+        return this.#contextSize
+    }
+
+    getModelName() : string {
+        return this.#modelName
+    }
+
+    getNumPredict() : number {
+        return this.#numPredict
+    }
 }
 
 export interface IAIModelParams{

@@ -39,6 +39,10 @@ export class AgentLibrary {
         return false;
     }
 
+    static getAgent(agentName: string): AIAgent {
+        return this.library[agentName]
+    }
+
     static removeAllAgents(){
         this.library = {}
     }

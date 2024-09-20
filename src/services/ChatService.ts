@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import IScrapedPages from "../interfaces/IScrapedPage";
+import { AIAgent } from "../models/AIAgent";
 import { AgentLibrary } from "./AgentLibrary";
 import AnswerFormatingService from "./AnswerFormatingService";
 export class ChatService{
@@ -80,6 +81,14 @@ export class ChatService{
         if(!AgentLibrary.library[name]) return
         this.#activeAgentName = name
         console.log(this.#activeAgentName)
+    }
+
+    static getActiveAgentName() : string{
+        return this.#activeAgentName
+    }
+
+    static getActiveAgent() : AIAgent{
+        return AgentLibrary.library[this.#activeAgentName]
     }
 
     static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>

@@ -80,9 +80,41 @@ nav ul {
   align-items: center;
 }
 
-select {
+select,
+input {
   border-radius: 4px;
   padding: 0 0.25rem;
   background-color: #dfe4ea88;
   border: 1px solid #4d749434;
+}
+
+textarea {
+  font-family: Jost;
+  line-height: 1.5;
+  font-weight: 400;
+  font-size: 16px;
+  border: none;
+  outline: 1px solid #4d749434;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  resize: none;
+  width: 100%;
+  background-color: #e1e6ec99;
+  transition: outline 0.1s ease-in, background 0.2s ease-in;
+}
+
+textarea:focus {
+  border: none;
+  outline: 2px solid #86e5ce;
+  background: #edf0f4dd;
+}
+
+input:focus {
+  border: none;
+  outline: 1px solid #86e5ce;
+  border: 1px solid #86e5ce;
+}
+
+svg {
+  fill: #000000cc;
 }
