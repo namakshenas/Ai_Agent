@@ -3,7 +3,7 @@ import AnswerRow from "./ChatHistory/AnswerRow"
 import QuestionRow from "./ChatHistory/QuestionRow"
 import '../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
-import { IConversationElement } from "../interfaces/INewConversation"
+import { IConversationElement } from "../interfaces/IConversation"
 
 function ChatHistory({history, setTextareaValue} : IProps) {
 

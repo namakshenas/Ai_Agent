@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useReducer } from "react"
-import { INewConversation } from "../interfaces/INewConversation"
+import { IConversation } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
 export function useConversationReducer() {
 
-    const conversationStateRef = useRef<INewConversation>({name : "conversation0", history : []})
+    const conversationStateRef = useRef<IConversation>({name : "conversation0", history : []})
 
-    function conversationReducer(state : INewConversation, action : TAction){
+    function conversationReducer(state : IConversation, action : TAction){
         switch(action.type){
             case ActionType.NEW_BLANK_HISTORY_ELEMENT : {
                 const newState = {...state, 
@@ -106,7 +106,7 @@ type TAction =
     | { type: ActionType.UPDATE_LAST_HISTORY_ANSWER; payload: { html : string, markdown : string }}
     | { type: ActionType.UPDATE_LAST_HISTORY_CONTEXT; payload: number[]}
     | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: { question : string, html : string, markdown : string, context : number[] }}
-    | { type: ActionType.SET_CONVERSATION; payload: INewConversation}
+    | { type: ActionType.SET_CONVERSATION; payload: IConversation}
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
     | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: ScrapedPage[]/*string[]*/ }
     ;

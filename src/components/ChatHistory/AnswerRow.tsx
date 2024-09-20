@@ -5,7 +5,7 @@ import downloadIcon from '../../assets/downloadicon2.png';
 import stopIcon from '../../assets/stopicon.png';
 import { ChatService } from '../../services/ChatService';
 import './AnswerRow.css'
-import { ISource } from '../../interfaces/INewConversation';
+import { ISource } from '../../interfaces/IConversation';
 
 function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IProps){
 

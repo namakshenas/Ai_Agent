@@ -1,6 +1,24 @@
-import { IChatHistoryQAPair } from "./IChatHistoryQAPair"
+// conversation = {question, answer : {md, html}, context}
 
-export interface IConversation{
+export interface IConversation {
     name : string
-    history : Array<IChatHistoryQAPair>
+    history : IConversationElement[]
+    // should add displayed : yes/no so that intermediate COT steps could be hidden
+}
+
+export interface IConversationElement{
+    question : string
+    answer : IConversationAnswer
+    context : number[],
+    sources : ISource[]
+}
+
+export interface IConversationAnswer{
+    asMarkdown : string
+    asHTML : string
+}
+
+export interface ISource{
+    asMarkdown : string
+    asHTML : string
 }

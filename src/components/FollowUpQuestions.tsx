@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import '../style/FollowUpQuestions.css'
 import { ChatService } from '../services/ChatService'
-import { IConversationElement } from '../interfaces/INewConversation'
+import { IConversationElement } from '../interfaces/IConversation'
 
 function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea} : IProps){
 
