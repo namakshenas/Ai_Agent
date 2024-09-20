@@ -16,7 +16,13 @@ function Modal({children, modalVisibility, setModalVisibility, /*modalContent,*/
     return (
         modalVisibility 
         ? <dialog data-testid="modal" ref={dialogRef} onClick={(e) => { if (e.target === dialogRef.current) setModalVisibility(false) }}>
-            {children}
+            <div className='modalHorizPadding'></div>
+            <div className='modalVertPaddingNChildrenContainer'>
+                <div className='modalVertPadding'></div>
+                {children}
+                <div className='modalVertPadding'></div>
+            </div>
+            <div className='modalHorizPadding'></div>
         </dialog> 
         : <></>
     )

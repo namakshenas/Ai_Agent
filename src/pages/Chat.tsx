@@ -71,6 +71,20 @@ function Chat() {
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
     }, [activeConversationId])
 
+    useEffect(() => {
+        console.log('visibility')
+        if(modalVisibility) { window.addEventListener('scroll', noScroll) }
+            else { window.removeEventListener('scroll', noScroll) }
+        return () => {
+            window.removeEventListener('scroll', noScroll)
+        }
+
+    }, [modalVisibility])
+
+    function noScroll(){
+        window.scrollTo(0, 0)
+    }
+
     // asking the model for a streamed response
     async function handleSendMessage_Streaming(message: string): Promise<void> {
         try {
@@ -135,12 +149,10 @@ function Chat() {
     return (
         <>
             <div className="modelAgentContainer">
-                <label>Select a Model</label>
-                <Select onValueChange={(activeOption: IOption) => console.log(activeOption.value)} options={modelsList.map((model) => ({ label: model, value: model }))} id={"selectModel"}></Select>
-                <label style={{ marginLeft: 'auto' }} id="selectAgentLabel">Select an Agent</label>
-                <select className="agentDropdown" onChange={(e) => ChatService.setActiveAgent(e.target.value)}>
-                    {agentsList.map((agent, id) => <option key={'agent' + id}>{agent}</option>)}
-                </select>
+                <label id="selectModalLabel">Select a Model</label>
+                <Select labelledBy="selectModalLabel" onValueChange={(activeOption: IOption) => console.log(activeOption.value)} options={modelsList.map((model) => ({ label: model, value: model }))} id={"selectModel"} defaultOption={ChatService.getActiveAgent().getModelName()}></Select>
+                <label id="selectAgentLabel" style={{ marginLeft: 'auto' }}>Select an Agent</label>
+                <Select labelledBy="selectAgentLabel" onValueChange={(activeOption: IOption) => ChatService.setActiveAgent(activeOption.value)} options={agentsList.map((agent) => ({ label: agent, value: agent }))} id={"selectAgent"} width={300} defaultOption={ChatService.getActiveAgentName()}></Select>
                 <button style={{ padding: '0 0.85rem' }} onClick={handleAgentSettingsClick}>
                     <svg style={{width:'18px'}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/></svg>
                 </button>
@@ -157,6 +169,7 @@ function Chat() {
                     <div className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <CustomCheckbox checked={isWebSearchActivated} />
                         Search the web
+                        <div className="searchWebSeparator"></div>
                         <img style={{opacity:0.6}} src={internetIcon} width="18px" height="18px" />
                     </div>
                     <button onClick={handleScrollToTopClick}>Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length}</button>
@@ -166,9 +179,47 @@ function Chat() {
                     </button>}
                 </div>
             </div>
-            <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
-                <div>aaaaaaaaaaaaa</div>
-            </Modal>
+            {modalVisibility && <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
+                    <form style={{display:'flex', flexDirection:'column', rowGap:'1.5rem', width:'100%'}}>
+                        <div style={{width:'100%', display:'flex', flexDirection:'row'}}>
+                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
+                                <label style={{textAlign:'left'}}>Agent Name</label>
+                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getName()}/>
+                            </div>
+                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
+                                <label style={{textAlign:'left'}}>Model</label>
+                                <Select width="80%" options={modelsList.map((model) => ({ label: model, value: model }))} defaultOption={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getModelName()} id={""}/>
+                            </div>
+                        </div>
+                        <div style={{width:'100%', display:'flex', flexDirection:'column', rowGap:'0.8rem'}}>
+                            <label style={{textAlign:'left'}}>System Prompt</label>
+                            <textarea rows={12} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getSystemPrompt().replace(/\t/g,'')}></textarea>
+                        </div>
+                        <div style={{width:'100%', display:'flex', flexDirection:'row'}}>
+                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
+                                <label style={{textAlign:'left'}}>Temperature</label>
+                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getTemperature()}/>
+                            </div>
+                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
+                                <label style={{textAlign:'left'}}>Max Tokens Per Reply</label>
+                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getNumPredict()}/>
+                            </div>
+                        </div>
+                        <div style={{width:'100%', display:'flex', flexDirection:'row'}}>
+                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
+                                <label style={{textAlign:'left'}}>Max Context Length</label>
+                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getContextSize()}/>
+                            </div>
+                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
+                                <label style={{textAlign:'left'}}>Web Search</label>
+                                <span style={{textAlign:'left', height:'48px', display:'flex', alignItems:'center'}}>Context Economy | Processing Speed</span>
+                            </div>
+                        </div>
+                        <div style={{width:'100%', display:'flex', flexDirection:'row', justifyContent:'right'}}>
+                            <button style={{width:'30%'}}>Save</button>
+                        </div>
+                    </form>
+            </Modal>}
         </>
     )
 }
@@ -199,6 +250,14 @@ export default Chat
 // in one tab, i should be able to schedule a recurrent data research on a topic to stay informed
 // should add pictures too with the reply
 // clipboard for code blocks
+// regenerate the last answer
+// when switching agent, should export the context from agent A to agent B
+// when passing with to one select component, both are scaled
+// snackbar settings applied
+// prevoir une compression de conversation pour libérer du context
+// save and load system prompts into settings modal
+// save and load full agent settings
+// block scroll when modal onscreen
 
 /*
 Valid Parameters and Values
