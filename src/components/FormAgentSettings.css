@@ -1,0 +1,72 @@
+.agent-form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.5rem;
+  width: 100%;
+  /*grid-template-rows: 50px 1fr 30px;
+  grid-template-columns: 150px 1fr;
+  grid-template-areas:
+    "head head"
+    "nav  main"
+    ".  foot";*/
+}
+
+.form-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.form-column {
+  display: flex;
+  flex: 1 1 50%;
+  flex-direction: column;
+  row-gap: 0.8rem;
+}
+
+.form-label {
+  text-align: left;
+}
+
+.form-input,
+.form-select {
+  padding: 0.5em 0.5em 0.45em 0.5em;
+  width: 80%;
+  height: 48px;
+}
+
+.form-textarea {
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-span {
+  text-align: left;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.justify-right {
+  justify-content: right;
+}
+
+button.form-button {
+  width: 30%;
+  background: linear-gradient(to bottom, #86e5ce, #75d8d8);
+  color: #fff;
+  text-shadow: 0 2px 2px #25665b44;
+  border: 1px solid #7fe1c7aa;
+  box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
+  transition: none;
+}
+
+button.form-button:hover {
+  background: #56b8af;
+  box-shadow: none;
+  outline: 1px solid #3e8079;
+  border: 1px solid #56b8af;
+}
