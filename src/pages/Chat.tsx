@@ -16,6 +16,8 @@ import internetIcon from '../assets/search-engine.png';
 import { WebSearchService } from "../services/WebSearchService";
 import Select, { IOption } from "../components/CustomSelect/Select";
 import Modal from "../components/Modal";
+import FormAgentSettings from "../components/FormAgentSettings";
+import useModalVisibility from "../hooks/useModalVisibility";
 
 
 function Chat() {
@@ -39,7 +41,7 @@ function Chat() {
     const [isWebSearchActivated, _setWebSearchActivated] = useState(false)
     const isWebSearchActivatedRef = useRef<boolean>(false)
 
-    const [modalVisibility, setModalVisibility] = useState<boolean>(false)
+    const {modalVisibility, setModalVisibility} = useModalVisibility()
 
     function setTextareaValue(value: string) {
         textareaValueRef.current = value
@@ -70,20 +72,6 @@ function Chat() {
         setTextareaValue("")
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
     }, [activeConversationId])
-
-    useEffect(() => {
-        console.log('visibility')
-        if(modalVisibility) { window.addEventListener('scroll', noScroll) }
-            else { window.removeEventListener('scroll', noScroll) }
-        return () => {
-            window.removeEventListener('scroll', noScroll)
-        }
-
-    }, [modalVisibility])
-
-    function noScroll(){
-        window.scrollTo(0, 0)
-    }
 
     // asking the model for a streamed response
     async function handleSendMessage_Streaming(message: string): Promise<void> {
@@ -150,9 +138,13 @@ function Chat() {
         <>
             <div className="modelAgentContainer">
                 <label id="selectModalLabel">Select a Model</label>
-                <Select labelledBy="selectModalLabel" onValueChange={(activeOption: IOption) => console.log(activeOption.value)} options={modelsList.map((model) => ({ label: model, value: model }))} id={"selectModel"} defaultOption={ChatService.getActiveAgent().getModelName()}></Select>
+                <Select labelledBy="selectModalLabel" onValueChange={(activeOption: IOption) => console.log(activeOption.value)} 
+                    options={modelsList.map((model) => ({ label: model, value: model }))} id={"selectModel"} 
+                    defaultOption={ChatService.getActiveAgent().getModelName()}/>
                 <label id="selectAgentLabel" style={{ marginLeft: 'auto' }}>Select an Agent</label>
-                <Select labelledBy="selectAgentLabel" onValueChange={(activeOption: IOption) => ChatService.setActiveAgent(activeOption.value)} options={agentsList.map((agent) => ({ label: agent, value: agent }))} id={"selectAgent"} width={300} defaultOption={ChatService.getActiveAgentName()}></Select>
+                <Select labelledBy="selectAgentLabel" onValueChange={(activeOption: IOption) => ChatService.setActiveAgent(activeOption.value)} 
+                    options={agentsList.map((agent) => ({ label: agent, value: agent }))} id={"selectAgent"} 
+                    width={300} defaultOption={ChatService.getActiveAgentName()}/>
                 <button style={{ padding: '0 0.85rem' }} onClick={handleAgentSettingsClick}>
                     <svg style={{width:'18px'}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/></svg>
                 </button>
@@ -163,8 +155,12 @@ function Chat() {
                 <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} />
             </div>
             <div className="stickyBottomContainer">
-                <CustomTextarea ref={customTextareaRef} setTextareaValue={setTextareaValue} textareaValue={textareaValue} currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []} handleSendMessage_Streaming={handleSendMessage_Streaming} activeConversationId={activeConversationId} />
-                <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]} setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} />
+                <CustomTextarea ref={customTextareaRef} 
+                    setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
+                    currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []} 
+                    handleSendMessage_Streaming={handleSendMessage_Streaming} activeConversationId={activeConversationId} />
+                <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]} 
+                    setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} />
                 <div className="sendButtonContainer">
                     <div className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <CustomCheckbox checked={isWebSearchActivated} />
@@ -180,45 +176,7 @@ function Chat() {
                 </div>
             </div>
             {modalVisibility && <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
-                    <form style={{display:'flex', flexDirection:'column', rowGap:'1.5rem', width:'100%'}}>
-                        <div style={{width:'100%', display:'flex', flexDirection:'row'}}>
-                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
-                                <label style={{textAlign:'left'}}>Agent Name</label>
-                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getName()}/>
-                            </div>
-                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
-                                <label style={{textAlign:'left'}}>Model</label>
-                                <Select width="80%" options={modelsList.map((model) => ({ label: model, value: model }))} defaultOption={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getModelName()} id={""}/>
-                            </div>
-                        </div>
-                        <div style={{width:'100%', display:'flex', flexDirection:'column', rowGap:'0.8rem'}}>
-                            <label style={{textAlign:'left'}}>System Prompt</label>
-                            <textarea rows={12} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getSystemPrompt().replace(/\t/g,'')}></textarea>
-                        </div>
-                        <div style={{width:'100%', display:'flex', flexDirection:'row'}}>
-                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
-                                <label style={{textAlign:'left'}}>Temperature</label>
-                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getTemperature()}/>
-                            </div>
-                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
-                                <label style={{textAlign:'left'}}>Max Tokens Per Reply</label>
-                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getNumPredict()}/>
-                            </div>
-                        </div>
-                        <div style={{width:'100%', display:'flex', flexDirection:'row'}}>
-                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
-                                <label style={{textAlign:'left'}}>Max Context Length</label>
-                                <input style={{padding: '0.5em 0.5em 0.45em 0.5em', width:'80%', height:'48px'}} value={AgentLibrary.getAgent(ChatService.getActiveAgentName()).getContextSize()}/>
-                            </div>
-                            <div style={{display:'flex', flex:'1 1 50%', flexDirection:'column', rowGap:'0.8rem'}}>
-                                <label style={{textAlign:'left'}}>Web Search</label>
-                                <span style={{textAlign:'left', height:'48px', display:'flex', alignItems:'center'}}>Context Economy | Processing Speed</span>
-                            </div>
-                        </div>
-                        <div style={{width:'100%', display:'flex', flexDirection:'row', justifyContent:'right'}}>
-                            <button style={{width:'30%'}}>Save</button>
-                        </div>
-                    </form>
+                <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
             </Modal>}
         </>
     )
