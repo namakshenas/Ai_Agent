@@ -6,24 +6,13 @@
 
 .tabBar button {
   height: 3rem;
-  background-color: #fff;
+  background: #fff;
   border-radius: 4px 4px 0 0;
   color: #000000aa;
   box-shadow: none;
   font-weight: 500;
   border: none;
-}
-
-.tabBar button:hover {
-  color: #fff;
-}
-
-.tabBar button.active:hover {
-  height: 3rem;
-  background: linear-gradient(to bottom, #86e5ce, #75d8d8);
-  color: #fff;
-  text-shadow: 0 2px 2px #25665b44;
-  border-radius: 4px 4px 0 0;
+  transition: none;
 }
 
 .tabBar button.active {
@@ -33,4 +22,13 @@
   color: #fff;
   box-shadow: 0 4px 8px #97e3f0, 0 12px 24px #97f0ec66;
   text-shadow: none;
+}
+
+.tabBar button:hover,
+.tabBar button.active:hover {
+  height: 3rem;
+  background: linear-gradient(to bottom, #86e5ce, #75d8d8);
+  color: #fff;
+  text-shadow: 0 2px 2px #25665b44;
+  border-radius: 4px 4px 0 0;
 }

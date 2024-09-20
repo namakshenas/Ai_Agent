@@ -101,6 +101,7 @@ button:hover svg path {
 }
 
 .searchWebCheck {
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -108,28 +109,35 @@ button:hover svg path {
   column-gap: 1rem;
   font-family: "Jost", sans-serif;
   font-size: 1rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.05rem 0.75rem 1.5rem;
   background-color: #ffffffff;
   box-shadow: 0 1px 2px #b3b8bb44, 0 4px 8px #b0c7da88;
   color: #000000aa;
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #cdcdcdaa;
-  width: 260px;
 }
 
 .searchWebCheck.activated {
   box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
-  border: 2px dotted #86e5ce;
-  outline: none;
+  border: 1px dashed #86e5ce;
+  outline: 1px dashed #86e5ce;
 }
 
 .searchWebCheck:hover {
   box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
-  border: 2px solid #86e5ce;
-  outline: none;
+  border: 1px solid #86e5ce;
+  outline: 1px solid #86e5ce;
 }
 
 .searchWebCheck input[type="checkbox"] {
   accent-color: #56b8af;
+  transform: translateY(-1px);
+}
+
+.searchWebCheck .searchWebSeparator {
+  height: 100%;
+  width: 1px;
+  background-color: #00000077;
+  flex: 0 0 1px;
 }
