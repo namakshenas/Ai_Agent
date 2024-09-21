@@ -18,6 +18,8 @@ import Select, { IOption } from "../components/CustomSelect/Select";
 import Modal from "../components/Modal";
 import FormAgentSettings from "../components/FormAgentSettings";
 import useModalVisibility from "../hooks/useModalVisibility";
+import LeftDrawer from "../components/LeftDrawer";
+import RightDrawer from "../components/RightDrawer";
 
 
 function Chat() {
@@ -135,7 +137,9 @@ function Chat() {
     }
 
     return (
-        <>
+    <div className="globalContainer">
+        <LeftDrawer/>
+        <main>
             <div className="modelAgentContainer">
                 <label id="selectModalLabel">Select a Model</label>
                 <Select labelledBy="selectModalLabel" onValueChange={(activeOption: IOption) => console.log(activeOption.value)} 
@@ -145,13 +149,13 @@ function Chat() {
                 <Select labelledBy="selectAgentLabel" onValueChange={(activeOption: IOption) => ChatService.setActiveAgent(activeOption.value)} 
                     options={agentsList.map((agent) => ({ label: agent, value: agent }))} id={"selectAgent"} 
                     width={300} defaultOption={ChatService.getActiveAgentName()}/>
-                <button style={{ padding: '0 0.85rem' }} onClick={handleAgentSettingsClick}>
+                <button style={{ width:'44px', display:'flex', justifyContent:'center', alignItems:'center', padding:0 }} onClick={handleAgentSettingsClick}>
                     <svg style={{width:'18px'}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/></svg>
                 </button>
-                <button style={{ paddingLeft: '0.75rem', paddingRight: '0.75rem' }}>+ New</button>
+                <button style={{ padding: '0 1rem' }}>+ New</button>
             </div>
-            <ChatHistoryTabs activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} />
-            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}>
+            {/*<ChatHistoryTabs activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} />*/}
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginTop: '1rem' }} ref={historyContainerRef}>
                 <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} />
             </div>
             <div className="stickyBottomContainer">
@@ -164,11 +168,11 @@ function Chat() {
                 <div className="sendButtonContainer">
                     <div className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <CustomCheckbox checked={isWebSearchActivated} />
-                        Search the web
+                        Search the Web
                         <div className="searchWebSeparator"></div>
                         <img style={{opacity:0.6}} src={internetIcon} width="18px" height="18px" />
                     </div>
-                    <button onClick={handleScrollToTopClick}>Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length}</button>
+                    <button onClick={handleScrollToTopClick}>Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length} / {ChatService.getActiveAgent().getContextSize()}</button>
                     <button onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
                     {isStreaming && <button className="cancelSendButton" onClick={handleAbortStreamingClick}>
                         <svg style={{opacity:1, width:'20px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
@@ -178,7 +182,9 @@ function Chat() {
             {modalVisibility && <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
                 <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
             </Modal>}
-        </>
+        </main>
+        <RightDrawer/>
+    </div>
     )
 }
 
@@ -216,6 +222,8 @@ export default Chat
 // save and load system prompts into settings modal
 // save and load full agent settings
 // block scroll when modal onscreen
+// when modal appears scrollbar appears before disappearing cause 
+// modal crash when typing is too quick
 
 /*
 Valid Parameters and Values
