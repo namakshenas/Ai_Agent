@@ -1,0 +1,11 @@
+.rightDrawer {
+  height: 100vh;
+  display: flex;
+  position: sticky;
+  top: 0;
+  width: 300px;
+  background-color: #ffffff44;
+  border-left: 1px solid #cfd9e0;
+  font-size: 14px;
+  padding: 1rem;
+}
