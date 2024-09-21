@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 100%;
   border-top: 1px solid #1e292c66;
-  border-bottom: 1px solid #1e292c66;
+  /*border-bottom: 1px solid #1e292c66;*/
   margin-bottom: 1.5rem;
 }
 
@@ -25,28 +25,32 @@
   background: linear-gradient(to bottom, #ffffff, #f6f6f6);
   box-shadow: 0 1px 2px #b3b8bb88, 0 4px 8px #b0c7daaa;
   border-radius: 3px;
-  padding: 4px;
   box-sizing: border-box;
-  height: 30px;
+  height: 32px;
   cursor: pointer;
   opacity: 0.8;
   border: 1px solid #fff;
-  width: 30px;
+  width: 32px;
+  padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   transition: none;
-}
 
-.iconButton:hover {
-  background: #56b8af;
-  box-shadow: none;
-  outline: 1px solid #3e8079;
-  border: 1px solid #56b8af;
-}
+  svg {
+    flex-shrink: 0;
+  }
 
-.iconButton:hover svg {
-  fill: #fff;
+  &:hover {
+    background: #56b8af;
+    box-shadow: none;
+    outline: 1px solid #3e8079;
+    border: 1px solid #56b8af;
+  }
+
+  &:hover svg {
+    fill: #fff;
+  }
 }
 
 .chatHistorySection::-webkit-scrollbar {

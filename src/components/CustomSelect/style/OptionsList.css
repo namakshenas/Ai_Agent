@@ -2,23 +2,17 @@
   flex-direction: column;
   width: 100%;
   padding: 0;
-  /*display: none;*/
   position: absolute;
   left: 0;
   z-index: 100;
   background: #f6f6f6;
   overflow: hidden;
   border: 1px solid #c5c5c5;
-  top: 48px;
+  top: 46px;
 }
 
 .selectOptionsContainer li {
-  padding: 0.5em 1em 0.45em 1em;
+  padding: 0.5em 1em 0.5em 1em;
   cursor: pointer;
   text-align: left;
 }
-
-/*.selectOptionsContainer li:hover {
-  background-color: #0078d7;
-  color: #fff;
-}*/

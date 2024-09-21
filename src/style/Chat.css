@@ -1,14 +1,19 @@
+.globalContainer {
+  display: flex;
+  flex-direction: row;
+}
+
 .modelAgentContainer {
   display: flex;
   flex-direction: row;
   column-gap: 1rem;
   margin-top: 1rem;
-}
 
-.modelAgentContainer label {
-  display: flex;
-  align-items: center;
-  transform: translateY(0px);
+  label {
+    display: flex;
+    align-items: center;
+    transform: translateY(0px);
+  }
 }
 
 .modelDropdown {
@@ -18,11 +23,11 @@
   background-color: #dfe4ea88;
   border: 1px solid #4d749434;
   accent-color: #56b8af;
-}
 
-.modelDropdown option:hover {
-  background-color: #56b8af;
-  color: white;
+  option:hover {
+    background-color: #56b8af;
+    color: white;
+  }
 }
 
 .agentDropdown {
@@ -38,7 +43,7 @@ button {
   box-sizing: border-box;
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
-  background-color: #ffffffff;
+  background: #fff;
   box-shadow: 0 1px 2px #b3b8bb44, 0 4px 8px #b0c7da88;
   color: #000000aa;
   border-radius: 4px;
@@ -47,22 +52,23 @@ button {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border: 1px solid #cdcdcdaa;
-  height: 50px;
-  transition: background-color 0.1s ease-in, box-shadow 0.1s ease-in,
-    text-shadow 0.1s ease-in;
-}
+  border: 1px solid #fff;
+  outline: 1px solid #cdcdcdaa;
+  height: 44px;
+  transition: box-shadow 0.1s ease-in, text-shadow 0.1s ease-in;
 
-button:hover {
-  background: linear-gradient(to bottom, #86e5ce, #75d8d8);
-  color: #fff;
-  text-shadow: 0 2px 2px #25665b44;
-  border: 1px solid #7fe1c7aa;
-  box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
-}
+  &:hover {
+    background: linear-gradient(to bottom, #86e5ce, #75d8d8);
+    color: #fff;
+    text-shadow: 0 2px 2px #25665b44;
+    border: 1px solid #7fe1c7aa;
+    outline: 1px solid #7fe1c7aa;
+    box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
+  }
 
-button:hover svg path {
-  fill: #fff;
+  &:hover svg path {
+    fill: #fff;
+  }
 }
 
 .sendButtonContainer {
@@ -72,18 +78,29 @@ button:hover svg path {
   justify-content: center;
   align-items: center;
   margin-bottom: 2rem;
-}
 
-.sendButtonContainer button {
-  flex-grow: 1;
-  margin-left: auto;
-  max-width: 400px;
-}
+  button {
+    flex-grow: 1;
+    margin-left: auto;
+    max-width: 400px;
+    background: linear-gradient(to bottom, #5fd1be, #56b8af);
+    color: #fff;
+    outline: none;
+    border: none;
+    box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
 
-.sendButtonContainer button.cancelSendButton {
-  flex-grow: 0;
-  margin-left: 0;
-  width: 50px;
+    &:hover {
+      background: #49a199;
+      box-shadow: none;
+      outline: 1px solid #3e8079ee;
+    }
+  }
+
+  .sendButtonContainer button.cancelSendButton {
+    flex-grow: 0;
+    margin-left: 0;
+    width: 50px;
+  }
 }
 
 .stickyBottomContainer {
@@ -101,7 +118,7 @@ button:hover svg path {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 50px;
+  height: 44px;
   column-gap: 1rem;
   font-family: "Jost", sans-serif;
   font-size: 1rem;
@@ -112,28 +129,28 @@ button:hover svg path {
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #cdcdcdaa;
-}
 
-.searchWebCheck.activated {
-  box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
-  border: 1px dashed #86e5ce;
-  outline: 1px dashed #86e5ce;
-}
+  &.activated {
+    box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
+    border: 1px dashed #86e5ce;
+    outline: 1px dashed #86e5ce;
+  }
 
-.searchWebCheck:hover {
-  box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
-  border: 1px solid #86e5ce;
-  outline: 1px solid #86e5ce;
-}
+  &:hover {
+    box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
+    border: 1px solid #86e5ce;
+    outline: 1px solid #86e5ce;
+  }
 
-.searchWebCheck input[type="checkbox"] {
-  accent-color: #56b8af;
-  transform: translateY(-1px);
-}
+  input[type="checkbox"] {
+    accent-color: #56b8af;
+    transform: translateY(-1px);
+  }
 
-.searchWebCheck .searchWebSeparator {
-  height: 100%;
-  width: 1px;
-  background-color: #00000077;
-  flex: 0 0 1px;
+  .searchWebSeparator {
+    height: 100%;
+    width: 1px;
+    background-color: #00000077;
+    flex: 0 0 1px;
+  }
 }

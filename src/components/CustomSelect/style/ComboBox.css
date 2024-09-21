@@ -10,7 +10,7 @@ span.selectLabel {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5em 0.5em 0.45em 0.5em;
+  padding: 0.5em 1em 0.5em 1em;
   cursor: pointer;
   background: #f6f6f6;
   color: #454545;

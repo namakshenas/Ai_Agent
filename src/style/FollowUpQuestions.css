@@ -11,27 +11,28 @@
   border: 1px solid #4d749434;
   padding: 1rem;
   border-radius: 4px;
-}
 
-.followUpQuestionsContainer span {
-  display: flex;
-  width: 33%;
-  flex-grow: 1;
-  flex-shrink: 1;
-  border-radius: 3px;
-  box-shadow: 0 2px 4px #b3b8bb44, 0 4px 8px #b3b8bb77;
-  background-color: #fff;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
-  cursor: pointer;
-  box-sizing: border-box;
-  border: 2px solid #fff;
-  transition: border 0.15s ease-in, box-shadow 0.15s ease-in,
-    background-color 0.15s ease-in;
-}
+  span {
+    display: flex;
+    width: 33%;
+    font-size: 14px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px #b3b8bb44, 0 4px 8px #b3b8bb77;
+    background-color: #fff;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem;
+    cursor: pointer;
+    box-sizing: border-box;
+    border: 2px solid #fff;
+    transition: border 0.15s ease-in, box-shadow 0.15s ease-in,
+      background-color 0.15s ease-in;
+  }
 
-.followUpQuestionsContainer span:hover {
-  box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
-  border: 2px solid #86e5ce;
+  span:hover {
+    box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
+    border: 2px solid #86e5ce;
+  }
 }

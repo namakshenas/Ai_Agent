@@ -38,6 +38,7 @@ dialog:before {
 
 dialog::backdrop {
   background: rgba(21, 11, 22, 0.35);
+  width: 100vw;
 }
 
 dialog .modalHorizPadding {

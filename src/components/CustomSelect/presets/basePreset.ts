@@ -4,7 +4,7 @@ import SelectPresetClass from "./SelectPresetClass";
 export const basePreset = new SelectPresetClass(
     { // width font
         width : '200px',
-        height: '48px',
+        height: '44px',
         font : 'Jost',
         labelTextColor: "#454545",
         selectBackgroundColor: "#dfe4ea88",

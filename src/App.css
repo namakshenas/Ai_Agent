@@ -1,5 +1,4 @@
 #root {
-  max-width: 1280px;
   text-align: center;
   width: 100%;
   display: flex;
@@ -16,6 +15,8 @@ main {
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
+  padding: 0 2rem;
+  max-width: 1280px;
 }
 
 nav {
@@ -86,6 +87,7 @@ input {
   padding: 0 0.25rem;
   background-color: #dfe4ea88;
   border: 1px solid #4d749434;
+  height: 38px;
 }
 
 textarea {

@@ -1,14 +1,18 @@
 .agent-form {
-  display: flex;
-  flex-direction: column;
-  row-gap: 1.5rem;
+  display: grid;
   width: 100%;
-  /*grid-template-rows: 50px 1fr 30px;
-  grid-template-columns: 150px 1fr;
+  grid-template-rows: auto auto auto auto auto auto auto auto;
+  grid-template-columns: 1fr 120px 1fr;
   grid-template-areas:
-    "head head"
-    "nav  main"
-    ".  foot";*/
+    "a . b"
+    "c . d"
+    "e e e"
+    "f f f"
+    "g . h"
+    "i . j"
+    "k . l"
+    "m . n"
+    ". . p";
 }
 
 .form-row {
@@ -26,12 +30,13 @@
 
 .form-label {
   text-align: left;
+  margin: 1.5rem 0 0.85rem 0;
 }
 
 .form-input,
 .form-select {
   padding: 0.5em 0.5em 0.45em 0.5em;
-  width: 80%;
+  width: 100%;
   height: 48px;
 }
 
@@ -55,13 +60,14 @@
 }
 
 button.form-button {
-  width: 30%;
+  width: 100%;
   background: linear-gradient(to bottom, #86e5ce, #75d8d8);
   color: #fff;
   text-shadow: 0 2px 2px #25665b44;
   border: 1px solid #7fe1c7aa;
   box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
   transition: none;
+  margin: 1.5rem auto 0 auto;
 }
 
 button.form-button:hover {
