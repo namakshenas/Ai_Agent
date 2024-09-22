@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
@@ -183,7 +183,7 @@ function Chat() {
                 <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
             </Modal>}
         </main>
-        <RightDrawer/>
+        <RightDrawer activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>
     </div>
     )
 }
@@ -197,26 +197,20 @@ export default Chat
 // collapse previous history
 // refresh three questions with a button and close three questions
 // stop autoscroll down when streaming if the user scroll up
-// since now autoscroll, put the cancel button next to the send button
 // deal with ollama request not manually aborted leading to cancel request button not disappearing
 // switching conversation shouldnt lead to scrollbottom : check useeffect triggered by history state update
-// conversation button blinking when switching conversation
 // deal with json failing on some streaming => incomplete context array
 // issue : switching between conversations when the conversation hasn't been saved in chatconvservice
 // edit question sometimes takes two clicks
-// browse through previous questions / scroll to the question?
-// should be able to open a panel under the textarea to tweak the current model settings
 // fix issue with ollama last streamed element with sometimes incomplete context
-// should summarize the scraped data used to reply the answer
-// when switching conversation, it generates new suggestions, if clicking x times on diffrent conversation, i can have x suggestions
+// when switching conversation, it generates new suggestions, if clicking x times on diffrent conversation, i can have x suggestions // followup questions abort
 // generations in queue, so need to abort
 // determine if the request can be without the use of web searching
 // in one tab, i should be able to schedule a recurrent data research on a topic to stay informed
 // should add pictures too with the reply
 // clipboard for code blocks
-// regenerate the last answer
+// button : regenerate the last answer
 // when switching agent, should export the context from agent A to agent B
-// when passing with to one select component, both are scaled
 // snackbar settings applied
 // prevoir une compression de conversation pour libérer du context
 // save and load system prompts into settings modal
@@ -224,6 +218,10 @@ export default Chat
 // block scroll when modal onscreen
 // when modal appears scrollbar appears before disappearing cause 
 // modal crash when typing is too quick
+// escape modale
+// jsdoc hooks
+// new agent right drawer and modal
+// modal documents / prompts
 
 /*
 Valid Parameters and Values
