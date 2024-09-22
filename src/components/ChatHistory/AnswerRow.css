@@ -104,8 +104,6 @@
   align-self: center;
   flex-shrink: 0;
   justify-self: center;
-  opacity: 0.7;
-  transform: translateX(-1px) translateY(-0.5px);
   opacity: 0.2;
 }
 
@@ -120,6 +118,23 @@
   flex-direction: column;
   max-width: 100%;
   overflow: hidden;
+
+  .title {
+    height: 2rem;
+    width: 100%;
+    background-color: #4d749424;
+    color: #000000bb;
+    display: flex;
+    align-items: center;
+    padding-left: 0.5rem;
+    border-bottom: 1px solid #4d749444;
+    font-weight: 500;
+  }
+
+  .body {
+    width: 100%;
+    padding: 0.5rem;
+  }
 }
 
 .textBlock {
@@ -133,23 +148,6 @@
   flex-direction: column;
   max-width: 100%;
   overflow: hidden;
-}
-
-.codeBlock .title {
-  height: 2rem;
-  width: 100%;
-  background-color: #4d749424;
-  color: #000000bb;
-  display: flex;
-  align-items: center;
-  padding-left: 0.5rem;
-  border-bottom: 1px solid #4d749444;
-  font-weight: 500;
-}
-
-.codeBlock .body {
-  width: 100%;
-  padding: 0.5rem;
 }
 
 .codeBlock .body pre,
@@ -168,37 +166,52 @@ table {
   margin: 1rem 0;
   width: 100%;
   border-collapse: collapse;
-}
 
-table thead,
-table tr {
-  border-bottom: 1px solid #4d749444;
-}
+  thead,
+  tr {
+    border-bottom: 1px solid #4d749444;
+  }
 
-table td,
-table th {
-  padding: 0.5rem;
-  border-right: 1px solid #4d749444;
-}
+  td,
+  th {
+    padding: 0.5rem;
+    border-right: 1px solid #4d749444;
+  }
 
-table th {
-  background-color: #dfe4ea77;
+  th {
+    background-color: #dfe4ea77;
+  }
 }
 
 .answerItem {
   background-color: #ffffff;
   color: #000000dd;
-}
 
-.answerItem figure {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid #56987ecc;
-  outline: 2px solid #56987ecc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  a:any-link {
+    color: #000000bb;
+    text-decoration: underline;
+  }
+
+  span.source a {
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  figure {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #56987ecc;
+    outline: 2px solid #56987ecc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .actorFigureAnimation {
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
+  }
 }
 
 @keyframes fadeInOut {
@@ -209,19 +222,4 @@ table th {
   50% {
     opacity: 1;
   }
-}
-
-.answerItem figure.actorFigureAnimation {
-  animation: fadeInOut 2s ease-in-out infinite;
-}
-
-.answerItem a:any-link {
-  color: #000000bb;
-  text-decoration: underline;
-}
-
-.answerItem span.source a {
-  font-size: 14px;
-  font-weight: 400;
-  text-decoration: none;
 }

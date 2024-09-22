@@ -10,15 +10,16 @@
   padding: 0 0.75rem;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff44;
+  background: linear-gradient(to bottom, #2a413f, #2f565f);
   overflow: hidden;
+  color: #8aa7a3;
 
   figure {
     font-family: "Cormorant Garamond", serif;
     font-weight: 700;
     font-style: italic;
     font-size: 32px;
-    color: #49a199;
+    color: #ffffffc3;
     height: 76px;
     display: flex;
     justify-content: center;
@@ -28,21 +29,25 @@
     span {
       font-family: "Cormorant Garamond", serif;
       transform: translateY(-1px);
+      color: #8aa7a3;
+      text-shadow: 0px 1px 2px #00000099, 0px 3px 6px #00000055;
     }
 
     img {
       width: 32px;
-      border: 2px solid #000;
+      outline: 2px solid #8aa7a3;
       border-radius: 100%;
+      box-shadow: 0 2px 4px #000000ee, 0 4px 8px #000000bb;
+      opacity: 0.9;
     }
   }
 
   h3 {
-    border-top: 1px solid #cfd9e0;
+    border-top: 1px solid #263635;
     padding-top: 1rem;
     font-weight: 500;
     font-size: 14px;
-    color: #a5b6c4;
+    color: #8aa7a3;
     text-align: left;
     width: 100%;
     display: flex;
@@ -53,7 +58,7 @@
   ul {
     display: flex;
     flex-direction: column;
-    margin-top: 0.85rem;
+    margin-top: 0.75rem;
     width: 100%;
     row-gap: 0.5rem;
 
@@ -61,30 +66,31 @@
       width: 100%;
       text-align: left;
       height: 36px;
-      border: 1px solid #ced8dfbb;
-      background-color: #e7eaeeaa;
+      background: linear-gradient(to bottom, #1a202088, #222b2a88);
+      box-shadow: 0 1px 0px #476e6aaa;
+      color: #ffffffc3;
       padding: 0 0.5rem;
       display: flex;
-      align-items: center;
       border-radius: 4px;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
       cursor: pointer;
+      align-items: center;
       column-gap: 0.5rem;
-      box-shadow: 0 1px 0 #ffffffbb;
+      line-height: 36px;
 
       &.active {
         background: #49a199ee;
-        /*box-shadow: inset 0 1px 2px #00000033, 0 2px 0px #fff;*/
-        outline: 1px solid #3e8079aa; /*ee*/
-        border: 1px solid #49a199ee;
+        outline: none; /*ee*/
+        border: none;
         color: #fff;
         font-weight: 500;
         text-shadow: 0 2px 1px #3e807999;
         display: flex;
         justify-content: center;
         align-items: center;
+        box-shadow: 0 1px 2px #222b2aff, 0 2px 4px #222b2aaa,
+          inset 0 1px 0 #58b9b1dd;
 
         span {
           overflow: hidden;
@@ -99,6 +105,7 @@
           margin: 0;
           background: none;
           box-shadow: none;
+          transform: translateX(5px);
         }
       }
 
@@ -108,16 +115,17 @@
         color: #fff;
         outline: 1px solid #3e8079aa;
         border: 1px solid #49a199ee;
-        padding: 0 0.5rem;
       }
 
       .activeFileIndic {
         width: 8px;
         height: 8px;
-        background-color: #86e5ce;
-        border-radius: 100%;
+        background: #86e5ce;
+        border-radius: 2px;
+        border: none;
+        outline: none;
         transform: translateY(1px);
-        outline: 1px solid #56b8af;
+        box-shadow: 0 1px 2px #000000aa, inset 0 1px 0 #a1fce5;
       }
     }
   }
@@ -134,7 +142,8 @@
     background: linear-gradient(to bottom, #5fd1be, #56b8af);
     color: #fff;
     outline: none;
-    box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;
+    box-shadow: 0 2px 4px #222b2a77, 0 4px 8px #222b2a44,
+      inset 0 1px 0 #abebebdd;
 
     &:hover {
       background: #49a199ee;
@@ -143,22 +152,22 @@
     }
 
     &.white {
-      background: #fff;
-      box-shadow: 0 1px 2px #a8b8c866, 0 4px 8px #cfd8e199;
+      background: linear-gradient(to bottom, #e6eec1dd, #bddca0dd);
+      box-shadow: 0 2px 4px #222b2a77, 0 4px 8px #222b2a44,
+        inset 0 1px 0 #f9ffdf;
       color: #000000;
 
       svg path {
-        fill: #000;
+        fill: #000000cc;
       }
 
       &:hover {
-        background: #fff;
+        background: linear-gradient(to bottom, #f8fce5dd, #d9ecc6dd);
         box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;
-        color: #000000;
-        outline: 2px solid #86e5ce;
+        color: #000000cc;
 
         svg path {
-          fill: #000;
+          fill: #000000cc;
         }
       }
     }

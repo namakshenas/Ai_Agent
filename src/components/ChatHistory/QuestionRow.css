@@ -9,18 +9,21 @@
 
 .questionItem {
   background: #dfe4ea88;
+  /*background: linear-gradient(to bottom, #e6eec188, #bddca088);*/
+  /*background: linear-gradient(to bottom, #e6eec188, #bbdd9c33);*/
   color: #000000dd;
-}
+  border-bottom: 1px solid #5e663ce3;
 
-.questionItem figure {
-  height: 34px;
-  width: 34px;
-  border-radius: 100%;
-  outline: 2px solid #fff;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  figure {
+    height: 34px;
+    width: 34px;
+    border-radius: 100%;
+    outline: 2px solid #fff;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .questionIconsContainer {
