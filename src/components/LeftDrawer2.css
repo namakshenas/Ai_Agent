@@ -3,8 +3,8 @@
   display: flex;
   position: sticky;
   top: 0;
-  flex: 1 1 300px;
-  max-width: 300px;
+  flex: 1 0 320px;
+  max-width: 320px;
   border-right: 1px solid #cfd9e0;
   font-size: 14px;
   padding: 0 0.75rem;
@@ -111,10 +111,11 @@
 
       &:hover {
         background: #49a199ee;
-        box-shadow: none;
+        box-shadow: 0 1px 2px #222b2aff, 0 2px 4px #222b2aaa,
+          inset 0 1px 0 #58b9b1dd;
         color: #fff;
         outline: 1px solid #3e8079aa;
-        border: 1px solid #49a199ee;
+        /*border: 1px solid #49a199ee;*/
       }
 
       .activeFileIndic {
@@ -146,28 +147,30 @@
       inset 0 1px 0 #abebebdd;
 
     &:hover {
-      background: #49a199ee;
-      box-shadow: inset 0 1px 2px #00000033, 0 2px 0px #fff;
-      outline: 1px solid #3e8079cc;
+      background: #56b3abee;
+      box-shadow: inset 0 2px 2px #00000033, 0 2px 0px #5893a0aa;
+      outline: 1px solid #17312fcc;
     }
 
-    &.white {
+    &.lemongreen {
       background: linear-gradient(to bottom, #e6eec1dd, #bddca0dd);
       box-shadow: 0 2px 4px #222b2a77, 0 4px 8px #222b2a44,
         inset 0 1px 0 #f9ffdf;
       color: #000000;
 
       svg path {
-        fill: #000000cc;
+        opacity: 0.9;
       }
 
       &:hover {
         background: linear-gradient(to bottom, #f8fce5dd, #d9ecc6dd);
         box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;
         color: #000000cc;
+        outline: 1px solid #3e8079cc;
 
         svg path {
-          fill: #000000cc;
+          fill: #000000aa;
+          opacity: 0.75;
         }
       }
     }

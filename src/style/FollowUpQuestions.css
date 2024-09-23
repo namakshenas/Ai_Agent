@@ -19,7 +19,8 @@
     flex-grow: 1;
     flex-shrink: 1;
     border-radius: 3px;
-    box-shadow: 0 2px 4px #b3b8bb44, 0 4px 8px #b3b8bb77;
+    /*box-shadow: 0 2px 4px #b3b8bb44, 0 4px 8px #b3b8bb77;*/
+    box-shadow: 0 2px 4px #becde1aa, 0 4px 8px #d4dbe4cc;
     background-color: #fff;
     justify-content: center;
     align-items: center;

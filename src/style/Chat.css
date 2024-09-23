@@ -88,6 +88,7 @@ button {
     outline: none;
     border: none;
     box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
+    font-weight: 500;
 
     &:hover {
       background: #49a199;
@@ -111,6 +112,12 @@ button {
   display: flex;
   flex-direction: column;
   margin-top: auto;
+
+  button.sendButton:hover {
+    background: #56b3abee;
+    box-shadow: inset 0 2px 2px #00000033, 0 2px 0px #ffffff;
+    outline: 1px solid #17312f33;
+  }
 }
 
 .searchWebCheck {
@@ -122,13 +129,17 @@ button {
   column-gap: 1rem;
   font-family: "Jost", sans-serif;
   font-size: 1rem;
-  padding: 0.75rem 1.05rem 0.75rem 1.5rem;
+  padding: 0.75rem 0.95rem 0.75rem 0.95rem;
   background-color: #ffffffff;
   box-shadow: 0 1px 2px #b3b8bb44, 0 4px 8px #b0c7da88;
-  color: #000000aa;
+  color: #000000cc;
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #cdcdcdaa;
+
+  span.label {
+    font-weight: 500;
+  }
 
   &.activated {
     box-shadow: 0 3px 6px #b3b8bb55, 0 6px 12px #86e5ce55;
@@ -142,15 +153,28 @@ button {
     outline: 1px solid #86e5ce;
   }
 
-  input[type="checkbox"] {
-    accent-color: #56b8af;
-    transform: translateY(-1px);
-  }
+  .switchContainer {
+    width: 40px;
+    height: 20px;
+    background: linear-gradient(to bottom, #dbe0e5, #e0e4e9);
+    border-radius: 22px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 2px #00000022;
+    overflow: hidden;
 
-  .searchWebSeparator {
-    height: 100%;
-    width: 1px;
-    background-color: #00000077;
-    flex: 0 0 1px;
+    .switch {
+      width: 20px;
+      height: 20px;
+      border-radius: 100%;
+      background: linear-gradient(to bottom, #b0b0b0, #696969);
+      transition: margin 0.2s ease-in, box-shadows 0.2s ease-in;
+      box-shadow: inset 0 1px 0 #d6dcdd, 0 2px 4px #00000033;
+
+      &.active {
+        background: linear-gradient(to bottom, #5bc6b8, #34a69a);
+        margin-left: 20px;
+        box-shadow: inset 0 1px 0 #abebebdd;
+      }
+    }
   }
 }
