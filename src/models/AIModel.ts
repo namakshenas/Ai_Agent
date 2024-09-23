@@ -153,6 +153,15 @@ export class AIModel{
         this.#numPredict = value
     }
 
+    setSettings({ modelName = "llama3.1:8b", systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8, numPredict = 1024 } : IAIModelParams){
+        this.#modelName = modelName
+        this.#systemPrompt = systemPrompt
+        this.#context = context
+        this.#contextSize = contextSize
+        this.#numPredict = numPredict
+        this.#temperature = temperature
+    }
+
     /**
      * @private
      * @function #buildRequest

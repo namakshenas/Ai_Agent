@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { AIAgent } from "../models/AIAgent";
 import Select from "./CustomSelect/Select";
 import './FormAgentSettings.css'
-import { OllamaService } from "../services/OllamaService";
 import useFetchModelsList from "../hooks/useFetchModelsList";
+import IFormStructure from "../interfaces/IAgentFormStructure";
 
 export default function FormAgentSettings({agent} : IProps){
 
@@ -27,7 +27,7 @@ export default function FormAgentSettings({agent} : IProps){
         temperature: agent.getTemperature(),
         maxContextLength: agent.getContextSize(),
         maxTokensPerReply: agent.getNumPredict(),
-        webSearch: false,
+        webSearchEconomy: false,
     }
 
     const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
@@ -35,12 +35,13 @@ export default function FormAgentSettings({agent} : IProps){
     return (
         <form className="agent-form">
 
-            <label aria-label="agentNameLabel" style={{marginTop:0}} className="form-label">Agent Name</label>
+            <label id="label-agentName" style={{marginTop:0}} className="form-label">Agent Name</label>
             <div/>
-            <label aria-label="modelNameLabel" style={{marginTop:0}} className="form-label">Model</label>
+            <label id="label-modelName" style={{marginTop:0}} className="form-label">Model</label>
 
             <input
-                aria-labelledby="agentNameLabel"
+                aria-labelledby="label-agentName"
+                type="text"
                 className="form-input" 
                 spellCheck="false"
                 value={formValues.agentName}
@@ -51,52 +52,55 @@ export default function FormAgentSettings({agent} : IProps){
                 width="100%"
                 options={modelList.map((model) => ({ label: model, value: model }))} 
                 defaultOption={formValues.modelName}
-                labelledBy="modelNameLabel" 
+                labelledBy="label-modelName" 
                 id="settingsSelectAgent"
             />
 
-            <label aria-label="systemPromptLabel" style={{gridArea:'e'}} className="form-label">System Prompt</label>
+            <label id="label-systemPrompt" style={{gridArea:'e'}} className="form-label">System Prompt</label>
 
             <textarea
-                aria-labelledby="systemPromptLabel"
+                aria-labelledby="label-systemPrompt"
                 style={{gridArea:'f'}}
                 spellCheck="false"
                 className="form-textarea" 
                 rows={12} 
                 value={formValues.systemPrompt}
-                onChange={(e) => setFormValues(formValues => ({...formValues, systemPrompt : e.currentTarget.value}))}
+                onChange={(e) => setFormValues(formValues => ({...formValues, systemPrompt : e.target?.value}))}
             />
 
-            <label aria-label="temperatureLabel" className="form-label">Temperature</label>
+            <label id="label-temperature" className="form-label">Temperature</label>
             <div/>
-            <label aria-label="maxTokensPerReplyLabel" className="form-label">Max Tokens Per Reply</label>
+            <label id="label-maxTokensPerReply" className="form-label">Max Tokens Per Reply</label>
 
             <input
-                aria-labelledby="temperatureLabel" 
+                aria-labelledby="label-temperature"
+                type="text" 
                 className="form-input"
                 spellCheck="false"
                 value={formValues.temperature}
-                onChange={(e) => setFormValues(formValues => ({...formValues, temperature : parseInt(e.currentTarget.value) | 0}))}
+                onChange={(e) => setFormValues(formValues => ({...formValues, temperature : parseInt(e.target?.value) | 0}))}
             />
             <div/>
             <input 
-                aria-labelledby="maxTokensPerReplyLabel" 
+                aria-labelledby="label-maxTokensPerReply"
+                type="text"
                 className="form-input"
                 spellCheck="false"
                 value={formValues.maxTokensPerReply}
-                onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : parseInt(e.currentTarget.value) | 0}))}
+                onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : parseInt(e.target?.value) | 0}))}
             />
 
-            <label aria-label="maxContextLengthLabel" className="form-label">Max Context Length</label>
+            <label id="label-maxContextLength" className="form-label">Max Context Length</label>
             <div/>
-            <label aria-label="webSearchLabel" className="form-label">Web Search</label>
+            <label id="label-webSearch" className="form-label">Web Search</label>
 
             <input
-                aria-labelledby="maxContextLengthLabel" 
+                aria-labelledby="label-maxContextLength" 
+                type="text"
                 className="form-input"
                 spellCheck="false"
                 value={formValues.maxContextLength}
-                onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : parseInt(e.currentTarget.value) | 0}))}
+                onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : parseInt(e.target?.value) | 0}))}
             />
             <div/>
             <span className="form-span">Context Economy | Processing Speed</span>
@@ -108,14 +112,4 @@ export default function FormAgentSettings({agent} : IProps){
 
 interface IProps{
     agent : AIAgent
-}
-
-interface IFormStructure{
-    agentName : string
-    modelName : string
-    systemPrompt : string
-    temperature : number
-    maxContextLength : number
-    webSearch : boolean
-    maxTokensPerReply : number
 }
