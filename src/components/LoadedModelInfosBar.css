@@ -1,0 +1,82 @@
+.infosBarContainer {
+  background: #d8dee3;
+  border: 1px solid #5c697755;
+  border-radius: 6px 6px 0 0;
+  margin-top: 0.75rem;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  box-shadow: 0 1px 0 #ffffff;
+  font-size: 14px;
+
+  span {
+    padding: 0 16px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1 1 fit-content;
+    white-space: nowrap;
+
+    &.label {
+      font-weight: 500;
+      box-shadow: inset 0 1px 1px #ffffff99;
+    }
+
+    &.value {
+      background: linear-gradient(to bottom, #526a6b, #496a71);
+      box-shadow: inset 0 2px 4px #233d3e;
+      color: #ffffffcc;
+      white-space: nowrap;
+      flex: 1 1 fit-content;
+    }
+  }
+
+  .allocationBarContainer {
+    padding: 0 16px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1 1 fit-content;
+    background: linear-gradient(to bottom, #526a6b, #496a71);
+    box-shadow: inset 0 2px 4px #233d3e;
+    color: #ffffffcc;
+    max-width: 230px;
+
+    .barContainer {
+      background: #2d3f3f;
+      border-radius: 14px;
+      height: 14px;
+      width: 100px;
+      flex-shrink: 0;
+      box-shadow: 0 1px 0 #5e7e80;
+      overflow: hidden;
+
+      .bar {
+        background: radial-gradient(circle at 60%, #c8edca99, #c8edca00),
+          linear-gradient(to bottom, rgb(95, 209, 190), rgb(86, 184, 175));
+        border-radius: 0 14px 14px 0;
+        box-shadow: inset 0 1px 0 #d9f7da99;
+        height: 100%;
+        width: 85%;
+      }
+    }
+  }
+
+  button {
+    width: 50px;
+    height: 100%;
+    background: linear-gradient(rgb(95, 209, 190), rgb(86, 184, 175));
+    border: none;
+    outline: none;
+    border-radius: 0;
+    box-shadow: inset 0 1px 0 #abebebdd;
+    padding: 0;
+
+    svg {
+      transform: translateY(1px);
+    }
+  }
+}
