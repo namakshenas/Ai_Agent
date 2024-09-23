@@ -40,6 +40,8 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IPr
     )
 }
 
+// if table first answer node, then no margin top
+
 export default AnswerRow
 
 interface IProps{

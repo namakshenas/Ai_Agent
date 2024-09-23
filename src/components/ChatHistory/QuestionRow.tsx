@@ -10,7 +10,7 @@ function QuestionRow({index, question, onDownload, onCopyToClipboard, onModify} 
     }
 
     return(
-       <article id={'questionItem'+index} className="historyItem questionItem" style={{borderBottom:'1px solid #22222211'}} key={'question' + index}>
+       <article id={'questionItem'+index} className="historyItem questionItem2" style={{borderBottom:'1px solid #22222211'}} key={'question' + index}>
             <figure>
                 <img className="actorIcon" src={userIcon} width={34} style={{opacity:0.6}}/>
             </figure>
