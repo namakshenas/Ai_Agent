@@ -41,16 +41,16 @@
     flex-shrink: 0;
   }
 
-  &:hover {
-    background: #56b8af;
+  /*&:hover {
+    background: var(--green-button-bottom-color);
     box-shadow: none;
     outline: 1px solid #3e8079;
-    border: 1px solid #56b8af;
+    border: 1px solid var(--green-button-bottom-color);
   }
 
   &:hover svg {
     fill: #fff;
-  }
+  }*/
 }
 
 .chatHistorySection::-webkit-scrollbar {

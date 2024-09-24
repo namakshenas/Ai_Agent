@@ -13,7 +13,7 @@ div.checkbox {
 }
 
 div.checkbox.checked {
-  background-color: #56b8af;
+  background-color: var(--green-button-bottom-color);
 }
 
 div.checkbox img {

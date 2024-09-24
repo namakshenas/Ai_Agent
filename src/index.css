@@ -23,12 +23,30 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --button-top-color: #5fd1be;
-  --button-bottom-color: #56b8af;
+  --green-button-top-color: #5fd1be;
+  --green-button-bottom-color: #56b8af;
+  --green-button-dropshadow-2-4-darkbg: #222b2acc;
+  --green-button-dropshadow-4-8-darkbg: #222b2a66;
+  --green-button-highlight: #abebebdd;
+
+  --green-button-hover-color: #56b3abee;
+
   --button-dropshadow-1-2: #4dc3aeb3;
   --button-dropshadow-8-16: #94e9d2b3;
+
   --input-background-color: #e9edf2;
   --input-border-color: #d5dee5;
+
+  --input-background-top-color-darkbg: #1a202088;
+  --input-background-bottom-color-darkbg: #222b2a88;
+  --input-bottom-highlight-darkbg: #476e6aaa;
+  --input-text-color-darkbg: #ffffffc3;
+
+  --black-text-color: #1c1c1c;
+  --black-text-color-ee: #1c1c1cee;
+
+  --drawer-background-top-color: #2a413f;
+  --drawer-background-bottom-color: #2f565f;
 }
 
 html {

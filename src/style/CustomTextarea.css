@@ -25,7 +25,8 @@
     border: none;
     box-sizing: border-box;
     outline: 2px solid #86e5ce;
-    background: #edf0f4dd;
+    /*background: #edf0f4dd;*/
+    background: rgb(220, 225, 233, 0.85);
   }
 
   .suggestionOverlay {

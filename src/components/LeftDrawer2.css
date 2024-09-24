@@ -69,7 +69,7 @@
       background: linear-gradient(to bottom, #1a202088, #222b2a88);
       box-shadow: 0 1px 0px #476e6aaa;
       color: #ffffffc3;
-      padding: 0 0.5rem;
+      padding: 0 0.25rem 0 0.5rem;
       display: flex;
       border-radius: 4px;
       white-space: nowrap;
@@ -87,10 +87,11 @@
         font-weight: 500;
         text-shadow: 0 2px 1px #3e807999;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         box-shadow: 0 1px 2px #222b2aff, 0 2px 4px #222b2aaa,
           inset 0 1px 0 #58b9b1dd;
+        cursor: auto;
 
         span {
           overflow: hidden;
@@ -99,23 +100,32 @@
         }
 
         .conversationTrashBtn {
-          height: 24px;
-          width: 24px;
+          height: 36px;
+          width: 36px;
           flex-shrink: 0;
           margin: 0;
           background: none;
           box-shadow: none;
           transform: translateX(5px);
+          border-radius: 0;
+          border: none;
+          outline: none;
+
+          &:hover {
+            background-color: #408681ee;
+            outline: 0 0 0 1px solid rgb(52, 107, 103);
+          }
         }
       }
 
-      &:hover {
-        background: #49a199ee;
+      &:hover:not(.active) {
+        /*background: #49a199ee;
         box-shadow: 0 1px 2px #222b2aff, 0 2px 4px #222b2aaa,
           inset 0 1px 0 #58b9b1dd;
-        color: #fff;
-        outline: 1px solid #3e8079aa;
+        color: #fff;*/
+        outline: 1px solid var(--green-button-top-color);
         /*border: 1px solid #49a199ee;*/
+        box-shadow: 0 0px 6px #5fd1be99;
       }
 
       .activeFileIndic {
@@ -140,7 +150,11 @@
     border: none;
     width: 36px;
     padding: 0;
-    background: linear-gradient(to bottom, #5fd1be, #56b8af);
+    background: linear-gradient(
+      to bottom,
+      var(--green-button-top-color),
+      var(--green-button-bottom-color)
+    );
     color: #fff;
     outline: none;
     box-shadow: 0 2px 4px #222b2a77, 0 4px 8px #222b2a44,
@@ -156,21 +170,25 @@
       background: linear-gradient(to bottom, #e6eec1dd, #bddca0dd);
       box-shadow: 0 2px 4px #222b2a77, 0 4px 8px #222b2a44,
         inset 0 1px 0 #f9ffdf;
-      color: #000000;
+      color: var(--black-text-color);
 
       svg path {
         opacity: 0.9;
       }
 
       &:hover {
-        background: linear-gradient(to bottom, #f8fce5dd, #d9ecc6dd);
+        /*background: linear-gradient(to bottom, #f8fce5dd, #d9ecc6dd);
         box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;
         color: #000000cc;
-        outline: 1px solid #3e8079cc;
+        outline: 1px solid #3e8079cc;*/
+        background: #a4c28cee;
+        box-shadow: inset 0 2px 2px #00000033, 0 2px 0px #5893a0aa;
+        outline: 1px solid #17312fcc;
+        color: var(--black-text-color) ee;
 
         svg path {
           fill: #000000aa;
-          opacity: 0.75;
+          opacity: 0.9;
         }
       }
     }

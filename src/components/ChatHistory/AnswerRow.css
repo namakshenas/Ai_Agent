@@ -96,6 +96,16 @@
   flex-shrink: 0;
   column-gap: 8px;
   row-gap: 8px;
+
+  .iconButton {
+    &:hover {
+      border: none;
+      outline: none;
+      background: #dce2e6;
+      opacity: 1;
+      box-shadow: inset 0 1px 2px #bac1c5cc, 0 1px 0px #f6fcf2dd;
+    }
+  }
 }
 
 .stopIcon {
@@ -222,4 +232,8 @@ table {
   50% {
     opacity: 1;
   }
+}
+
+.answerContainer table:first-child {
+  margin: 0 0 1rem 0;
 }

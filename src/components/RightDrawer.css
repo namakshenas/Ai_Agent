@@ -37,7 +37,11 @@
       width: 44px;
       flex: 0 0 44px;
       padding: 0;
-      background: linear-gradient(to bottom, #5fd1be, #56b8af);
+      background: linear-gradient(
+        to bottom,
+        var(--green-button-top-color),
+        var(--green-button-bottom-color)
+      );
       color: #fff;
       outline: none;
       box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;
@@ -126,7 +130,11 @@
       width: 100%;
 
       &.save {
-        background: linear-gradient(to bottom, #5fd1be, #56b8af);
+        background: linear-gradient(
+          to bottom,
+          var(--green-button-top-color),
+          var(--green-button-bottom-color)
+        );
         color: #fff;
         outline: none;
         box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;

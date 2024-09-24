@@ -72,8 +72,8 @@ button.form-button {
 }
 
 button.form-button:hover {
-  background: #56b8af;
+  background: var(--green-button-bottom-color);
   box-shadow: none;
   outline: 1px solid #3e8079;
-  border: 1px solid #56b8af;
+  border: 1px solid var(--green-button-bottom-color);
 }

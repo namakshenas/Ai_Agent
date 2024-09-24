@@ -78,5 +78,13 @@
     svg {
       transform: translateY(1px);
     }
+
+    &:hover {
+      background: #56b3abee;
+      box-shadow: inset 0 2px 2px #00000033, 0 2px 0px #5893a0aa,
+        inset 0px 0px 2px #00000044;
+      outline: 1px solid #17312fcc;
+      color: #fff;
+    }
   }
 }
