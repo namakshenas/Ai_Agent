@@ -1,11 +1,12 @@
 import { ConversationsRepository } from '../repositories/ConversationsRepository'
+import { AgentLibrary } from '../services/AgentLibrary'
 import '../style/ChatHistoryTabs.css'
 
 function ChatHistoryTabs({activeConversation, setActiveConversation} : IProps){
 
     // adding a new conversation tab
     function handleNewTabClick(){
-        ConversationsRepository.pushNewConversation("conversation " + ConversationsRepository.getNumberOfConversations(), [])
+        ConversationsRepository.pushNewConversation("conversation " + ConversationsRepository.getNumberOfConversations(), [], AgentLibrary.getAgent("helpfulAssistant").getName())
         setActiveConversation(ConversationsRepository.getNumberOfConversations() - 1)
     }
 
