@@ -4,7 +4,7 @@ import PromptLibrary from "./PromptLibrary"
 
 export class AgentLibrary {
 
-    static #helpfulAssistantAgent = new AIAgent("helpfulAssistant", "mistral-nemo:latest").setTemperature(0.1).setContextSize(15000)
+    static #helpfulAssistantAgent = new AIAgent("helpfulAssistant", "mistral-nemo:latest").setTemperature(0.1).setContextSize(14000)
     .setSystemPrompt(PromptLibrary.helpfulAssistantPrompt)
 
     static #COTAgent = new AIAgent("COTGenerator", "mistral-nemo:latest").setTemperature(0.1).setContextSize(8192)

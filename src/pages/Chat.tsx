@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
@@ -8,13 +8,9 @@ import { ConversationsRepository } from "../repositories/ConversationsRepository
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import { AgentLibrary } from "../services/AgentLibrary";
 import useFetchModelsList from "../hooks/useFetchModelsList";
-import ChatHistoryTabs from "../components/ChatHistoryTabs";
 import CustomTextarea, { ImperativeHandle } from "../components/CustomTextarea";
 import { ActionType, useConversationReducer } from "../hooks/useConversationReducer";
-import { CustomCheckbox } from "../components/CustomCheckbox/CustomCheckbox";
-import internetIcon from '../assets/search-engine.png';
 import { WebSearchService } from "../services/WebSearchService";
-import Select, { IOption } from "../components/CustomSelect/Select";
 import Modal from "../components/Modal";
 import FormAgentSettings from "../components/FormAgentSettings";
 import useModalVisibility from "../hooks/useModalVisibility";
@@ -60,7 +56,7 @@ function Chat() {
 
     useEffect(() => {
         setAgentsList(AgentLibrary.getAgentsNameList())
-        ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history)
+        ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
 
         // cleanup
         return () => {
@@ -130,7 +126,7 @@ function Chat() {
     }
 
     function handleScrollToTopClick(){
-        document.getElementById("selectAgentLabel")?.scrollIntoView({ behavior: "smooth" })
+        document.getElementById("globalContainer")?.scrollIntoView({ behavior: "smooth" })
     }
 
     function handleAgentSettingsClick() {
@@ -138,8 +134,8 @@ function Chat() {
     }
 
     return (
-    <div className="globalContainer">
-        <LeftDrawer/>
+    <div id="globalContainer" className="globalContainer">
+        <LeftDrawer activeConversation={activeConversationId} setActiveConversation={setActiveConversationId}/>
         <main>
             <LoadedModelInfosBar/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginTop: '0.75rem' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
@@ -159,11 +155,16 @@ function Chat() {
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
                         </div>
                     </div>
-                    <button onClick={handleScrollToTopClick}>Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length} / {ChatService.getActiveAgent().getContextSize()}</button>
-                    <button className="sendButton" onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
-                    {isStreaming && <button className="cancelSendButton" onClick={handleAbortStreamingClick}>
-                        <svg style={{opacity:1, width:'20px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
-                    </button>}
+                    <button onClick={handleScrollToTopClick}>
+                        {conversationState.lastAgentUsed /* not always displayed ?! */} / 
+                        Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length} / {ChatService.getActiveAgent().getContextSize()}
+                    </button>
+                    {isStreaming ? 
+                        <button className="cancelSendButton" onClick={handleAbortStreamingClick}>
+                            <svg style={{opacity:1, width:'20px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
+                        </button> : 
+                        <button className="sendButton" onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
+                    }
                 </div>
             </div>
             {modalVisibility && <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
@@ -176,6 +177,12 @@ function Chat() {
 }
 
 export default Chat
+
+// if closing the only conversation left, then creating a new blank conv
+// deleting conv => ask confirmation
+// when answer generation and switching conversation, QA pair being generated deleted
+// web search (i)
+
 
 /*
 Valid Parameters and Values
