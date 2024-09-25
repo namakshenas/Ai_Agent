@@ -15,38 +15,39 @@
   line-height: 1.5;
   font-weight: 400;
   font-size: 1rem;
-  color: #000000ee;
-  background-color: #fff;
   box-sizing: border-box;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --green-button-top-color: #5fd1be;
-  --green-button-bottom-color: #56b8af;
-  --green-button-dropshadow-2-4-darkbg: #222b2acc;
-  --green-button-dropshadow-4-8-darkbg: #222b2a66;
-  --green-button-highlight: #abebebdd;
+  --purple-button-color: #6d48c1;
+  --purple-button-hover-background-color: #75689b;
+  --purple-button-hover-border-color: #524678;
 
-  --green-button-hover-color: #56b3abee;
+  --secondary-button-hover-color: #c9cfe8;
+  --secondary-button-border-hover-color: #b4bde0;
+  --secondary-button-hover-text-color: #707baf;
+  --secondary-button-hover-innershadow-color: #5967a6b3;
 
-  --button-dropshadow-1-2: #4dc3aeb3;
-  --button-dropshadow-8-16: #94e9d2b3;
+  --light-purple-background-color: #d8d2f0;
+  --light-purple-border-color: #6d48c1;
 
-  --input-background-color: #e9edf2;
-  --input-border-color: #d5dee5;
+  --main-background-color: #dee0f2;
+  --main-black-text-color: #252525;
 
-  --input-background-top-color-darkbg: #1a202088;
-  --input-background-bottom-color-darkbg: #222b2a88;
-  --input-bottom-highlight-darkbg: #476e6aaa;
-  --input-text-color-darkbg: #ffffffc3;
+  --dotted-border-color: #a3a8db;
 
-  --black-text-color: #1c1c1c;
-  --black-text-color-ee: #1c1c1cee;
+  --input-background-color: #dee0ef;
+  --input-border-color: #aaafcc;
 
-  --drawer-background-top-color: #2a413f;
-  --drawer-background-bottom-color: #2f565f;
+  --base-container-background-color: #e9eaf6;
+  --base-container-border-color: #c4c7e8;
+
+  --label-grey-text-color: #848ab3;
+
+  color: var(--main-black-text-color);
+  background-color: var(--main-background-color);
 }
 
 html {
@@ -58,12 +59,8 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
   min-height: 100vh;
   flex-direction: column;
-  /*background: linear-gradient(to bottom, #efefef99, #fff);*/
-  /*background: linear-gradient(to bottom, #e9ecefbb, #fff);*/
-  background: linear-gradient(to bottom, #e9ecefbb, #eaeff35d);
 }
 
 h1 {

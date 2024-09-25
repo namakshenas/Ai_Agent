@@ -5,90 +5,30 @@
   flex-direction: column;
 }
 
-/*html {
-  scroll-behavior: smooth;
-  scroll-timeline: 0.5s;
-}*/
-
 main {
   display: flex;
   flex-direction: column;
   width: 100%;
+  flex: 1 1 100%;
   min-height: 100vh;
-  padding: 0 2rem;
-  /*max-width: 1280px;*/
-}
-
-nav {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 3rem;
-  column-gap: 0.75rem;
-  margin-bottom: 2rem;
-  margin-top: 0.5rem;
-}
-
-nav li {
-  background-color: #ffffffff;
-  box-shadow: 0 1px 2px #b3b8bb44, 0 4px 8px #b0c7da88;
-  color: #000000aa;
-  border-radius: 4px;
-  font-weight: 500;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 1rem;
-  cursor: pointer;
-}
-
-nav li a:any-link {
-  color: #000000aa;
-  column-gap: 0.5rem;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-
-nav li:hover {
-  background-color: #0078d7aa;
-  color: #fff;
-  box-shadow: 0 4px 8px #97c8f0, 0 12px 24px #97c8f066;
-}
-
-nav li:hover a {
-  color: #fff;
-}
-
-nav li:hover a svg path {
-  fill: #fff;
-}
-
-nav a:any-link {
-  color: #000000aa;
-}
-
-nav ul {
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
+  padding: 0 22px;
 }
 
 select,
 input {
   border-radius: 4px;
   padding: 0 0.25rem;
-  background-color: #dfe4ea88;
-  border: 1px solid #4d749434;
-  height: 38px;
+  background-color: #dee0ef;
+  border: 1px solid #aaafcc;
+  height: 40px;
   font-size: 1rem;
+  box-shadow: 0 1px 0 #f2f2fa;
+
+  &:focus {
+    border: none;
+    outline: 1px solid var(--light-purple-border-color);
+    border: 1px solid var(--light-purple-border-color);
+  }
 }
 
 textarea {
@@ -102,22 +42,38 @@ textarea {
   border-radius: 4px;
   resize: none;
   width: 100%;
-  background-color: #e1e6ec99;
+  background-color: #dee0ef;
   transition: outline 0.1s ease-in, background 0.2s ease-in;
+
+  &:focus {
+    border: none;
+    outline: 2px solid var(--purple-button-color);
+    background: #edf0f4dd;
+  }
 }
 
-textarea:focus {
+button {
+  border-radius: 4px;
+  height: 40px;
   border: none;
-  outline: 2px solid #86e5ce;
-  background: #edf0f4dd;
-}
+  outline: none;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-input:focus {
-  border: none;
-  outline: 1px solid #86e5ce;
-  border: 1px solid #86e5ce;
+  &:focus {
+    border: none;
+    outline: none;
+  }
+
+  &:hover {
+    border: none;
+    outline: none;
+  }
 }
 
 svg {
-  fill: #000000cc;
+  fill: var(--main-black-text-color);
 }
