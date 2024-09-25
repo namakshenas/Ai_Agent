@@ -28,7 +28,9 @@ export default function LoadedModelInfosBar(){
             <div className='allocationBarContainer'>
                 <span style={{flexGrow:0}}>GPU</span>
                 <div className='barContainer'>
-                    <div style={{width : runningModelsInfos?.percentageInVRAM || 0 }} className='bar'></div>
+                    <div style={{width : (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='bar'>
+                      <span>{runningModelsInfos?.percentageInVRAM + '%' || ""}</span>
+                    </div>
                 </div>
                 <span style={{flexGrow:0}}>CPU</span>
             </div>
