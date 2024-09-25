@@ -22,10 +22,8 @@
     border: 1px solid var(--base-container-border-color);
     border-radius: 6px;
     padding: 18px 1rem;
-    width: 340px;
-    min-width: 340px;
-    max-width: 340px;
-    flex: 0 0 340px;
+    width: 100%;
+    /*flex: 0 0 100%;*/
 
     label {
       width: 100%;
