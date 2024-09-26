@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import './RightDrawer3.css'
+import './RightPanel3.css'
 import { AIAgent } from '../models/AIAgent'
 import IFormStructure from '../interfaces/IAgentFormStructure'
 import { AgentLibrary } from '../services/AgentLibrary'
 
-export default function RightDrawer({activeAgent, setModalVisibility} : IProps){
+export default function RightPanel({activeAgent, setModalVisibility} : IProps){
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
@@ -33,6 +33,7 @@ export default function RightDrawer({activeAgent, setModalVisibility} : IProps){
 
     return(
         <aside className="rightDrawer">
+            <div style={{height:'74px'}}></div>
             <article className='settingsFormContainer'>
                 <label>Current Agent</label>
                 <input spellCheck="false" type="text" readOnly value={activeAgent.getName()}/>
@@ -46,7 +47,7 @@ export default function RightDrawer({activeAgent, setModalVisibility} : IProps){
                         type="text" 
                         value={activeAgent.getSystemPrompt().length > 37 ? activeAgent.getSystemPrompt().substring(0, 34)+'...' : activeAgent.getSystemPrompt()}
                     />
-                    <button onClick={() => setModalVisibility(true)}>
+                    <button className='purpleShadow' onClick={() => setModalVisibility(true)}>
                         <svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M21.9984 5.76357C21.9992 5.61882 21.9715 5.47532 21.9167 5.34131C21.862 5.2073 21.7813 5.08541 21.6794 4.98263L17.0157 0.318979C16.913 0.217037 16.7911 0.136386 16.6571 0.0816487C16.5231 0.0269117 16.3796 -0.000833794 16.2348 3.12556e-06C16.0901 -0.000833794 15.9466 0.0269117 15.8125 0.0816487C15.6785 0.136386 15.5566 0.217037 15.4539 0.318979L12.3411 3.43175L0.318995 15.4538C0.217053 15.5566 0.136401 15.6785 0.0816639 15.8125C0.026927 15.9465 -0.000818536 16.09 1.83843e-05 16.2348V20.8984C1.83843e-05 21.1902 0.115902 21.4699 0.322177 21.6762C0.528451 21.8825 0.80822 21.9984 1.09994 21.9984H5.76359C5.9175 22.0067 6.07145 21.9827 6.21546 21.9277C6.35946 21.8728 6.49032 21.7882 6.59953 21.6794L18.5556 9.65728L21.6794 6.59951C21.7796 6.49278 21.8614 6.37011 21.9214 6.23654C21.932 6.14886 21.932 6.06023 21.9214 5.97256C21.9265 5.92136 21.9265 5.86977 21.9214 5.81857L21.9984 5.76357ZM5.31262 19.7985H2.19985V16.6858L13.122 5.76357L16.2348 8.87634L5.31262 19.7985ZM17.7857 7.32546L14.6729 4.21269L16.2348 2.6618L19.3366 5.76357L17.7857 7.32546Z" fill="white"/>
                         </svg>
@@ -61,7 +62,7 @@ export default function RightDrawer({activeAgent, setModalVisibility} : IProps){
                         value={formValues.temperature}
                         onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <figure>
+                    <figure data-tooltip="Predictable <-> Creative">
                         <svg style={{transform:'translateX(0.5px) translateY(0.5px)'}} width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fillRule="evenodd" clipRule="evenodd" d="M9.40629 1.71324H24V3.42702H10.1991C10.2567 3.70901 10.2857 3.99609 10.2857 4.2839V13.8039C11.1126 14.6476 11.6719 15.7165 11.8935 16.8767C12.1151 18.0368 11.9892 19.2366 11.5315 20.3255C11.0738 21.4143 10.3047 22.3439 9.32069 22.9976C8.33665 23.6513 7.18148 24 6 24C4.81853 24 3.66335 23.6513 2.67932 22.9976C1.69529 22.3439 0.926207 21.4143 0.468513 20.3255C0.0108194 19.2366 -0.115114 18.0368 0.106505 16.8767C0.328123 15.7165 0.887429 14.6476 1.71429 13.8039V4.2839C1.71134 3.38597 1.99162 2.50997 2.51529 1.78044C3.03897 1.0509 3.77937 0.504982 4.63123 0.22029C5.4831 -0.0644014 6.40306 -0.0733719 7.26031 0.194654C8.11757 0.462681 8.86848 0.994061 9.40629 1.71324ZM3.56976 21.5261C4.28481 22.0174 5.13235 22.2798 6 22.2785C6.86765 22.2798 7.71519 22.0174 8.43024 21.5261C9.1453 21.0348 9.69408 20.3378 10.0038 19.5275C10.3136 18.7173 10.3697 17.8321 10.1647 16.9893C9.95972 16.1464 9.50331 15.3858 8.856 14.8082L8.57143 14.552V4.2839C8.57143 3.60212 8.30051 2.94826 7.81828 2.46617C7.33604 1.98408 6.68199 1.71324 6 1.71324C5.31802 1.71324 4.66396 1.98408 4.18173 2.46617C3.69949 2.94826 3.42857 3.60212 3.42857 4.2839V14.552L3.144 14.8082C2.4967 15.3858 2.04029 16.1464 1.83529 16.9893C1.6303 17.8321 1.6864 18.7173 1.99616 19.5275C2.30592 20.3378 2.85471 21.0348 3.56976 21.5261ZM21.4288 6.85456H15.4288V8.56834H21.4288V6.85456ZM24.0002 11.9959H15.4288V13.7097H24.0002V11.9959ZM21.4288 17.1372H15.4288V18.851H21.4288V17.1372ZM6.85738 4.2839V15.5811C7.42927 15.7832 7.91128 16.181 8.2182 16.704C8.52513 17.2271 8.63721 17.8418 8.53463 18.4394C8.43205 19.0371 8.12143 19.5793 7.65766 19.9702C7.19388 20.361 6.60682 20.5754 6.00023 20.5754C5.39364 20.5754 4.80658 20.361 4.34281 19.9702C3.87904 19.5793 3.56841 19.0371 3.46584 18.4394C3.36326 17.8418 3.47534 17.2271 3.78226 16.704C4.08919 16.181 4.57119 15.7832 5.14309 15.5811V4.2839H6.85738Z" fill="black"/>
                         </svg>
@@ -105,8 +106,8 @@ export default function RightDrawer({activeAgent, setModalVisibility} : IProps){
                     <span>Processing Speed</span>
                 </div>
                 <div className='settingsSaveContainer'>
-                    <button className='more' onClick={() => setModalVisibility(true)}>More Settings</button>
-                    <button className='save' onClick={handleSaveAgent}>Save</button>
+                    <button className='more purpleShadow' onClick={() => setModalVisibility(true)}>More Settings</button>
+                    <button className='save purpleShadow' onClick={handleSaveAgent}>Save</button>
                 </div>
             </article>
         </aside>
