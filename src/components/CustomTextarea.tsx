@@ -73,7 +73,7 @@ const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentCont
     return(
         <>
             <div className="textAreaContainer">
-                <textarea ref={textareaRef} id="mainTextArea" spellCheck="false" onInput={(e) => handleInput((e.target as HTMLTextAreaElement).value)} value={textareaValue}></textarea>
+                <textarea /*placeholder="Ask anything..."*/ ref={textareaRef} id="mainTextArea" spellCheck="false" onInput={(e) => handleInput((e.target as HTMLTextAreaElement).value)} value={textareaValue}></textarea>
                 {/*<div ref={suggestionDivRef} id="suggestions">{suggestion}</div>*/}
             </div>
         </>
