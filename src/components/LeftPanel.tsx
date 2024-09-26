@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import './LeftDrawer3.css'
+import './LeftPanel3.css'
 import ollama from '../assets/Ollama3.png'
 import { ConversationsRepository } from '../repositories/ConversationsRepository'
 import { useState } from 'react'
 import { IConversation } from '../interfaces/IConversation'
 
-export default function LeftDrawer({activeConversation, setActiveConversation} : IProps){
+export default function LeftPanel({activeConversation, setActiveConversation} : IProps){
 
     const [conversationsListState, setConversationsListState] = useState<IConversation[]>(ConversationsRepository.getConversations())
     const [conversationsListPage, setConversationsListPage] = useState<number>(0)
@@ -23,7 +23,9 @@ export default function LeftDrawer({activeConversation, setActiveConversation} :
     }
 
     function handleDeleteConversation(id : number) : void{
-        ConversationsRepository.deleteConversation(id)
+        ConversationsRepository.deleteConversation(id) // issue when deleting first conv, conv still displayed (chat history) 
+        // !!! refresh of chat history happens when active conversation id change
+        // but when i delete convo 0 then convo 1 becomes convo 0 and then active id stays at 0 // should refresh on n_conversations (length) too?
         setConversationsListState([...ConversationsRepository.getConversations()])
         setActiveConversation(id > 0 ? id - 1 : 0)
         const nConversations = ConversationsRepository.getConversations().length
@@ -67,14 +69,14 @@ export default function LeftDrawer({activeConversation, setActiveConversation} :
                     <button className="white" onClick={handleNextConversationsListPage}>
                         <svg style={{transform:'rotate(180deg)'}} height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>
-                    <button className="purple" onClick={handNewConversation}>
+                    <button className="purple purpleShadow" onClick={handNewConversation}>
                         <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
                     </button>
                 </div>
             </article>
-            <article style={{marginTop:'1rem'}}>
-                <h3 style={{marginTop:'1.5rem'}}>
-                    DOCUMENTS / RAG<span style={{marginLeft:'auto'}}>1/5</span>
+            <article style={{marginTop:'0.75rem'}}>
+                <h3>
+                    DOCUMENTS<span style={{marginLeft:'auto'}}>1/5</span>
                 </h3>
                 <ul>
                     <li>tiny-shakespeare.txt<span style={{marginLeft:'auto'}}> 1.06 MB</span></li>
@@ -88,13 +90,13 @@ export default function LeftDrawer({activeConversation, setActiveConversation} :
                     <button className="white">
                         <svg style={{transform:'rotate(180deg)'}} height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>
-                    <button className="purple">
+                    <button className="purple purpleShadow">
                         <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
                     </button>
                 </div>
             </article>
-            <article style={{marginTop:'1rem'}}>
-                <h3 style={{marginTop:'1.5rem'}}>
+            <article style={{marginTop:'0.75rem'}}>
+                <h3>
                     PROMPTS<span style={{marginLeft:'auto'}}>1/2</span>
                 </h3>
                 <ul>
@@ -109,7 +111,7 @@ export default function LeftDrawer({activeConversation, setActiveConversation} :
                     <button className="white">
                         <svg style={{transform:'rotate(180deg)'}} height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>
-                    <button className="purple">
+                    <button className="purple purpleShadow">
                         <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
                     </button>
                 </div>

@@ -6,11 +6,10 @@
   top: 0;
   flex: 0 0 360px;
   font-size: 16px;
-  padding: 0 0 0 22px;
+  padding: 0 0 0 16px;
   align-items: flex-start;
   max-width: 360px;
   min-width: 360px;
-  overflow: hidden;
 
   figure {
     font-weight: 700;
@@ -36,6 +35,7 @@
       border: 3px solid #6d48c1;
       border-radius: 100%;
       opacity: 0.9;
+      box-shadow: 0 2px 4px #8565ab60, 0 4px 8px #8565ab40, 0 8px 16px #8565ab40;
     }
   }
 
@@ -45,22 +45,23 @@
     align-items: center;
     background-color: var(--base-container-background-color);
     border: 1px solid var(--base-container-border-color);
+    border: 1px solid #ffffffaa;
+    box-shadow: 0 6px 12px -2px #42396b30;
     border-radius: 6px;
-    padding: 18px 1rem;
+    padding: 0.9rem 1rem 0.75rem 1rem;
     width: 100%;
-    /*flex: 0 0 100%;*/
 
     h3 {
-      padding-top: 0.5rem;
       font-size: 14px;
-      color: #8a90b7;
+      color: var(--label-grey-text-color);
       text-align: left;
       width: 100%;
       display: flex;
       align-items: center;
       column-gap: 0.5rem;
       font-family: "Poppins";
-      font-size: 16px;
+      font-size: 14px;
+      font-weight: 600;
     }
 
     ul {
@@ -75,7 +76,7 @@
         text-align: left;
         height: 34px;
         font-size: 14px;
-        background: #dee0f2;
+        background: var(--main-background-color);
         padding: 0 0.25rem 0 0.5rem;
         display: flex;
         border-radius: 4px;
@@ -85,10 +86,14 @@
         align-items: center;
         column-gap: 0.5rem;
         line-height: 36px;
-        border: 1px dashed #a3a8db;
+        border: 1px dashed #aebae0;
 
         &.active {
-          background: #6755be;
+          background: /*linear-gradient(
+              to right,
+              #e552f100 0%,
+              rgba(229, 82, 241, 0.16) 75%
+            ),*/ #6755be;
           border: none;
           color: #fff;
           font-weight: 500;
@@ -96,6 +101,7 @@
           justify-content: space-between;
           align-items: center;
           cursor: auto;
+          border: 1px solid #522bab;
 
           span {
             overflow: hidden;
@@ -110,14 +116,14 @@
             margin: 0;
             background: none;
             box-shadow: none;
-            transform: translateX(5px);
+            transform: translateX(4px);
             border-radius: 0;
             border: none;
             outline: none;
 
             &:hover {
-              background-color: #408681ee;
-              outline: 0 0 0 1px solid rgb(52, 107, 103);
+              background-color: hsl(250, 44%, 48%);
+              border: 1px solid hsl(250, 42%, 42%);
             }
           }
         }
@@ -131,26 +137,49 @@
     }
 
     button {
-      height: 36px;
+      height: 34px;
       margin-top: 0.5rem;
       font-weight: 500;
       letter-spacing: 0.015em;
       font-size: 14px;
       border: none;
-      width: 36px;
+      width: 34px;
       padding: 0;
       color: #fff;
       outline: none;
 
       &.purple {
         background: var(--purple-button-color);
+
+        &:hover {
+          background-color: #52439d;
+          border: 1px solid #4d3e98;
+          box-shadow: 0 1px 0 #fff;
+        }
       }
 
       &.white {
-        background: #f8f8fc;
+        background: #f8f8fc99;
+        box-shadow: 0 1px 2px -1px hsla(252, 29%, 53%, 0.3),
+          0 4px 8px -1px hsla(246, 29%, 52%, 0.21);
+
+        &:hover {
+          background: var(--secondary-button-hover-color);
+          box-shadow: inset 0 1px 2px
+              var(--secondary-button-hover-innershadow-color),
+            0 2px 0px #fff;
+          outline: 1px solid var(--secondary-button-border-hover-color);
+          border: none;
+          color: var(--main-black-text-color);
+          text-shadow: #ffffffff;
+
+          svg path {
+            fill: var(--main-black-text-color);
+          }
+        }
 
         svg path {
-          fill: var(--purple-button-color);
+          fill: var(--main-black-text-color);
         }
       }
     }
@@ -159,6 +188,7 @@
       display: flex;
       column-gap: 0.5rem;
       width: 100%;
+      margin-top: 0.25rem;
     }
   }
 }
