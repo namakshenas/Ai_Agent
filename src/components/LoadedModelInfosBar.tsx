@@ -21,6 +21,7 @@ export default function LoadedModelInfosBar(){
     }
 
     return(
+      <div className='topContainer'>
         <div className="infosBarContainer">
             <span className='label'>Model</span>
             <span className='value'>{ runningModelsInfos?.name || "N/A" }</span>
@@ -44,6 +45,7 @@ export default function LoadedModelInfosBar(){
                 </svg>
             </button>
         </div>
+      </div>
     )
 }
 
