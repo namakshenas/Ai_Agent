@@ -2,9 +2,11 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-top: 1px solid #1e292c66;
-  /*border-bottom: 1px solid #1e292c66;*/
+  border: var(--base-container-border-color);
   margin-bottom: 1.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--base-container-border-color);
 }
 
 .actorIcon {
@@ -16,7 +18,7 @@
   justify-content: space-between;
   text-align: left;
   padding: 1rem;
-  border-bottom: 1px dashed #abaeb1ee;
+  border-bottom: 1px dashed #a6b2d9cc;
   column-gap: 1rem;
   width: 100%;
 }
@@ -40,17 +42,6 @@
   svg {
     flex-shrink: 0;
   }
-
-  /*&:hover {
-    background: var(--green-button-bottom-color);
-    box-shadow: none;
-    outline: 1px solid #3e8079;
-    border: 1px solid var(--green-button-bottom-color);
-  }
-
-  &:hover svg {
-    fill: #fff;
-  }*/
 }
 
 .chatHistorySection::-webkit-scrollbar {

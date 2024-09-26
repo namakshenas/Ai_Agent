@@ -14,8 +14,8 @@ import { WebSearchService } from "../services/WebSearchService";
 import Modal from "../components/Modal";
 import FormAgentSettings from "../components/FormAgentSettings";
 import useModalVisibility from "../hooks/useModalVisibility";
-import LeftDrawer from "../components/LeftDrawer";
-import RightDrawer from "../components/RightDrawer";
+import LeftPanel from "../components/LeftPanel";
+import RightPanel from "../components/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 
 
@@ -135,10 +135,10 @@ function Chat() {
 
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftDrawer activeConversation={activeConversationId} setActiveConversation={setActiveConversationId}/>
+        <LeftPanel activeConversation={activeConversationId} setActiveConversation={setActiveConversationId}/>
         <main>
             <LoadedModelInfosBar/>
-            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginTop: '0.75rem' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
                 <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} />
             </div>
             <div className="stickyBottomContainer">
@@ -155,7 +155,7 @@ function Chat() {
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
                         </div>
                     </div>
-                    <button onClick={handleScrollToTopClick}>
+                    <button className="infosBottomContainer" onClick={handleScrollToTopClick}>
                         {conversationState.lastAgentUsed /* not always displayed ?! */} / 
                         Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length} / {ChatService.getActiveAgent().getContextSize()}
                     </button>
@@ -163,7 +163,7 @@ function Chat() {
                         <button className="cancelSendButton" onClick={handleAbortStreamingClick}>
                             <svg style={{opacity:1, width:'20px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
-                        <button className="sendButton" onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
+                        <button className="sendButton purpleShadow" onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
                     }
                 </div>
             </div>
@@ -171,7 +171,7 @@ function Chat() {
                 <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
             </Modal>}
         </main>
-        <RightDrawer activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>
+        <RightPanel activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>
     </div>
     )
 }
@@ -182,6 +182,8 @@ export default Chat
 // deleting conv => ask confirmation
 // when answer generation and switching conversation, QA pair being generated deleted
 // web search (i)
+
+//left drawer one at a time
 
 
 /*
