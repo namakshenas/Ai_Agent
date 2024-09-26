@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import '../../style/ChatHistory.css'
-import userIcon from '../../assets/usericon5.png';
-import './QuestionRow.css'
+import userIcon from '../../assets/usericon4-2.png';
+import './QuestionRow2.css'
 
 function QuestionRow({index, question, onDownload, onCopyToClipboard, onModify} : IProps){
 
@@ -12,7 +12,7 @@ function QuestionRow({index, question, onDownload, onCopyToClipboard, onModify} 
     return(
        <article id={'questionItem'+index} className="historyItem questionItem2" style={{borderBottom:'1px solid #22222211'}} key={'question' + index}>
             <figure>
-                <img className="actorIcon" src={userIcon} width={34} style={{opacity:0.6}}/>
+                <img className="actorIcon" src={userIcon} width={34}/>
             </figure>
             <div style={{width:'100%', display:'flex', alignItems:'center'}}>{question}</div>
             <div className='questionIconsContainer'>
