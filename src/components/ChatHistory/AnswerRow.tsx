@@ -10,13 +10,13 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IPr
     // !!! should sanitize source
     function convertSourcesArrayToHTML(sourcesArray : ISource[]) : string{
         if(sourcesArray.length == 0) return ''
-        return sourcesArray.reduce((acc, source) => acc + source.asHTML + '<br>', '<br><span style="font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
+        return sourcesArray.reduce((acc, source) => acc + source.asHTML + '<br>', '<hr style="opacity:0.3; margin:1.15rem 0 0.5rem 0;"><span style="font-size:14px; font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
     }
 
     return(
         <article className="historyItem answerItem" key={'answer' + index} id={'answer' + index}>
             <figure className={ answer=="" ? "actorFigureAnimation" : ""}>
-                <img className="actorIcon" src={computerIcon} width={32} style={{opacity:'1', filter: 'saturate(85%)'}}/>
+                <img className="actorIcon" src={computerIcon} style={{opacity:'0.9', filter: 'saturate(85%)'}}/>
             </figure>
             {
                 answer == '' ? <AnswerWaitingAnim/> : <div className='answerContainer' dangerouslySetInnerHTML={{ __html: (answer?.toString() + convertSourcesArrayToHTML(sources)) || "" }}></div>

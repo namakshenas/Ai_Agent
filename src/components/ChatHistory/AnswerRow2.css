@@ -3,6 +3,7 @@
 
   & > p > strong {
     font-size: 1rem;
+    font-weight: 600;
   }
 
   & > p:has(strong) {
@@ -220,11 +221,11 @@ table {
   }
 
   figure {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
     border-radius: 100%;
-    outline: 3px solid var(--purple-button-color);
+    outline: 3px solid #6d48c1dd;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -252,5 +253,9 @@ table {
 }
 
 .answerContainer table:first-child {
+  margin: 0 0 1rem 0;
+}
+
+.answerContainer .textBlock:first-child {
   margin: 0 0 1rem 0;
 }
