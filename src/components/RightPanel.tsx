@@ -1,10 +1,14 @@
-import { useState } from 'react'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useEffect, useRef, useState } from 'react'
 import './RightPanel3.css'
 import { AIAgent } from '../models/AIAgent'
 import IFormStructure from '../interfaces/IAgentFormStructure'
 import { AgentLibrary } from '../services/AgentLibrary'
+import Select, { IOption } from './CustomSelect/Select'
+import { ChatService } from '../services/ChatService'
+import userPicture from '../assets/usericon4-2.png'
 
-export default function RightPanel({activeAgent, setModalVisibility} : IProps){
+export default function RightPanel({activeAgent, setModalVisibility, modelsList} : IProps){
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
@@ -19,6 +23,9 @@ export default function RightPanel({activeAgent, setModalVisibility} : IProps){
     }
 
     const [formValues, setFormValues] = useState<IFormStructure>(currentFormValues)
+    
+    const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
+    const timeoutRef = useRef<null | NodeJS.Timeout>(null)
 
     function handleSaveAgent(){
         AgentLibrary.getAgent(activeAgent.getName()).setSettings({ 
@@ -29,23 +36,84 @@ export default function RightPanel({activeAgent, setModalVisibility} : IProps){
             temperature : formValues.temperature, 
             numPredict : formValues.maxTokensPerReply
         })
+
+        setShowSavingSuccessfulBtn(true)
     }
+
+    /*useEffect(() => {
+        const newFormValues = {
+            agentName: activeAgent.getName(),
+            modelName: activeAgent.getModelName(),
+            systemPrompt: activeAgent.getSystemPrompt().replace(/\t/g,''),
+            temperature: activeAgent.getTemperature(),
+            maxContextLength: activeAgent.getContextSize(),
+            maxTokensPerReply: activeAgent.getNumPredict(),
+            webSearchEconomy: true,
+        }
+        setFormValues({...newFormValues})
+    }, [activeAgent])*/
+
+    function handleSwitchAgent(option : IOption){
+        ChatService.setActiveAgent(option.value)
+        const agent = ChatService.getActiveAgent()
+        const newFormValues = {
+            agentName: agent.getName(),
+            modelName: agent.getModelName(),
+            systemPrompt: agent.getSystemPrompt().replace(/\t/g,''),
+            temperature: agent.getTemperature(),
+            maxContextLength: agent.getContextSize(),
+            maxTokensPerReply: agent.getNumPredict(),
+            webSearchEconomy: true,
+        }
+        setFormValues({...newFormValues})
+    }
+
+    useEffect(() => {
+        if(!showSavingSuccessfulBtn) return
+        
+        timeoutRef.current = setTimeout(() => setShowSavingSuccessfulBtn(false), 2500)
+  
+        return () => {
+            if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current)
+            }
+        }
+        
+    }, [showSavingSuccessfulBtn])
 
     return(
         <aside className="rightDrawer">
-            <div style={{height:'74px'}}></div>
+            <div className='userSettingsContainer'>
+                <img style={{marginLeft:'auto', outline:'4px solid #fff', borderRadius : '100%', height:'48px'}} src={userPicture}/>
+            </div>
             <article className='settingsFormContainer'>
-                <label>Current Agent</label>
-                <input spellCheck="false" type="text" readOnly value={activeAgent.getName()}/>
-                <label>Model</label>
-                <input spellCheck="false" type="text" readOnly value={activeAgent.getModelName()}/>
+                <label id="label-agentName">Current Agent</label>
+                {/*<input spellCheck="false" type="text" readOnly value={activeAgent.getName()}/>*/}
+                <Select 
+                    width="100%"
+                    options={AgentLibrary.getAgentsNameList().map((agentName) => ({ label: agentName, value: agentName }))} 
+                    defaultOption={formValues.agentName}
+                    labelledBy="label-agentName" 
+                    id="settingsSelectAgent"
+                    onValueChange={handleSwitchAgent}
+                />
+                <label id="label-modelName">Model</label>
+                <Select 
+                    width="100%"
+                    options={modelsList.map((model) => ({ label: model, value: model }))} 
+                    defaultOption={formValues.modelName}
+                    labelledBy="label-modelName" 
+                    id="settingsSelectModel"
+                    onValueChange={(option) => setFormValues({...formValues, modelName: option.value})}
+                />
+                {/*<input spellCheck="false" type="text" readOnly value={activeAgent.getModelName()}/>*/}
                 <label>SystemPrompt</label>
                 <div className='systemPromptContainer'>
                     <input 
                         spellCheck="false"
                         readOnly
                         type="text" 
-                        value={activeAgent.getSystemPrompt().length > 37 ? activeAgent.getSystemPrompt().substring(0, 34)+'...' : activeAgent.getSystemPrompt()}
+                        value={formValues.systemPrompt.length > 37 ? formValues.systemPrompt.substring(0, 34)+'...' : formValues.systemPrompt}
                     />
                     <button className='purpleShadow' onClick={() => setModalVisibility(true)}>
                         <svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -77,7 +145,7 @@ export default function RightPanel({activeAgent, setModalVisibility} : IProps){
                         value={formValues.maxContextLength}
                         onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                     />
-                    <figure>
+                    <figure data-tooltip="Amount of Tokens considered during Inference">
                         <svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16.6667 8H9.33333C8.6 8 8 8.6 8 9.33333V16.6667C8 17.4 8.6 18 9.33333 18H16.6667C17.4 18 18 17.4 18 16.6667V9.33333C18 8.6 17.4 8 16.6667 8ZM16 16H10V10H16V16ZM26 10.3333C26 9.6 25.4 9 24.6667 9H22.3333V6.33333C22.3333 4.86667 21.1333 3.66667 19.6667 3.66667H17V1.33333C17 0.6 16.4 0 15.6667 0C14.9333 0 14.3333 0.6 14.3333 1.33333V3.66667H11.6667V1.33333C11.6667 0.6 11.0667 0 10.3333 0C9.6 0 9 0.6 9 1.33333V3.66667H6.33333C4.86667 3.66667 3.66667 4.86667 3.66667 6.33333V9H1.33333C0.6 9 0 9.6 0 10.3333C0 11.0667 0.6 11.6667 1.33333 11.6667H3.66667V14.3333H1.33333C0.6 14.3333 0 14.9333 0 15.6667C0 16.4 0.6 17 1.33333 17H3.66667V19.6667C3.66667 21.1333 4.86667 22.3333 6.33333 22.3333H9V24.6667C9 25.4 9.6 26 10.3333 26C11.0667 26 11.6667 25.4 11.6667 24.6667V22.3333H14.3333V24.6667C14.3333 25.4 14.9333 26 15.6667 26C16.4 26 17 25.4 17 24.6667V22.3333H19.6667C21.1333 22.3333 22.3333 21.1333 22.3333 19.6667V17H24.6667C25.4 17 26 16.4 26 15.6667C26 14.9333 25.4 14.3333 24.6667 14.3333H22.3333V11.6667H24.6667C25.4 11.6667 26 11.0667 26 10.3333ZM19.3333 20.6667H6.66667C5.93333 20.6667 5.33333 20.0667 5.33333 19.3333V6.66667C5.33333 5.93333 5.93333 5.33333 6.66667 5.33333H19.3333C20.0667 5.33333 20.6667 5.93333 20.6667 6.66667V19.3333C20.6667 20.0667 20.0667 20.6667 19.3333 20.6667Z" fill="black"/>
                         </svg>
@@ -107,8 +175,18 @@ export default function RightPanel({activeAgent, setModalVisibility} : IProps){
                 </div>
                 <div className='settingsSaveContainer'>
                     <button className='more purpleShadow' onClick={() => setModalVisibility(true)}>More Settings</button>
-                    <button className='save purpleShadow' onClick={handleSaveAgent}>Save</button>
+                    {
+                        !showSavingSuccessfulBtn ? <button className='save purpleShadow' onClick={handleSaveAgent}>Save</button>
+                        :<button className='save purpleShadow'>
+                            <svg className='checkmarkSVG' viewBox='0 0 100 100'>
+                                <path className='checkmarkIcon' d='M 25 50 L 43 68 L 75 32'/>
+                            </svg>
+                        </button>
+                    }
                 </div>
+            </article>
+            <article className='newAgentContainer'>
+                + new Agent / + new Prompt
             </article>
         </aside>
     )
@@ -120,4 +198,5 @@ export default function RightPanel({activeAgent, setModalVisibility} : IProps){
 interface IProps{
     activeAgent : AIAgent
     setModalVisibility: React.Dispatch<React.SetStateAction<boolean>>
+    modelsList : string[]
 }

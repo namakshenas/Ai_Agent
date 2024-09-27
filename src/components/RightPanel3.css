@@ -11,6 +11,14 @@
   align-items: flex-start;
   max-width: 360px;
 
+  .userSettingsContainer {
+    display: flex;
+    align-items: center;
+    height: 74px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
   .settingsFormContainer {
     display: flex;
     flex-direction: column;
@@ -77,23 +85,26 @@
       &::after {
         position: absolute;
         top: 0;
-        transform: translateY(-120%) translateX(-50%) scale(0);
+        transform: translateY(-50%) translateX(-50%) scale(0);
         background-color: #ffffff88;
-        width: fit-content;
+        width: max-content;
+        height: 40px;
         padding: 0.5rem 0.75rem;
         content: attr(data-tooltip);
         color: #252525;
         font-size: 14px;
         border-radius: 4px;
-        left: 50%;
+        left: 0;
         opacity: 0;
         border: 1px solid #fff;
         backdrop-filter: blur(16px);
         font-weight: 500;
+        transition: transform 0.15s ease-in;
+        font-weight: 400;
       }
 
       &:hover::after {
-        transform: translateY(-120%) translateX(-50%) scale(1);
+        transform: translateY(-1px) translateX(calc(-100% - 8px)) scale(1);
         opacity: 1;
       }
 
@@ -217,6 +228,45 @@
         color: var(--secondary-button-hover-text-color);
         text-shadow: #ffffffff;
       }
+
+      .checkmarkSVG {
+        height: 80%;
+      }
+
+      .checkmarkIcon {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 10px;
+        stroke-dasharray: 75;
+        stroke-dashoffset: 75;
+        animation: checkmark 0.25s ease-out forwards;
+        animation-delay: 0.25s;
+      }
     }
+  }
+
+  .newAgentContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--base-container-background-color);
+    border: 1px solid var(--base-container-border-color);
+    border-radius: 6px;
+    padding: 18px 1rem;
+    width: 100%;
+    /*flex: 0 0 100%;*/
+    border: 1px solid #ffffffaa;
+    box-shadow: 0 6px 12px -2px #42396b30;
+    margin-top: 12px;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 75;
+  }
+  100% {
+    stroke-dashoffset: 0;
   }
 }
