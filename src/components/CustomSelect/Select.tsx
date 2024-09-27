@@ -66,7 +66,7 @@ function Select({ options, id, labelledBy, defaultOption, onValueChange, preset,
     )
    
     return(
-        <div className="selectContainer">
+        <div className="selectContainer" style={width ? {width : width} : {}}>
             <SelectContext.Provider value={{
                 id, labelledBy : labelledBy || '', options, activeOption : {get :  () => activeOptionRef.current, set : setActiveOption}, 
                 listbox : { isExpanded : isListboxExpanded, setAsExpanded : setListboxAsExpanded},

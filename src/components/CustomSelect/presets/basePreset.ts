@@ -4,18 +4,18 @@ import SelectPresetClass from "./SelectPresetClass";
 export const basePreset = new SelectPresetClass(
     { // weight font
         width : '200px',
-        height: '44px',
+        height: '40px',
         font : 'Jost',
         labelTextColor: "#454545",
-        selectBackgroundColor: "#dfe4ea88",
+        selectBackgroundColor: "#dee3ef",
         selectTextColor: "#454545",
         hoverOptionTextColor: "#FFFFFF",
-        optionsContainerBackgroundColor: "#f6f6f9",
-        optionsContainerBorderColor: "#4d749434",
+        optionsContainerBackgroundColor: "#f7f9fds",
+        optionsContainerBorderColor: "#bbc4e2",
         arrowColor: "#213547",
-        selectBorderColor: { default: "#4d749434", focus: "#86e5ce" },
+        selectBorderColor: { default: "#bbc4e2", focus: "#6d48c1" },
         borderRadius : '4px',
-        optionBackgroundColor: { active: "#4d749428", hover: "#56b8af" }
+        optionBackgroundColor: { active: "#e2e6f3", hover: "#5d4794" }
     }
 )
 
