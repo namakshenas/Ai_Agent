@@ -1,0 +1,174 @@
+.leftDrawer {
+  height: 100vh;
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex: 1 1 300px;
+  max-width: 300px;
+  border-right: 1px solid #cfd9e0;
+  font-size: 14px;
+  padding: 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff44;
+  overflow: hidden;
+
+  figure {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 32px;
+    color: #49a199;
+    height: 76px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 0.75rem;
+
+    span {
+      font-family: "Cormorant Garamond", serif;
+      transform: translateY(-1px);
+    }
+
+    img {
+      width: 32px;
+      border: 2px solid #000;
+      border-radius: 100%;
+    }
+  }
+
+  h3 {
+    border-top: 1px solid #cfd9e0;
+    padding-top: 1rem;
+    font-weight: 500;
+    font-size: 14px;
+    color: #a5b6c4;
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.85rem;
+    width: 100%;
+    row-gap: 0.5rem;
+
+    li {
+      width: 100%;
+      text-align: left;
+      height: 36px;
+      border: 1px solid #ced8dfbb;
+      background-color: #e7eaeeaa;
+      padding: 0 0.5rem;
+      display: flex;
+      align-items: center;
+      border-radius: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      column-gap: 0.5rem;
+      box-shadow: 0 1px 0 #ffffffbb;
+
+      &.active {
+        background: #49a199ee;
+        /*box-shadow: inset 0 1px 2px #00000033, 0 2px 0px #fff;*/
+        outline: 1px solid #3e8079aa; /*ee*/
+        border: 1px solid #49a199ee;
+        color: #fff;
+        font-weight: 500;
+        text-shadow: 0 2px 1px #3e807999;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        span {
+          display: flex;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          flex: 1 1 100%;
+          width: 100%;
+          text-align: left;
+        }
+
+        .conversationTrashBtn {
+          height: 24px;
+          width: 24px;
+          flex-shrink: 0;
+          margin: 0;
+          margin-left: auto;
+          background: none;
+          box-shadow: none;
+        }
+      }
+
+      &:hover {
+        background: #49a199ee;
+        box-shadow: none;
+        color: #fff;
+        outline: 1px solid #3e8079aa;
+        border: 1px solid #49a199ee;
+        padding: 0 0.5rem;
+      }
+
+      .activeFileIndic {
+        width: 8px;
+        height: 8px;
+        background-color: #86e5ce;
+        border-radius: 100%;
+        transform: translateY(1px);
+        outline: 1px solid var(--green-button-bottom-color);
+      }
+    }
+  }
+
+  button {
+    height: 36px;
+    margin-top: 0.5rem;
+    font-weight: 500;
+    letter-spacing: 0.015em;
+    font-size: 14px;
+    border: none;
+    width: 36px;
+    padding: 0;
+    background: linear-gradient(
+      to bottom,
+      var(--green-button-top-color),
+      var(--green-button-bottom-color)
+    );
+    color: #fff;
+    outline: none;
+    box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;
+
+    &:hover {
+      background: #49a199ee;
+      box-shadow: inset 0 1px 2px #00000033, 0 2px 0px #fff;
+      outline: 1px solid #3e8079cc;
+    }
+
+    &.white {
+      background: #fff;
+      box-shadow: 0 1px 2px #a8b8c866, 0 4px 8px #cfd8e199;
+      color: #000000;
+
+      svg path {
+        fill: #000;
+      }
+
+      &:hover {
+        background: #fff;
+        box-shadow: 0 2px 4px #76c4b955, 0 4px 8px #7fe1c766;
+        color: #000000;
+        outline: 2px solid #86e5ce;
+
+        svg path {
+          fill: #000;
+        }
+      }
+    }
+  }
+}
