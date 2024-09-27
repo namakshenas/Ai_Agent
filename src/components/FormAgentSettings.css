@@ -13,67 +13,64 @@
     "k . l"
     "m . n"
     ". . p";
-}
 
-.form-row {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-}
+  .form-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  }
 
-.form-column {
-  display: flex;
-  flex: 1 1 50%;
-  flex-direction: column;
-  row-gap: 0.8rem;
-}
+  .form-column {
+    display: flex;
+    flex: 1 1 50%;
+    flex-direction: column;
+    row-gap: 0.8rem;
+  }
 
-.form-label {
-  text-align: left;
-  margin: 1.5rem 0 0.85rem 0;
-  font-weight: 500;
-}
+  .form-label {
+    text-align: left;
+    margin: 1.5rem 0 0.85rem 0;
+    font-weight: 500;
+  }
 
-.form-input,
-.form-select {
-  padding: 0.5em 0.5em 0.45em 0.5em;
-  width: 100%;
-  height: 48px;
-}
+  .form-input,
+  .form-select {
+    padding: 0.5em 0.5em 0.45em 0.5em;
+    width: 100%;
+    height: 40px;
+  }
 
-.form-textarea {
-  width: 100%;
-}
+  .form-textarea {
+    width: 100%;
+    background-color: var(--input-background-color);
+    border-color: var(--input-border-color);
+  }
 
-.full-width {
-  width: 100%;
-}
+  .full-width {
+    width: 100%;
+  }
 
-.form-span {
-  text-align: left;
-  height: 48px;
-  display: flex;
-  align-items: center;
-}
+  .form-span {
+    text-align: left;
+    height: 48px;
+    display: flex;
+    align-items: center;
+  }
 
-.justify-right {
-  justify-content: right;
-}
+  .justify-right {
+    justify-content: right;
+  }
 
-button.form-button {
-  width: 100%;
-  background: linear-gradient(to bottom, #86e5ce, #75d8d8);
-  color: #fff;
-  text-shadow: 0 2px 2px #25665b44;
-  border: 1px solid #7fe1c7aa;
-  box-shadow: 0 4px 8px #76c4b955, 0 12px 24px #7fe1c766;
-  transition: none;
-  margin: 1.5rem auto 0 auto;
-}
+  button.form-button {
+    width: 100%;
+    padding: 0;
+    background: var(--purple-button-color);
+    color: #fff;
 
-button.form-button:hover {
-  background: var(--green-button-bottom-color);
-  box-shadow: none;
-  outline: 1px solid #3e8079;
-  border: 1px solid var(--green-button-bottom-color);
+    &:hover {
+      background: var(--purple-button-hover-background-color);
+      border: 1px solid var(--purple-button-hover-border-color);
+      box-shadow: 0 2px 0px #fff;
+    }
+  }
 }

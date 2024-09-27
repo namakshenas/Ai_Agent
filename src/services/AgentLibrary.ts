@@ -13,10 +13,10 @@ export class AgentLibrary {
     static #completionAgent = new AIAgent("completionAgent", "mistral-nemo:latest").setTemperature(0.1).setContextSize(8192)
     .setSystemPrompt(PromptLibrary.completionAssistantPrompt)
 
-    static #searchQueryOptimizer = new AIAgent("searchQueryOptimizer", "mistral-nemo:latest").setTemperature(0.3).setContextSize(8192)
+    static #searchQueryOptimizer = new AIAgent("searchQueryOptimizer", "llama3.2:3b").setTemperature(0.3).setContextSize(8192)
     .setSystemPrompt(PromptLibrary.searchQueryOptimizerPrompt)
 
-    static #scrapedDatasSummarizer = new AIAgent("scrapedDatasSummarizer", "mistral-nemo:latest").setTemperature(0.3).setContextSize(8192)
+    static #scrapedDatasSummarizer = new AIAgent("scrapedDatasSummarizer", "llama3.2:3b").setTemperature(0.3).setContextSize(8192)
     .setSystemPrompt(PromptLibrary.scrapedDatasSummarizerPrompt)
     
     static library : ILibrary = {

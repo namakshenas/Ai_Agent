@@ -14,7 +14,7 @@ import { WebSearchService } from "../services/WebSearchService";
 import Modal from "../components/Modal";
 import FormAgentSettings from "../components/FormAgentSettings";
 import useModalVisibility from "../hooks/useModalVisibility";
-import LeftPanel from "../components/LeftPanel";
+import LeftPanel from "../components/LeftPanel/LeftPanel";
 import RightPanel from "../components/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 
@@ -171,7 +171,7 @@ function Chat() {
                 <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
             </Modal>}
         </main>
-        <RightPanel activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>
+        <RightPanel activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility} modelsList={modelsList}/>
     </div>
     )
 }
@@ -183,8 +183,10 @@ export default Chat
 // when answer generation and switching conversation, QA pair being generated deleted
 // web search (i)
 
-//left drawer one at a time
-
+// left drawer one at a time ?
+// search bar : when active magifying turns into a cross
+// cancel inference after switching agent issues
+// create new agent or modify new agent give the user the possibility to load an existing prompt
 
 /*
 Valid Parameters and Values

@@ -142,11 +142,11 @@ export class AIModel{
      * @param {number} value - The new temperature for the AI model.
      * @description Sets the temperature for the AI model.
      */
-        setTemperature(value : number) : this {
-            if(value > 1) value = 1
-            if(value < 0) value = 0
-            this.#temperature = value
-            return this
+    setTemperature(value : number) : this {
+        if(value > 1) value = 1
+        if(value < 0) value = 0
+        this.#temperature = value
+        return this
     }
 
     setNumPredict(value : number){

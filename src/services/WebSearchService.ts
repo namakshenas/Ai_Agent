@@ -6,7 +6,7 @@ import { AgentLibrary } from "./AgentLibrary";
 export class WebSearchService{
 
     static async scrapeRelatedDatas(query : string, maxPages : number = 3) : Promise<ScrapedPage[]>{
-        const reformulatedQuery = this.#trimQuotes(await this.#optimizeQuery(query)).replace('"', " ").replace("'", " ")
+        const reformulatedQuery = this.#trimQuotes(await this.#optimizeQuery(query))
         const scrapedPages = await this.#callExternalScraper(reformulatedQuery, maxPages)
         const summarizedScrapedPages = await this.#summarizeScrapedPages(scrapedPages, query)
         return summarizedScrapedPages
@@ -42,7 +42,7 @@ export class WebSearchService{
 
         } catch (error) {
             console.error('Error calling scraper:', error)
-            throw error // !!!
+            throw error // !!!???
         }
     }
 
@@ -74,6 +74,6 @@ export class WebSearchService{
     }
 
     static #trimQuotes(str : string) {
-        return str.replace(/^['"]|['"]$/g, '')
+        return str.replace(/^['"]|['"]$/g, '').replace('"', " ").replace("'", " ")
     }
 }

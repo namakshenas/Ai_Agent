@@ -105,7 +105,7 @@ export default function FormAgentSettings({agent} : IProps){
             <div/>
             <span className="form-span">Context Economy | Processing Speed</span>
 
-            <button style={{gridArea:'p'}} className="form-button">Save</button>
+            <button style={{gridArea:'p'}} className="form-button purpleShadow">Save</button>
         </form>
     )
 }

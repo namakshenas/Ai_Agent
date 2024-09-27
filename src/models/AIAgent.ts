@@ -8,7 +8,18 @@ export class AIAgent extends AIModel {
     #processFn : (request : any) => any = (request : string) => request
     protected nextAgent: AIAgent | null = null
 
-    models = ["mistral-nemo:latest", "phi3.5", "llama3", "llama3.1:8b", "dolphin-llama3:8b-256k", "phi3:3.8-mini-128k-instruct-q4_K_M", "qwen2", "qwen2:1.5b", "qwen2:0.5b", "gemma2:9b"]
+    models = [
+        "mistral-nemo:latest", 
+        "phi3.5", 
+        "llama3", 
+        "llama3.1:8b", 
+        "dolphin-llama3:8b-256k", 
+        "phi3:3.8-mini-128k-instruct-q4_K_M", 
+        "qwen2", 
+        "qwen2:1.5b", 
+        "qwen2:0.5b", 
+        "gemma2:9b"
+    ]
 
     defaultModel = "llama3.1:8b"
 
