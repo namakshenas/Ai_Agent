@@ -21,6 +21,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: 0 1px 2px -1px hsla(252, 29%, 50%, 0.7),
+      0 4px 8px -1px hsla(246, 29%, 52%, 0.55);
   }
 
   .questionTextContainer {

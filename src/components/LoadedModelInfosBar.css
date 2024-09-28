@@ -46,7 +46,8 @@
     align-items: center;
     flex: 1 1 fit-content;
     background: #d3d7e9;
-    max-width: 260px;
+    font-size: 14px;
+    /*max-width: 260px;*/
 
     .barContainer {
       background: #737097;
@@ -57,8 +58,17 @@
       box-shadow: 0 1px 0 hsl(246, 14%, 90%);
       overflow: hidden;
 
-      .bar {
-        background: var(--purple-button-color);
+      .bar,
+      .barVRAM,
+      .barRAM {
+        background: /*linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 10%,
+            rgba(255, 255, 255, 0.15) 45%,
+            rgba(255, 255, 255, 0) 85%
+          ),*/ var(
+          --purple-button-color
+        );
         border-radius: 0 14px 14px 0;
         height: 100%;
         display: flex;
@@ -73,13 +83,22 @@
           height: 100%;
         }
       }
+
+      .barRAM {
+        background: #00b7ff;
+      }
     }
   }
 
   button {
     width: 50px;
     height: 100%;
-    background: var(--purple-button-color);
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0) 15%,
+        rgba(255, 255, 255, 0.15) 50%
+      ),
+      var(--purple-button-color);
     border: none;
     outline: none;
     border-radius: 0;

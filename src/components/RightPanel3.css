@@ -11,12 +11,27 @@
   align-items: flex-start;
   max-width: 360px;
 
+  a:any-link {
+    color: var(--main-black-text-color);
+    text-decoration: underline;
+  }
+
   .userSettingsContainer {
     display: flex;
     align-items: center;
     height: 74px;
     width: 100%;
     flex-shrink: 0;
+
+    img {
+      box-shadow: 0 2px 4px -1px hsla(252, 29%, 45%, 0.7),
+        0 5px 10px -1px hsla(246, 29%, 47%, 0.6);
+      outline: 4px solid #fff;
+      border-radius: 100%;
+      height: 44px;
+      margin-left: auto;
+      transform: translateY(-1px);
+    }
   }
 
   .settingsFormContainer {
@@ -39,6 +54,7 @@
       font-weight: 500;
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
+      font-size: 16px;
       color: var(--label-grey-text-color);
       /*
       #566181ee
@@ -125,7 +141,13 @@
       width: 40px;
       flex: 0 0 40px;
       padding: 0;
-      background: var(--purple-button-color);
+      background: /*linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0) 15%,
+          rgba(255, 255, 255, 0.15) 50%
+        ),*/ var(
+        --purple-button-color
+      );
       color: #fff;
 
       &:hover {
@@ -194,7 +216,13 @@
 
     button {
       width: 100%;
-      background: var(--purple-button-color);
+      background: /*linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0) 15%,
+          rgba(255, 255, 255, 0.15) 50%
+        ),*/ var(
+        --purple-button-color
+      );
 
       &.save {
         color: #fff;
@@ -216,17 +244,17 @@
         padding: 0;
         width: 50%;
         font-weight: 500;
-      }
 
-      &.more:hover {
-        background: var(--secondary-button-hover-color);
-        box-shadow: inset 0 1px 2px
-            var(--secondary-button-hover-innershadow-color),
-          0 2px 0px #fff;
-        outline: 1px solid var(--secondary-button-border-hover-color);
-        border: none;
-        color: var(--secondary-button-hover-text-color);
-        text-shadow: #ffffffff;
+        &:hover {
+          background: var(--secondary-button-hover-color);
+          box-shadow: inset 0 1px 2px
+              var(--secondary-button-hover-innershadow-color),
+            0 2px 0px #fff;
+          outline: 1px solid var(--secondary-button-border-hover-color);
+          border: none;
+          color: var(--secondary-button-hover-text-color);
+          text-shadow: #ffffffff;
+        }
       }
 
       .checkmarkSVG {
@@ -253,12 +281,32 @@
     background-color: var(--base-container-background-color);
     border: 1px solid var(--base-container-border-color);
     border-radius: 6px;
-    padding: 18px 1rem;
+    padding: 12px 1rem;
     width: 100%;
     /*flex: 0 0 100%;*/
     border: 1px solid #ffffffaa;
     box-shadow: 0 6px 12px -2px #42396b30;
-    margin-top: 12px;
+    margin-bottom: 12px;
+
+    button {
+      color: #fff;
+      width: 65%;
+      font-weight: 500;
+      height: 44px;
+      background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0) 15%,
+          rgba(255, 255, 255, 0.15) 50%
+        ),
+        var(--purple-button-color);
+
+      &:hover {
+        background: var(--purple-button-hover-background-color);
+        border: 1px solid var(--purple-button-hover-border-color);
+        box-shadow: 0 2px 0px #fff;
+        color: #ffffffee;
+      }
+    }
   }
 }
 

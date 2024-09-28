@@ -24,4 +24,6 @@ dist-ssr
 *.sw?
 
 src/prompts/*
+src/style/green
+src/components/deprecated
 back

@@ -60,8 +60,14 @@
       align-items: center;
       column-gap: 0.5rem;
       font-family: "Poppins";
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 600;
+
+      .nPages {
+        margin-left: auto;
+        font-size: 14px;
+        font-weight: 500;
+      }
     }
 
     .searchFilterContainer {
@@ -102,7 +108,7 @@
           border: none;
           background: none;
           outline: none;
-          font-size: 14px;
+          font-size: 15px;
           flex: 1 1 100%;
           color: var(--purple-button-color);
           height: 100%;
@@ -183,6 +189,13 @@
         line-height: 36px;
         border: 1px dashed #aebae0;
 
+        &.blankConversationItem {
+          background: #ffffff55;
+          border: none;
+          width: 100%;
+          cursor: auto;
+        }
+
         &.active {
           background: /*linear-gradient(
               to right,
@@ -223,7 +236,7 @@
           }
         }
 
-        &:hover:not(.active) {
+        &:hover:not(.active):not(.blankConversationItem) {
           background-color: #d8d2f0;
           border: 1px solid #6d48c1;
           color: #6d48c1;
@@ -250,7 +263,7 @@
         &:hover {
           background-color: #52439d;
           border: 1px solid #4d3e98;
-          box-shadow: 0 1px 0 #fff;
+          box-shadow: 0 2px 0 #fff;
         }
       }
 
@@ -270,7 +283,7 @@
           text-shadow: #ffffffff;
 
           svg path {
-            fill: var(--main-black-text-color);
+            fill: #707baf;
           }
         }
 

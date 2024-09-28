@@ -63,6 +63,7 @@
 html {
   overflow-y: scroll;
   overflow: -moz-scrollbars-vertical;
+  scrollbar-color: hsla(238, 30%, 72%, 1) hsla(238, 27%, 55%, 0.8);
 }
 
 body {

@@ -18,9 +18,9 @@
   justify-content: space-between;
   text-align: left;
   padding: 1rem;
-  border-bottom: 1px dashed #a6b2d9cc;
   column-gap: 1rem;
   width: 100%;
+  border-bottom: 1px dashed #a6b2d9cc;
 }
 
 .iconButton {
