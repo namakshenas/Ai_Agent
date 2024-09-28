@@ -1,23 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './LoadedModelInfosBar.css'
 import { OllamaService } from '../services/OllamaService'
 
-export default function LoadedModelInfosBar(){
+export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : boolean}){
 
     const [runningModelsInfos, setRunningModelsInfos] = useState<IRunningModelInfos | null>(null)
 
+    useEffect(() => {
+      async function effect(){
+        if(refreshSignal) await refreshRunningModelInfos()
+      }
+      effect()
+    }, [refreshSignal])
+
+    async function refreshRunningModelInfos(){
+      const runningModelsInfos = await OllamaService.getRunningModelInfos()
+      if(runningModelsInfos?.models != null) {
+          setRunningModelsInfos({
+              name : runningModelsInfos.models[0].name,
+              size : runningModelsInfos.models[0].size,
+              percentageInVRAM : runningModelsInfos.models[0].size_vram / runningModelsInfos.models[0].size * 100,
+              parameter_size : runningModelsInfos.models[0].details.parameter_size,
+              quantization : runningModelsInfos.models[0].details.quantization_level,
+          })
+      }
+    }
+
     async function handleRefreshClick(){
-        const runningModelsInfos = await OllamaService.getRunningModelInfos()
-        if(runningModelsInfos?.models != null) {
-            setRunningModelsInfos({
-                name : runningModelsInfos.models[0].name,
-                size : runningModelsInfos.models[0].size,
-                percentageInVRAM : runningModelsInfos.models[0].size_vram / runningModelsInfos.models[0].size * 100,
-                parameter_size : runningModelsInfos.models[0].details.parameter_size,
-                quantization : runningModelsInfos.models[0].details.quantization_level,
-            })
-        }
+      await refreshRunningModelInfos()
     }
 
     return(
@@ -26,14 +37,16 @@ export default function LoadedModelInfosBar(){
             <span className='label'>Model</span>
             <span className='value'>{ runningModelsInfos?.name || "N/A" }</span>
             <span className='label'>Allocation</span>
-            <div className='allocationBarContainer'>
-                <span style={{flexGrow:0}}>GPU</span>
+            <div className='allocationBarContainer' style={{display:'flex', flexDirection:'column'}}>
+                <div style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center', columnGap:'12px'}}>VRAM<div className='barContainer' style={{height:'8px'}}><div style={{width : (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='barVRAM'></div></div></div>
+                <div style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center', columnGap:'12px'}}>RAM<div className='barContainer' style={{height:'8px'}}><div style={{width : 120 - (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='barRAM'></div></div></div>
+                {/*<span style={{flexGrow:0}}>GPU</span>
                 <div className='barContainer'>
                     <div style={{width : (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='bar'>
                       <span>{runningModelsInfos?.percentageInVRAM ? Math.floor(runningModelsInfos?.percentageInVRAM) + '%' : ""}</span>
                     </div>
                 </div>
-                <span style={{flexGrow:0}}>CPU</span>
+                <span style={{flexGrow:0}}>CPU</span>*/}
             </div>
             <span className='label'>Size</span>
             <span className='value'>{ runningModelsInfos?.size ? (runningModelsInfos.size/1000000000).toFixed(2) + ' GB' : "N/A" }</span>
