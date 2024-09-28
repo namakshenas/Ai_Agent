@@ -11,12 +11,12 @@ import useFetchModelsList from "../hooks/useFetchModelsList";
 import CustomTextarea, { ImperativeHandle } from "../components/CustomTextarea";
 import { ActionType, useConversationReducer } from "../hooks/useConversationReducer";
 import { WebSearchService } from "../services/WebSearchService";
-import Modal from "../components/Modal";
-import FormAgentSettings from "../components/FormAgentSettings";
-import useModalVisibility from "../hooks/useModalVisibility";
+import Modal from "../components/Modal/Modal";
+import FormAgentSettings from "../components/Modal/FormAgentSettings";
 import LeftPanel from "../components/LeftPanel/LeftPanel";
 import RightPanel from "../components/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
+import useModalManager from "../hooks/useModalManager";
 
 
 function Chat() {
@@ -31,8 +31,6 @@ function Chat() {
     // forwarded to the textarea to extract it's focus method
     const customTextareaRef = useRef<ImperativeHandle>(null)
 
-    const [agentsList, setAgentsList] = useState<string[]>([])
-
     const [activeConversationId, setActiveConversationId] = useState<number>(0)
 
     const [isStreaming, setIsStreaming] = useState<boolean>(false)
@@ -40,7 +38,10 @@ function Chat() {
     const [isWebSearchActivated, _setWebSearchActivated] = useState(false)
     const isWebSearchActivatedRef = useRef<boolean>(false)
 
-    const {modalVisibility, setModalVisibility} = useModalVisibility()
+    const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
+
+    // const {modalVisibility, setModalVisibility} = useModalVisibility()
+    const { modalVisibility, setModalVisibility, modalContentId, setModalContentId } = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
 
     function setTextareaValue(value: string) {
         textareaValueRef.current = value
@@ -54,10 +55,9 @@ function Chat() {
 
     const modelsList = useFetchModelsList()
 
+    // initializing the the default conversation history
     useEffect(() => {
-        setAgentsList(AgentLibrary.getAgentsNameList())
         ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
-
         // cleanup
         return () => {
             ConversationsRepository.clearAll()
@@ -66,7 +66,7 @@ function Chat() {
 
     // triggered when switching between conversations
     useEffect(() => {
-        if (isStreaming) ChatService.abortStreaming()
+        if (isStreaming) ChatService.abortAgentLastRequest()
         setIsStreaming(false)
         setTextareaValue("")
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
@@ -91,9 +91,9 @@ function Chat() {
                 newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedAnswerToHistory_Callback, currentContext)
             }
             clearTextAreaIfQuestionReplied(conversationStateRef.current.history[conversationStateRef.current.history.length - 1].question, textareaValueRef.current)
-            setIsStreaming(false)
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload: newContext })
             ConversationsRepository.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history)
+            setIsStreaming(false)
         }
         catch (error: unknown) {
             console.log(error)
@@ -111,7 +111,7 @@ function Chat() {
     }
 
     function handleAbortStreamingClick() {
-        ChatService.abortStreaming()
+        ChatService.abortAgentLastRequest()
         setIsStreaming(false)
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
     }
@@ -129,15 +129,14 @@ function Chat() {
         document.getElementById("globalContainer")?.scrollIntoView({ behavior: "smooth" })
     }
 
-    function handleAgentSettingsClick() {
-        setModalVisibility(currentVisibility => !currentVisibility)
+    function regenerateLastAnswer() {
     }
 
     return (
     <div id="globalContainer" className="globalContainer">
         <LeftPanel activeConversation={activeConversationId} setActiveConversation={setActiveConversationId}/>
         <main>
-            <LoadedModelInfosBar/>
+            <LoadedModelInfosBar refreshSignal={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
                 <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} />
             </div>
@@ -146,8 +145,8 @@ function Chat() {
                     setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
                     currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []} 
                     handleSendMessage_Streaming={handleSendMessage_Streaming} activeConversationId={activeConversationId} />
-                <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]} 
-                    setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} />
+                {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]}
+                    setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
                     <div className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Search the Web</span>
@@ -155,9 +154,13 @@ function Chat() {
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
                         </div>
                     </div>
-                    <button className="infosBottomContainer" onClick={handleScrollToTopClick}>
-                        {conversationState.lastAgentUsed /* not always displayed ?! */} / 
-                        Filled context : {conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length} / {ChatService.getActiveAgent().getContextSize()}
+                    <div className="infosBottomContainer">
+                        Available Context : {ChatService.getActiveAgent().getContextSize() - (conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length || 0)}
+                    </div>
+                    <button className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>
+                        <svg style={{transform:'translateY(1px)'}} height="20" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M27.2975 2.5233C27.2975 3.91688 26.1678 5.04659 24.7742 5.04659H2.5233C1.12972 5.04659 0 3.91688 0 2.5233V2.5233C0 1.12972 1.12972 0 2.5233 0H24.7742C26.1678 0 27.2975 1.12972 27.2975 2.5233V2.5233ZM11.4127 8.16757C12.5843 6.996 14.4838 6.996 15.6554 8.16757L23.6272 16.1394C24.5231 17.0353 24.5231 18.4877 23.6272 19.3835V19.3835C22.7314 20.2793 21.279 20.2793 20.3832 19.3835L15.828 14.8283V29.7061C15.828 30.973 14.8009 32 13.5341 32V32C12.2672 32 11.2401 30.973 11.2401 29.7061V14.8283L6.79963 19.2688C5.9038 20.1646 4.45138 20.1646 3.55556 19.2688V19.2688C2.65973 18.373 2.65973 16.9206 3.55556 16.0247L11.4127 8.16757Z" fill="#6D48C1"/>
+                        </svg>
                     </button>
                     {isStreaming ? 
                         <button className="cancelSendButton" onClick={handleAbortStreamingClick}>
@@ -167,9 +170,11 @@ function Chat() {
                     }
                 </div>
             </div>
-            {modalVisibility && <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
-                <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
-            </Modal>}
+            {modalVisibility && 
+                <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
+                    <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
+                </Modal>
+            }
         </main>
         <RightPanel activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility} modelsList={modelsList}/>
     </div>
@@ -181,12 +186,25 @@ export default Chat
 // if closing the only conversation left, then creating a new blank conv
 // deleting conv => ask confirmation
 // when answer generation and switching conversation, QA pair being generated deleted
-// web search (i)
+// web search (infos)
 
-// left drawer one at a time ?
 // search bar : when active magifying turns into a cross
-// cancel inference after switching agent issues
+// !!!!! cancel inference after switching agent issues
 // create new agent or modify new agent give the user the possibility to load an existing prompt
+// white drop shadow custom select
+// fix context calculation when new chathistory item created
+// copy code
+// check the list of models available at startup and assign a default model
+// bug escape modale
+// main textarea fix limit for height / number of lines so it doesn't go out of screen
+// saved new agent should become the current agent
+// in the top bar, button to see ALL the models running
+// modifying agent model : open closing panels for basic options & advanced
+// replace emojis
+// auto calculate context ?
+// when switching model with an existing context, should embed the whole conversation to generate a new compatible context
+// add as a sidewindow extension to browser
+// click the button within refresh the whole page => reason : submitting form
 
 /*
 Valid Parameters and Values

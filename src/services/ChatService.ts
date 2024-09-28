@@ -73,8 +73,8 @@ export class ChatService{
         return newContext
     }
 
-    static abortStreaming(){
-        AgentLibrary.library["helpfulAssistant"].abortLastRequest()
+    static abortAgentLastRequest(){
+        AgentLibrary.library[this.#activeAgentName].abortLastRequest()
     }
 
     static setActiveAgent(name : string){

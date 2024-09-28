@@ -10,7 +10,11 @@ function useModalManager({initialVisibility, initialModalContentId} : IModalObje
     useEffect(() => {
   
         function keyboardListener(e : KeyboardEvent){
-            if(e.code == "Escape" && modalVisibility) {e.preventDefault(); setModalVisibility(false)}
+            if(e.code == "Escape" && modalVisibility) {
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                setModalVisibility(false)
+            }
         }
 
         window.addEventListener('keydown', keyboardListener)

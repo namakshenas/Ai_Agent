@@ -5,7 +5,7 @@ import ScrapedPage from "../models/ScrapedPage"
 
 export function useConversationReducer() {
 
-    const conversationStateRef = useRef<IConversation>({name : "conversation0", history : [], lastAgentUsed  : ""})
+    const conversationStateRef = useRef<IConversation>({name : "First Conversation", history : [], lastAgentUsed  : ""})
 
     function conversationReducer(state : IConversation, action : TAction){
         switch(action.type){
