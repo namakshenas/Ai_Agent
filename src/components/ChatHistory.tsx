@@ -10,7 +10,7 @@ function ChatHistory({history, setTextareaValue} : IProps) {
   const historyContainerRef = useRef(null)
 
   // setting up an observer that keep scrolling to the bottom of the main window
-  // when new text is displayed within the history
+  // when some new streamed text is added to the conversation history
   useEffect(() => {
     if(historyContainerRef.current == null) return
     const observer = new MutationObserver((mutations) => {
@@ -72,6 +72,5 @@ export default ChatHistory
 
 interface IProps{
   history : IConversationElement[]
-  // textareaRef : React.MutableRefObject<HTMLSpanElement | null>
   setTextareaValue : (text : string) => void
 }

@@ -15,8 +15,8 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IPr
 
     return(
         <article className="historyItem answerItem" key={'answer' + index} id={'answer' + index}>
-            <figure className={ answer=="" ? "actorFigureAnimation" : ""}>
-                <img className="actorIcon" src={computerIcon} style={{opacity:'0.9', filter: 'saturate(85%)'}}/>
+            <figure className={ answer == "" ? "actorFigureAnimation" : ""}>
+                <img className="actorIcon" src={computerIcon}/>
             </figure>
             {
                 answer == '' ? <AnswerWaitingAnim/> : <div className='answerContainer' dangerouslySetInnerHTML={{ __html: (answer?.toString() + convertSourcesArrayToHTML(sources)) || "" }}></div>
