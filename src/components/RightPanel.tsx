@@ -84,10 +84,16 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
     return(
         <aside className="rightDrawer">
             <div className='userSettingsContainer'>
-                <img style={{marginLeft:'auto', outline:'4px solid #fff', borderRadius : '100%', height:'48px'}} src={userPicture}/>
+                <span style={{marginLeft:'68px', fontSize:'15px'}}>
+                    <a href="https://ollama.com/" target="_blank">Ollama Installation Guide</a>
+                </span>
+                <img src={userPicture}/>
             </div>
+            <article className='newAgentContainer'>
+                <button className='purpleShadow'>+ Create a New Agent</button>
+            </article>
             <article className='settingsFormContainer'>
-                <label id="label-agentName">Current Agent</label>
+                <label id="label-agentName">Agent Powering the Chat</label>
                 {/*<input spellCheck="false" type="text" readOnly value={activeAgent.getName()}/>*/}
                 <Select 
                     width="100%"
@@ -168,9 +174,9 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
                 <label>Web Search</label>
                 <div className='webSearchContainer'>
                     <span>Context Economy</span>
-                        <div className='switchContainer' onClick={() => setWebSearchEconomy(webSearchEconomy => !webSearchEconomy)}>
-                            <div className={webSearchEconomy ? 'switch active' : 'switch'}></div>
-                        </div>
+                    <div className='switchContainer' onClick={() => setWebSearchEconomy(webSearchEconomy => !webSearchEconomy)}>
+                        <div className={webSearchEconomy ? 'switch active' : 'switch'}></div>
+                    </div>
                     <span>Processing Speed</span>
                 </div>
                 <div className='settingsSaveContainer'>
@@ -184,9 +190,6 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
                         </button>
                     }
                 </div>
-            </article>
-            <article className='newAgentContainer'>
-                + new Agent / + new Prompt
             </article>
         </aside>
     )

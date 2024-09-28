@@ -22,7 +22,7 @@ const ComboBox = (() => {
         background: preset.selectBackgroundColor , 
         outline: "1px solid "+ preset.selectBorderColor.default,
         borderRadius : preset.borderRadius,
-        color: preset.selectTextColor
+        color: preset.selectTextColor,
     }
 
     const comboboxFocusStyle = {
@@ -32,7 +32,7 @@ const ComboBox = (() => {
         /*border:  "1px solid "+ preset.selectBorderColor.focus,*/
         borderRadius : preset.borderRadius,
         outline: "2px solid "+ preset.selectBorderColor.focus, 
-        color: preset.selectTextColor
+        color: preset.selectTextColor,
     }
 
     return(
