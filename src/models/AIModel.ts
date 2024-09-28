@@ -48,33 +48,63 @@ export class AIModel{
      * @description Sends a request to the AI model with the given prompt and returns the response.
      */
     async ask(prompt : string) : Promise<ICompletionResponse> {
-        const response = await fetch("http://127.0.0.1:11434/api/generate", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: this.#buildRequest({prompt, stream : false}),
-            signal: this.#signal
-        });
+        try {
+            const response = await fetch("http://127.0.0.1:11434/api/generate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: this.#buildRequest({prompt, stream : false}),
+                signal: this.#signal
+            });
 
-        return await response.json()
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json()
+            
+        } catch (error) {
+            if (error instanceof Error) {
+                if (error.name === 'AbortError') {
+                    throw new Error("Request was aborted.");
+                }
+                throw new Error(`Failed to fetch: ${error.message}`);
+            }
+            throw new Error("An unknown error occurred.");
+        }
     }
 
     async askForAStreamedResponse(prompt : string) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
-        const response = await fetch("http://127.0.0.1:11434/api/generate", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: this.#buildRequest({prompt, stream : true}),
-            signal: this.#signal
-        });
+        try {
+            const response = await fetch("http://127.0.0.1:11434/api/generate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: this.#buildRequest({prompt, stream : true}),
+                signal: this.#signal
+            })
 
-        const reader = response.body?.getReader()
-        if (!reader) {
-            throw new Error("Failed to read response body.")
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const reader = response.body?.getReader()
+            if (!reader) {
+                throw new Error("Failed to read response body.")
+            }
+            return reader
+
+        } catch (error) {
+            if (error instanceof Error) {
+                if (error.name === 'AbortError') {
+                    throw new Error("Request was aborted.");
+                }
+                throw new Error(`Failed to fetch: ${error.message}`);
+            }
+            throw new Error("An unknown error occurred.");
         }
-        return reader
     }
 
     /**
@@ -85,15 +115,31 @@ export class AIModel{
      * @description Sends a request to generate embeddings for the given sequence and returns the embeddings.
      */
     async embeddings(sequence : string) : Promise<IEmbeddingResponse> {
-        const response = await fetch("http://127.0.0.1:11434/api/embeddings", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: this.#buildEmbeddingRequest(sequence),
-            signal: this.#signal
-        });
-        return response.json()
+        try {
+            const response = await fetch("http://127.0.0.1:11434/api/embeddings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: this.#buildEmbeddingRequest(sequence),
+                signal: this.#signal
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return response.json()
+
+        } catch (error) {
+            if (error instanceof Error) {
+                if (error.name === 'AbortError') {
+                    throw new Error("Request was aborted.");
+                }
+                throw new Error(`Failed to fetch: ${error.message}`);
+            }
+            throw new Error("An unknown error occurred.");
+        }
     }
 
     /**
