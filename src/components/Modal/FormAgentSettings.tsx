@@ -6,7 +6,7 @@ import './FormAgentSettings.css'
 import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 
-export default function FormAgentSettings({agent} : IProps){
+export default function FormAgentSettings({agent, setModalVisibility} : IProps){
 
     const modelList = useFetchModelsList()
 
@@ -23,6 +23,15 @@ export default function FormAgentSettings({agent} : IProps){
     }
 
     const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
+
+    function handleCancelClick(e: React.MouseEvent<HTMLButtonElement>){
+        e.preventDefault()
+        setModalVisibility(false)
+    }
+
+    function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
+        e.preventDefault()
+    }
 
     return (
         <form className="agent-form">
@@ -104,8 +113,8 @@ export default function FormAgentSettings({agent} : IProps){
             </div>
 
             <div style={{gridArea:'p', display:'flex', columnGap:'12px', marginTop:'24px'}}>
-                <button className="cancel-button purpleShadow">Cancel</button>
-                <button className="save-button purpleShadow">Save</button>
+                <button onClick={handleCancelClick} className="cancel-button purpleShadow">Cancel</button>
+                <button onClick={handleSaveClick} className="save-button purpleShadow">Save</button>
             </div>
         </form>
     )
@@ -113,6 +122,7 @@ export default function FormAgentSettings({agent} : IProps){
 
 interface IProps{
     agent : AIAgent
+    setModalVisibility : (visibility : boolean) => void
 }
 
 
