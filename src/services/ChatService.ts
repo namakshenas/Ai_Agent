@@ -80,7 +80,7 @@ export class ChatService{
     static setActiveAgent(name : string){
         if(!AgentLibrary.library[name]) return
         this.#activeAgentName = name
-        console.log(this.#activeAgentName)
+        // console.log(this.#activeAgentName)
     }
 
     static getActiveAgentName() : string{

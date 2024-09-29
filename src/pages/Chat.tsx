@@ -18,7 +18,6 @@ import RightPanel from "../components/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 import useModalManager from "../hooks/useModalManager";
 
-
 function Chat() {
 
     // contains all the logic used to update the conversation history and its context
@@ -58,6 +57,8 @@ function Chat() {
     // initializing the the default conversation history
     useEffect(() => {
         ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
+        document.querySelector("html")!.style.overflow = "-moz-scrollbars-vertical";
+        document.querySelector("html")!.style.overflowY = "scroll";
         // cleanup
         return () => {
             ConversationsRepository.clearAll()
@@ -155,7 +156,9 @@ function Chat() {
                         </div>
                     </div>
                     <div className="infosBottomContainer">
-                        Available Context : {ChatService.getActiveAgent().getContextSize() - (conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length || 0)}
+                        Available Context : {
+                            conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length === 0 ? "N/A" : ChatService.getActiveAgent().getContextSize() - (conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length || 0)
+                        }
                     </div>
                     <button className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>
                         <svg style={{transform:'translateY(1px)'}} height="20" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -164,7 +167,7 @@ function Chat() {
                     </button>
                     {isStreaming ? 
                         <button className="cancelSendButton" onClick={handleAbortStreamingClick}>
-                            <svg style={{opacity:1, width:'20px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
+                            <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
                         <button className="sendButton purpleShadow" onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
                     }
@@ -172,7 +175,7 @@ function Chat() {
             </div>
             {modalVisibility && 
                 <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
-                    <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())}/>
+                    <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>
                 </Modal>
             }
         </main>
@@ -191,20 +194,24 @@ export default Chat
 // search bar : when active magifying turns into a cross
 // !!!!! cancel inference after switching agent issues
 // create new agent or modify new agent give the user the possibility to load an existing prompt
-// white drop shadow custom select
-// fix context calculation when new chathistory item created
 // copy code
 // check the list of models available at startup and assign a default model
-// bug escape modale
 // main textarea fix limit for height / number of lines so it doesn't go out of screen
 // saved new agent should become the current agent
 // in the top bar, button to see ALL the models running
 // modifying agent model : open closing panels for basic options & advanced
-// replace emojis
 // auto calculate context ?
-// when switching model with an existing context, should embed the whole conversation to generate a new compatible context
+// when switching model with an existing context, should embed the whole conversation to generate a new compatible context : should tell the user about the conv required
 // add as a sidewindow extension to browser
-// click the button within refresh the whole page => reason : submitting form
+// fixing issue with a textblock inside a table
+// token/s displayed
+// favorite documents
+// delete file
+// user should be able to choose its default model at startup through a modal => alert si no model installed
+// test on firefox
+
+// readme : prompts optimized for mistral nemo
+// tell me if you face a formatting issue within an answer
 
 /*
 Valid Parameters and Values

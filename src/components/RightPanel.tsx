@@ -28,7 +28,7 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
 
     function handleSaveAgent(){
-        AgentLibrary.getAgent(activeAgent.getName()).setSettings({ 
+        AgentLibrary.getAgent(formValues.agentName).setSettings({
             modelName : formValues.modelName, 
             systemPrompt : formValues.systemPrompt, 
             context : [], 
@@ -40,23 +40,10 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
         setShowSavingSuccessfulBtn(true)
     }
 
-    /*useEffect(() => {
-        const newFormValues = {
-            agentName: activeAgent.getName(),
-            modelName: activeAgent.getModelName(),
-            systemPrompt: activeAgent.getSystemPrompt().replace(/\t/g,''),
-            temperature: activeAgent.getTemperature(),
-            maxContextLength: activeAgent.getContextSize(),
-            maxTokensPerReply: activeAgent.getNumPredict(),
-            webSearchEconomy: true,
-        }
-        setFormValues({...newFormValues})
-    }, [activeAgent])*/
-
     function handleSwitchAgent(option : IOption){
         ChatService.setActiveAgent(option.value)
         const agent = ChatService.getActiveAgent()
-        const newFormValues = {
+        const newFormValues : IFormStructure = {
             agentName: agent.getName(),
             modelName: agent.getModelName(),
             systemPrompt: agent.getSystemPrompt().replace(/\t/g,''),
@@ -66,6 +53,10 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
             webSearchEconomy: true,
         }
         setFormValues({...newFormValues})
+    }
+
+    function handleSwitchModel(option : IOption){
+        setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
     }
 
     useEffect(() => {
@@ -94,7 +85,6 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
             </article>
             <article className='settingsFormContainer'>
                 <label id="label-agentName">Agent Powering the Chat</label>
-                {/*<input spellCheck="false" type="text" readOnly value={activeAgent.getName()}/>*/}
                 <Select 
                     width="100%"
                     options={AgentLibrary.getAgentsNameList().map((agentName) => ({ label: agentName, value: agentName }))} 
@@ -110,9 +100,8 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
                     defaultOption={formValues.modelName}
                     labelledBy="label-modelName" 
                     id="settingsSelectModel"
-                    onValueChange={(option) => setFormValues({...formValues, modelName: option.value})}
+                    onValueChange={handleSwitchModel}
                 />
-                {/*<input spellCheck="false" type="text" readOnly value={activeAgent.getModelName()}/>*/}
                 <label>SystemPrompt</label>
                 <div className='systemPromptContainer'>
                     <input 
@@ -194,9 +183,6 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
         </aside>
     )
 }
-
-// edit agent name / new agent
-// v animation inside the save button when saving
 
 interface IProps{
     activeAgent : AIAgent
