@@ -38,8 +38,8 @@ export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : b
             <span className='value'>{ runningModelsInfos?.name || "N/A" }</span>
             <span className='label'>Allocation</span>
             <div className='allocationBarContainer' style={{display:'flex', flexDirection:'column'}}>
-                <div style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center', columnGap:'12px'}}>VRAM<div className='barContainer' style={{height:'8px'}}><div style={{width : (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='barVRAM'></div></div></div>
-                <div style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center', columnGap:'12px'}}>RAM<div className='barContainer' style={{height:'8px'}}><div style={{width : 120 - (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='barRAM'></div></div></div>
+                <div className='rowContainer'><span style={{padding:'0', justifyContent:'right'}}>VRAM</span><div className='barContainer' style={{height:'8px'}}><div style={{width : runningModelsInfos?.percentageInVRAM ? 100 * 1.2 : 0 }} className='barVRAM'></div></div></div>
+                <div className='rowContainer'><span style={{padding:'0', justifyContent:'right'}}>RAM</span><div className='barContainer' style={{height:'8px'}}><div style={{width : 120 - (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='barRAM'></div></div></div>
                 {/*<span style={{flexGrow:0}}>GPU</span>
                 <div className='barContainer'>
                     <div style={{width : (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='bar'>
