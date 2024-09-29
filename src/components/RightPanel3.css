@@ -125,7 +125,7 @@
       }
 
       svg path {
-        fill: #beb8cc;
+        fill: var(--label-grey-text-color);
       }
     }
   }

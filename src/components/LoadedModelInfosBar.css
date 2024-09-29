@@ -49,6 +49,17 @@
     font-size: 14px;
     /*max-width: 260px;*/
 
+    .rowContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 166px;
+      flex-shrink: 0;
+      column-gap: 12px;
+      font-size: 13px;
+    }
+
     .barContainer {
       background: #737097;
       border-radius: 14px;

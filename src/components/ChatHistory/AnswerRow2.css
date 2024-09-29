@@ -5,6 +5,14 @@
     margin-top: 3px;
   }
 
+  & > ol:first-child {
+    margin-top: 3px;
+
+    li:first-child {
+      margin-top: 3px;
+    }
+  }
+
   & > p > strong {
     font-size: 1rem;
     font-weight: 600;
@@ -31,13 +39,13 @@
 .answerContainer h5,
 .answerContainer h6 {
   width: 100%;
-  font-size: 1.25rem;
+  font-size: 16px;
   margin-bottom: 0.75rem;
 }
 
 .answerContainer h1 {
   width: 100%;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   margin-bottom: 0.75rem;
 }
 
@@ -273,25 +281,33 @@ table {
 /* emojis styling */
 
 .check {
+  transform: translateY(3px);
+  margin: 0 1px;
   path {
-    fill: rgb(83, 179, 59);
+    fill: #522babaa /* rgb(34, 201, 98)*/;
   }
 }
 
 .star {
+  transform: translateY(2px);
+  margin: 0 1px;
   path {
-    fill: yellow;
+    fill: #522babaa;
   }
 }
 
 .emptystar {
+  transform: translateY(2px);
+  margin: 0 1px;
   path {
-    fill: orange;
+    fill: #522babaa /* orange*/;
   }
 }
 
 .xmark {
+  transform: translateY(4px);
+  margin: 0 1px;
   path {
-    fill: red;
+    fill: #522babaa /* rgb(235, 0, 51)*/;
   }
 }

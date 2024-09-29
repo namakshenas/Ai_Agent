@@ -10,7 +10,7 @@ main {
   flex-direction: column;
   width: 100%;
   flex: 1 1 100%;
-  min-height: 100vh;
+  min-height: 100%;
   padding: 0 16px;
 }
 

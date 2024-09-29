@@ -26,7 +26,19 @@ dialog {
 
 dialog::backdrop {
   background: rgba(21, 11, 22, 0.35);
+  animation-name: backdropAppears;
+  animation-duration: 0.2s;
+  animation-timing-function: ease-out;
   width: 100vw;
+}
+
+@keyframes backdropAppears {
+  0% {
+    background: rgba(21, 11, 22, 0);
+  }
+  100% {
+    background: rgba(21, 11, 22, 0.35);
+  }
 }
 
 dialog .modalHorizPadding {
