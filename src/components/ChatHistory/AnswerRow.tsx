@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import '../../style/ChatHistory.css'
 import AnswerWaitingAnim from './AnswerWaitingAnim'
 import computerIcon from '../../assets/chaticon9.png';
-import downloadIcon from '../../assets/downloadicon2.png';
 import './AnswerRow2.css'
 import { ISource } from '../../interfaces/IConversation';
 
@@ -23,15 +23,17 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IPr
             }
             {   answer &&
                 <div className='answerIconsContainer'>
-                    <button className='iconButton'>
-                        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 16C5.76667 16 3.875 15.225 2.325 13.675C0.775 12.125 0 10.2333 0 8C0 5.76667 0.775 3.875 2.325 2.325C3.875 0.775 5.76667 0 8 0C9.15 0 10.25 0.237333 11.3 0.712C12.35 1.18667 13.25 1.866 14 2.75V1C14 0.447715 14.4477 0 15 0V0C15.5523 0 16 0.447715 16 1V6C16 6.55228 15.5523 7 15 7H10C9.44772 7 9 6.55228 9 6V6C9 5.44772 9.44772 5 10 5H13.2C12.6667 4.06667 11.9377 3.33333 11.013 2.8C10.0883 2.26667 9.084 2 8 2C6.33333 2 4.91667 2.58333 3.75 3.75C2.58333 4.91667 2 6.33333 2 8C2 9.66667 2.58333 11.0833 3.75 12.25C4.91667 13.4167 6.33333 14 8 14C9.28333 14 10.4417 13.6333 11.475 12.9C12.3124 12.3057 12.9472 11.5583 13.3797 10.6576C13.564 10.2737 13.9355 10 14.3613 10H14.4515C15.1076 10 15.588 10.6245 15.326 11.226C14.795 12.4457 13.9863 13.4787 12.9 14.325C11.4667 15.4417 9.83333 16 8 16Z" fill="#545454"/>
+                    {<button className='iconButton'>
+                        <svg width="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160 352 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l111.5 0c0 0 0 0 0 0l.4 0c17.7 0 32-14.3 32-32l0-112c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 35.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1L16 432c0 17.7 14.3 32 32 32s32-14.3 32-32l0-35.1 17.6 17.5c0 0 0 0 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.8c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352l34.4 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L48.4 288c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/>
+                        </svg>
+                    </button>}
+                    <button className='iconButton' onClick={() => onCopyToClipboard(answer?.toString())}>
+                        <svg width="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path d="M96 352L96 96c0-35.3 28.7-64 64-64l256 0c35.3 0 64 28.7 64 64l0 197.5c0 17-6.7 33.3-18.7 45.3l-58.5 58.5c-12 12-28.3 18.7-45.3 18.7L160 416c-35.3 0-64-28.7-64-64zM272 128c-8.8 0-16 7.2-16 16l0 48-48 0c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l48 0 0 48c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-48 48 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-48 0 0-48c0-8.8-7.2-16-16-16l-32 0zm24 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-160 0C60.9 512 0 451.1 0 376L0 152c0-13.3 10.7-24 24-24s24 10.7 24 24l0 224c0 48.6 39.4 88 88 88l160 0z"/>
                         </svg>
                     </button>
-                    <button className='iconButton' onClick={() => onDownload(answer.toString())}>
-                        <img className="clipboardIcon" src={downloadIcon}/>
-                    </button>
-                    <button className='iconButton' onClick={() => onCopyToClipboard(answer?.toString())}>
+                    <button className='iconButton'>
                         <svg style={{width:'16px', opacity:1}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                     </button>
                 </div>
@@ -41,6 +43,7 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard} : IPr
 }
 
 // if table first answer node, then no margin top
+// onClick={() => onDownload(answer.toString())}
 
 export default AnswerRow
 
