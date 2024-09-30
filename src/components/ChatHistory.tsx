@@ -5,7 +5,7 @@ import '../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
 import { IConversationElement } from "../interfaces/IConversation"
 
-function ChatHistory({history, setTextareaValue} : IProps) {
+function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps) {
 
   const historyContainerRef = useRef(null)
 
@@ -57,10 +57,12 @@ function ChatHistory({history, setTextareaValue} : IProps) {
   return (
     <section ref={historyContainerRef} className="chatHistorySection">
         {
-          history.map((item, index) => (
+          history.map((item, index, array) => (
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
-              <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
+              {(index == (array.length -1)) ? 
+              <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
+              : <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>}
             </article>
           ))
         }
@@ -73,4 +75,5 @@ export default ChatHistory
 interface IProps{
   history : IConversationElement[]
   setTextareaValue : (text : string) => void
+  regenerateLastAnswer : () => void
 }

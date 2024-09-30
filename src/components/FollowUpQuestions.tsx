@@ -41,7 +41,7 @@ function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea, isS
             if(iter + 1 > 4) return setFollowUpQuestions([])
             generateFollowUpQuestions(question, iter + 1)
         }
-        if(response.length == 3) setFollowUpQuestions(response)
+        if(response?.length == 3) setFollowUpQuestions(response)
     }
 
     return (
