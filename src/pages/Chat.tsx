@@ -17,6 +17,8 @@ import LeftPanel from "../components/LeftPanel/LeftPanel";
 import RightPanel from "../components/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 import useModalManager from "../hooks/useModalManager";
+import { useStreamingState } from "../hooks/useStreamingState";
+import { useWebSearchState } from "../hooks/useWebSearchState";
 
 function Chat() {
 
@@ -27,41 +29,44 @@ function Chat() {
 
     const [textareaValue, _setTextareaValue] = useState("")
     const textareaValueRef = useRef<string>("")
-    // forwarded to the textarea to extract it's focus method
+    // forwarded to the textarea to get access to its focus method
     const customTextareaRef = useRef<ImperativeHandle>(null)
-
-    const [activeConversationId, setActiveConversationId] = useState<number>(0)
-
-    const [isStreaming, setIsStreaming] = useState<boolean>(false)
-
-    const [isWebSearchActivated, _setWebSearchActivated] = useState(false)
-    const isWebSearchActivatedRef = useRef<boolean>(false)
-
-    const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
-
-    // const {modalVisibility, setModalVisibility} = useModalVisibility()
-    const { modalVisibility, setModalVisibility, modalContentId, setModalContentId } = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
 
     function setTextareaValue(value: string) {
         textareaValueRef.current = value
         _setTextareaValue(value)
     }
 
-    function setWebSearchActivated(value: boolean) {
-        isWebSearchActivatedRef.current = value
-        _setWebSearchActivated(value)
-    }
+    const [activeConversationId, setActiveConversationId] = useState<number>(0)
+
+    const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
+    const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
+
+    const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
+
+    const { modalVisibility, setModalVisibility, modalContentId, setModalContentId } = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
 
     const modelsList = useFetchModelsList()
 
-    // initializing the the default conversation history
+    // initializing the default conversation history & tracking the window visibility
+    // to abort the streaming request if the window stops being visible
     useEffect(() => {
         ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
-        document.querySelector("html")!.style.overflow = "-moz-scrollbars-vertical";
-        document.querySelector("html")!.style.overflowY = "scroll";
+        document.querySelector("html")!.style.overflow = "-moz-scrollbars-vertical"
+        document.querySelector("html")!.style.overflowY = "scroll"
+
+        const handleVisibilityChange = () => {
+            if(!document.hidden || !isStreamingRef.current) return
+            ChatService.abortAgentLastRequest()
+            setIsStreaming(false)
+            dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+        }
+
+        document.addEventListener("visibilitychange", handleVisibilityChange)
         // cleanup
         return () => {
             ConversationsRepository.clearAll()
+            document.removeEventListener("visibilitychange",handleVisibilityChange)
         }
     }, [])
 
@@ -73,10 +78,12 @@ function Chat() {
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
     }, [activeConversationId])
 
+    // ---
     // asking the model for a streamed response
-    async function handleSendMessage_Streaming(message: string): Promise<void> {
+    // ---
+    async function handleAskModel_Streaming(message: string): Promise<void> {
         try {
-            if (message == "") return
+            if (message == "" || isStreamingRef.current) return
             const currentContext = conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []
             setIsStreaming(true)
             dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: message })
@@ -91,8 +98,11 @@ function Chat() {
                 console.log("**LLM Loading**")
                 newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedAnswerToHistory_Callback, currentContext)
             }
-            clearTextAreaIfQuestionReplied(conversationStateRef.current.history[conversationStateRef.current.history.length - 1].question, textareaValueRef.current)
+            // if the stream has been aborted, the following code shouldn't be executed
+            if(isStreamingRef.current == false) return
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload: newContext })
+            // textarea emptied only if it hasn't been modified by the user during the streaming process
+            if(textareaValueRef.current == conversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             ConversationsRepository.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history)
             setIsStreaming(false)
         }
@@ -101,12 +111,7 @@ function Chat() {
         }
     }
 
-    function clearTextAreaIfQuestionReplied(lastQuestion: string, textareaValue: string): void {
-        // only if the textarea hasn't been modified by the user during streaming
-        if (lastQuestion == textareaValue) setTextareaValue("")
-    }
-
-    // callback passed to the chatservice to display the streamed answer / !!! should be renamed answerSaverCallback
+    // callback passed to the chatservice to display the streamed answer
     function pushStreamedAnswerToHistory_Callback(contentAsMarkdown: string, contentAsHTML: string): void {
         dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ANSWER, payload: { html: contentAsHTML, markdown: contentAsMarkdown } })
     }
@@ -131,6 +136,11 @@ function Chat() {
     }
 
     function regenerateLastAnswer() {
+        if(isStreamingRef.current) return
+        const retrievedQuestion = conversationStateRef.current.history[conversationStateRef.current.history.length-1].question
+        ConversationsRepository.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history.slice(0, -1))
+        dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+        handleAskModel_Streaming(retrievedQuestion)
     }
 
     return (
@@ -139,13 +149,13 @@ function Chat() {
         <main>
             <LoadedModelInfosBar refreshSignal={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
-                <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} />
+                <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>
             </div>
             <div className="stickyBottomContainer">
                 <CustomTextarea ref={customTextareaRef} 
                     setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
                     currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []} 
-                    handleSendMessage_Streaming={handleSendMessage_Streaming} activeConversationId={activeConversationId} />
+                    handleAskModel_Streaming={handleAskModel_Streaming} activeConversationId={activeConversationId} />
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
@@ -166,16 +176,16 @@ function Chat() {
                         </svg>
                     </button>
                     {isStreaming ? 
-                        <button className="cancelSendButton" onClick={handleAbortStreamingClick}>
+                        <button className="cancelSendButton purpleShadow" onClick={handleAbortStreamingClick}>
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
-                        <button className="sendButton purpleShadow" onClick={() => handleSendMessage_Streaming(textareaValue)}>Send</button>
+                        <button className="sendButton purpleShadow" onClick={() => handleAskModel_Streaming(textareaValue)}>Send</button>
                     }
                 </div>
             </div>
             {modalVisibility && 
                 <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
-                    <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>
+                    <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility} type="edit"/>
                 </Modal>
             }
         </main>
@@ -195,20 +205,21 @@ export default Chat
 // !!!!! cancel inference after switching agent issues
 // create new agent or modify new agent give the user the possibility to load an existing prompt
 // copy code
-// check the list of models available at startup and assign a default model
 // main textarea fix limit for height / number of lines so it doesn't go out of screen
 // saved new agent should become the current agent
 // in the top bar, button to see ALL the models running
-// modifying agent model : open closing panels for basic options & advanced
 // auto calculate context ?
 // when switching model with an existing context, should embed the whole conversation to generate a new compatible context : should tell the user about the conv required
 // add as a sidewindow extension to browser
 // fixing issue with a textblock inside a table
-// token/s displayed
+// token/s displayed => conversation
 // favorite documents
 // delete file
-// user should be able to choose its default model at startup through a modal => alert si no model installed
-// test on firefox
+// should handle reply with excel "code"
+// when regenerating an asnwer, old context is taken into account
+// if cancel streaming due to chrome being put in background, then should reiterate the request but not as a stream
+// hover deactivated microbuttons
+// prompt versioning
 
 // readme : prompts optimized for mistral nemo
 // tell me if you face a formatting issue within an answer

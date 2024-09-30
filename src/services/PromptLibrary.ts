@@ -12,7 +12,6 @@ ALWAYS stick to the 5 following rules when replying to MY REQUEST :
 5. DON'T USE triple backticks for non-code related text.
 
 Here is MY REQUEST :
-
 `
 
 static defaultAssistantPrompt = `You are an helpful assistant.`
@@ -34,7 +33,6 @@ Here are some examples showing the logic your output should always fulfill :
 !!! ONLY respond with the part completing the incomplete question NOT the full sentence.
 
 Here is the given block of text :
-
 `
 
 static COTGeneratorPrompt = 
@@ -47,7 +45,6 @@ static COTGeneratorPrompt =
 5. Don't reply to the request. Only reply with your list of mental tasks.
 
 Here is my request :
-
 ` 
 
 static COTAnalyzePrompt = 
@@ -81,5 +78,21 @@ Adjacent scraped informations can be included into your output as long as they a
 
 1. The given scraped datas will be encapsulated between the tags : <SCRAPEDDATAS></SCRAPEDDATAS>.
 2. The given request will be encapsulated between the tags : <REQUEST></REQUEST>
-3. Only output the produced summary.`  
+3. Only output the produced summary.`
+
+
+    static #prompts = [
+        this.helpfulAssistantPrompt, 
+        this.COTGeneratorPrompt, 
+        this.COTTaskSolverPrompt, 
+        this.searchQueryOptimizerPrompt, 
+        this.scrapedDatasSummarizerPrompt, 
+        this.COTAnalyzePrompt,
+        this.completionAssistantPrompt,
+    ]
+
+    static getAllPrompts(){
+        return this.#prompts
+    }
+
 }
