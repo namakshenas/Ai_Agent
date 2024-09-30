@@ -54,6 +54,10 @@
       outline: 1px solid var(--secondary-button-border-hover-color);
       border: none;
       color: var(--secondary-button-hover-text-color);
+
+      svg path {
+        fill: var(--secondary-button-hover-text-color);
+      }
     }
   }
 }

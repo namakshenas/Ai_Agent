@@ -5,6 +5,10 @@
     margin-top: 3px;
   }
 
+  p:not(:first-child) {
+    margin-top: 1rem;
+  }
+
   & > ol:first-child {
     margin-top: 3px;
 
@@ -30,77 +34,77 @@
     margin-top: 1rem;
     width: 100%;
   }
-}
 
-.answerContainer h1,
-.answerContainer h2,
-.answerContainer h3,
-.answerContainer h4,
-.answerContainer h5,
-.answerContainer h6 {
-  width: 100%;
-  font-size: 16px;
-  margin-bottom: 0.75rem;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 0.75rem;
+  }
 
-.answerContainer h1 {
-  width: 100%;
-  font-size: 1.2rem;
-  margin-bottom: 0.75rem;
-}
+  h1 {
+    width: 100%;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
 
-.answerContainer h1:not(:first-child),
-.answerContainer h2:not(:first-child),
-.answerContainer h3:not(:first-child),
-.answerContainer h4:not(:first-child),
-.answerContainer h5:not(:first-child),
-.answerContainer h6:not(:first-child) {
-  margin-top: 1.5rem;
-}
+  h1:not(:first-child),
+  h2:not(:first-child),
+  h3:not(:first-child),
+  h4:not(:first-child),
+  h5:not(:first-child),
+  h6:not(:first-child) {
+    margin-top: 1.5rem;
+  }
 
-.answerContainer h1 > strong {
-  font-size: 1.2rem;
-}
+  h1 > strong {
+    font-size: 1.2rem;
+  }
 
-.answerContainer .codeBlock h1,
-.answerContainer .codeBlock h2,
-.answerContainer .codeBlock h3,
-.answerContainer .codeBlock h4,
-.answerContainer .codeBlock h5,
-.answerContainer .codeBlock h6 {
-  font-size: 1rem;
-}
+  .codeBlock h1,
+  .codeBlock h2,
+  .codeBlock h3,
+  .codeBlock h4,
+  .codeBlock h5,
+  .codeBlock h6 {
+    font-size: 1rem;
+  }
 
-.answerContainer ol,
-.answerContainer ul {
-  margin: 1rem 0;
-}
+  ol,
+  ul {
+    margin: 1rem 0;
+  }
 
-.answerContainer ol strong,
-.answerContainer ul strong {
-  font-weight: 600;
-}
+  ol strong,
+  ul strong {
+    font-weight: 600;
+  }
 
-.answerContainer ol li,
-.answerContainer ul li {
-  margin-left: 2rem;
-  margin-top: 1rem;
-  min-height: 24px;
-  list-style: square;
-}
+  ol li,
+  ul li {
+    margin-left: 2rem;
+    margin-top: 1rem;
+    min-height: 24px;
+    list-style: square;
+  }
 
-.answerContainer ol li li,
-.answerContainer ul li li {
-  list-style: disc;
-}
+  ol li li,
+  ul li li {
+    list-style: disc;
+  }
 
-.answerContainer ol li li li,
-.answerContainer ul li li li {
-  list-style: lower-alpha;
-}
+  ol li li li,
+  ul li li li {
+    list-style: lower-alpha;
+  }
 
-.answerContainer table strong {
-  font-weight: 500;
+  table strong {
+    font-weight: 500;
+  }
 }
 
 .answerIconsContainer {
@@ -123,6 +127,10 @@
       outline: 1px solid var(--secondary-button-border-hover-color);
       border: none;
       color: var(--secondary-button-hover-text-color);
+
+      svg path {
+        fill: var(--secondary-button-hover-text-color);
+      }
     }
   }
 }
@@ -168,6 +176,16 @@
   .body {
     width: 100%;
     padding: 0.75rem 0.75rem;
+
+    pre {
+      width: 100%;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+
+      code {
+        width: 100%;
+      }
+    }
   }
 }
 
@@ -182,17 +200,17 @@
   flex-direction: column;
   max-width: 100%;
   overflow: hidden;
-}
 
-.codeBlock .body pre,
-.textBlock .body pre {
-  width: 100%;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
+  .body pre {
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 0;
 
-.codeBlock .body code {
-  width: 100%;
+    code {
+      padding: 0;
+    }
+  }
 }
 
 table {
