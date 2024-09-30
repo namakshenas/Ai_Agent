@@ -24,7 +24,7 @@ function useModalManager({initialVisibility, initialModalContentId} : IModalObje
             window.removeEventListener('keydown', keyboardListener)
         }
 
-    }, [])
+    }, [modalVisibility, setModalVisibility])
 
     useEffect(() => {
 

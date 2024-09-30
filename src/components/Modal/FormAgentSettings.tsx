@@ -5,20 +5,21 @@ import Select from "../CustomSelect/Select";
 import './FormAgentSettings.css'
 import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
+import picots from '../../assets/sliderpicots.png'
 
-export default function FormAgentSettings({agent, setModalVisibility} : IProps){
+export default function FormAgentSettings({agent, setModalVisibility, type} : IProps){
 
     const modelList = useFetchModelsList()
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
     const baseForm : IFormStructure = {
-        agentName: agent.getName(),
-        modelName: agent.getModelName(),
-        systemPrompt: agent.getSystemPrompt().replace(/\t/g,''),
-        temperature: agent.getTemperature(),
-        maxContextLength: agent.getContextSize(),
-        maxTokensPerReply: agent.getNumPredict(),
+        agentName: type == 'edit' ? agent.getName() : "",
+        modelName: type == 'edit' ? agent.getModelName() : modelList[0],
+        systemPrompt: type == 'edit' ? agent.getSystemPrompt().replace(/\t/g,'') : "",
+        temperature: type == 'edit' ? agent.getTemperature() : 0.1,
+        maxContextLength: type == 'edit' ? agent.getContextSize() : 1024,
+        maxTokensPerReply: type == 'edit' ? agent.getNumPredict() : 100,
         webSearchEconomy: false,
     }
 
@@ -73,43 +74,90 @@ export default function FormAgentSettings({agent, setModalVisibility} : IProps){
             <div/>
             <label id="label-maxTokensPerReply" className="form-label">Max Tokens Per Reply</label>
 
-            <input
+            <div className="inputNSliderContainer">
+                <input
                 aria-labelledby="label-temperature"
                 type="text" 
                 className="form-input"
                 spellCheck="false"
                 value={formValues.temperature}
                 onChange={(e) => setFormValues(formValues => ({...formValues, temperature : parseInt(e.target?.value) | 0}))}
-            />
+                />
+                <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    <div className="sliderbarContainer">
+                        <div className="sliderTrack">
+                            <div className="slider">
+                                <img src={picots} alt="picots" className="sliderPicots"/>
+                            </div>
+                        </div>
+                        <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                            <span>Temperature</span><span>0.1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div/>
-            <input 
-                aria-labelledby="label-maxTokensPerReply"
-                type="text"
-                className="form-input"
-                spellCheck="false"
-                value={formValues.maxTokensPerReply}
-                onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : parseInt(e.target?.value) | 0}))}
-            />
+            <div className="inputNSliderContainer">
+                <input 
+                    aria-labelledby="label-maxTokensPerReply"
+                    type="text"
+                    className="form-input"
+                    spellCheck="false"
+                    value={formValues.maxTokensPerReply}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : parseInt(e.target?.value) | 0}))}
+                />
+                <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    <div className="sliderbarContainer">
+                        <div className="sliderTrack">
+                            <div className="slider" style={{marginLeft:'92px'}}>
+                                <img src={picots} alt="picots" className="sliderPicots"/>
+                            </div>
+                        </div>
+                        <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                            <span>Max Tokens</span><span>1024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <label id="label-maxContextLength" className="form-label">Max Context Length</label>
             <div/>
             <label id="label-webSearch" className="form-label">Web Search</label>
 
-            <input
-                aria-labelledby="label-maxContextLength" 
-                type="text"
-                className="form-input"
-                spellCheck="false"
-                value={formValues.maxContextLength}
-                onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : parseInt(e.target?.value) | 0}))}
-            />
+            <div className="inputNSliderContainer">
+                <input
+                    aria-labelledby="label-maxContextLength" 
+                    type="text"
+                    className="form-input"
+                    spellCheck="false"
+                    value={formValues.maxContextLength}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : parseInt(e.target?.value) | 0}))}
+                />
+                <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                    <div className="sliderbarContainer">
+                        <div className="sliderTrack">
+                            <div className="slider" style={{marginLeft:'140px'}}>
+                                <img src={picots} alt="picots" className="sliderPicots"/>
+                            </div>
+                        </div>
+                        <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                            <span>Context Length</span><span>8192</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div/>
             <div className='webSearchContainer'>
-                <span>Context Economy</span>
+                <span>Context Economy (Far slower)</span>
                 <div className='switchContainer' onClick={() => setWebSearchEconomy(webSearchEconomy => !webSearchEconomy)}>
                     <div className={webSearchEconomy ? 'switch active' : 'switch'}></div>
                 </div>
                 <span>Processing Speed</span>
+            </div>
+
+            <div style={{gridArea:'o', marginTop:'2rem', display:'flex', flexDirection:'column'}}>
+                <span style={{textAlign:'left', width:'100%', marginBottom:'0.25rem'}}>Advanced Options</span>
+                <hr/>
             </div>
 
             <div style={{gridArea:'p', display:'flex', columnGap:'12px', marginTop:'24px'}}>
@@ -123,6 +171,7 @@ export default function FormAgentSettings({agent, setModalVisibility} : IProps){
 interface IProps{
     agent : AIAgent
     setModalVisibility : (visibility : boolean) => void
+    type : 'create' | 'edit'
 }
 
 
