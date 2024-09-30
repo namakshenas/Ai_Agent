@@ -59,6 +59,10 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
         setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
     }
 
+    function handleNewAgentClick(){
+        setModalVisibility(true)
+    }
+
     useEffect(() => {
         if(!showSavingSuccessfulBtn) return
         
@@ -81,7 +85,7 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
                 <img src={userPicture}/>
             </div>
             <article className='newAgentContainer'>
-                <button className='purpleShadow'>+ Create a New Agent</button>
+                <button className='purpleShadow' onClick={handleNewAgentClick}>+ Create a New Agent</button>
             </article>
             <article className='settingsFormContainer'>
                 <label id="label-agentName">Agent Powering the Chat</label>

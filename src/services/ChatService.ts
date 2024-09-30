@@ -32,13 +32,14 @@ export class ChatService{
      */
     static async askTheActiveAgentForAStreamedResponse(question : string, answerProcessorCallback : (toProcessAsMarkdown : string, toProcessAsHTML : string) => void, context:number[] = [], scrapedPages?: IScrapedPages[]) : Promise<number[]>
     {
-        let newContext = [];
+        let newContext = []
+        const contextSpaceForScrapedDatas = AgentLibrary.library[this.#activeAgentName].getContextSize() - AgentLibrary.library[this.#activeAgentName].getNumPredict() - 100
 
         if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
         AgentLibrary.library[this.#activeAgentName].setContext(context)
-        scrapedPages?.forEach(page => console.log(page.datas))
+        // scrapedPages?.forEach(page => console.log(page.datas))
         const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, curr)=> acc + '\n\n' + curr.datas, "Use the following datas as your prioritary source of information when replying to **MY REQUEST** :") : ""
-        const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, 8000) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
+        const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, contextSpaceForScrapedDatas) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
 
         let content = ""
         // keep reading the streamed response until the stream is closed
@@ -47,7 +48,9 @@ export class ChatService{
                 const { value } = await reader.read()
 
                 const decodedValue = new TextDecoder().decode(value)
-                // console.log(decodedValue)
+                /* memo : decodedValue example : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
+                console.log(decodedValue)
+                // error : {"model":"mistral-nemo:latest","created_at":"2024-09-29T23:06:43.0803818Z","response":"\").\n","done":false}
                 const json = JSON.parse(decodedValue)
 
                 if(json.done) {
@@ -64,9 +67,9 @@ export class ChatService{
             }
         } catch (error : unknown) {
             if (error instanceof Error && error.name === 'AbortError') {
-              console.log('Stream aborted.');
+              console.log('Stream aborted.')
             } else {
-              console.error('Stream error : ', error);
+              console.error('Stream error : ', error)
             }
         }
 
@@ -99,3 +102,51 @@ export class ChatService{
         return {context : answer.context as number[], response : answer.response}
     }
 }
+
+/*
+
+async function streamWithRetry(url, maxRetries = 3) {
+  const response = await fetch(url);
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  let retryCount = 0;
+
+  async function readChunk() {
+    try {
+      const { value, done } = await reader.read();
+      
+      if (done) {
+        return null;
+      }
+
+      const decodedValue = decoder.decode(value);
+      
+      // Process the decoded value here
+      console.log("Received chunk:", decodedValue);
+
+      return decodedValue;
+    } catch (error) {
+      if (retryCount < maxRetries) {
+        retryCount++;
+        console.log(`Retrying... Attempt ${retryCount}`);
+        return readChunk(); // Retry reading the chunk
+      } else {
+        throw new Error("Max retries reached");
+      }
+    }
+  }
+
+  while (true) {
+    const chunk = await readChunk();
+    if (chunk === null) break;
+    // You can implement additional logic here to decide 
+    // if you want to regenerate the current chunk
+  }
+}
+
+// Usage
+streamWithRetry('https://api.example.com/stream')
+  .catch(error => console.error("Streaming error:", error));
+
+  */

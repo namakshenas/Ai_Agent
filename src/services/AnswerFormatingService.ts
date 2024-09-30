@@ -4,20 +4,27 @@ import { marked } from "marked"
 class AnswerFormatingService{
 
     static async format(answer : string) : Promise<string>{
-        return this.#emojitransformer(this.#codetransformer(await marked(answer)))
+        return this.#emojitransformer(await this.#codetransformer(await marked(this.#stripCodeBlockSyntax(answer))))
     }
 
     static #codetransformer(text : string) : string {
-        return text.replace(/(<pre><code([\s\S]*?)>[\s\S]*?<\/code><\/pre>)/g, (match, codeContent, languageNJunk) => {
+        const formatedText = text.replace(/(<pre><code([\s\S]*?)>[\s\S]*?<\/code><\/pre>)/g, (match, codeContent, languageNJunk) => {
             const language = languageNJunk ? this.#capitalizeFirstLetter(languageNJunk.split('-')[1]).replace('"', "") : undefined
-            if(language === undefined || language === 'Markdown') 
+            if(language === undefined || language === 'Markdown') {
                 return `<div class="textBlock">
                             <div class="body">${codeContent}</div>
                         </div>`
+            } 
             return `<div class="codeBlock">
                         <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">${language}</span></div>
                         <div class="body">${codeContent}</div>
-                    </div>`})
+                    </div>`
+        })
+        return formatedText
+    }
+
+    static #stripCodeBlockSyntax(text : string) {
+        return text.replace(/```markdown/g, "").replace(/```\n\n/g, "```\n")
     }
 
     static #emojisReplacementSVG = {
