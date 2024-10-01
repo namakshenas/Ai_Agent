@@ -1,79 +1,105 @@
 /* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import IScrapedPages from "../interfaces/IScrapedPage";
+import { IConversationElement } from "../interfaces/IConversation";
 import { AIAgent } from "../models/AIAgent";
+import ScrapedPage from "../models/ScrapedPage";
 import { AgentLibrary } from "./AgentLibrary";
 import AnswerFormatingService from "./AnswerFormatingService";
 export class ChatService{
 
     static #activeAgentName = "helpfulAssistant"
-  
-    /**
-     * Asks a question to the AI model and returns the context and response.
-     *
-     * @param {string} question The question to ask the AI model.
-     * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
-     * @returns {Promise<{context: number[], response: string}>} A promise resolving to an object with the context and response from the AI model.
-     */
-    static async askTheActiveAgent(question : string, context:number[] = []) : Promise<{context : number[], response : string}>
+
+    static async askForFollowUpQuestions(question : string, context:number[] = []) : Promise<string>
     {
-        if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
-        AgentLibrary.library[this.#activeAgentName].setContext(context)
-        const answer = await AgentLibrary.library[this.#activeAgentName].ask(question)
-        return {context : answer.context as number[], response : answer.response}
+      try{
+        if(!AgentLibrary.library["helpfulAssistant"]) throw new Error(`Agent helpfulAssistant is not available`)
+
+        AgentLibrary.library["helpfulAssistant"].setContext(context)
+        const answer = await AgentLibrary.library["helpfulAssistant"].ask(question)
+        return answer.response
+      }catch (error){
+        console.error("Failed to generate the follow up questions : " + error)
+        throw error
+      }
     }
 
-    /**
-     * Asks a question to the AI model and returns a ReadableStream of responses.
-     *
-     * @param {string} question The question to ask the AI model.
-     * @param {number[]} [context=[]] An optional array of numbers that serves as context for the question.
-     * @returns {Promise<ReadableStreamDefaultReader<Uint8Array>>} A promise resolving to a ReadableStream of responses from the AI model.
-     */
-    static async askTheActiveAgentForAStreamedResponse(question : string, answerProcessorCallback : (toProcessAsMarkdown : string, toProcessAsHTML : string) => void, context:number[] = [], scrapedPages?: IScrapedPages[]) : Promise<number[]>
+    // askTheActiveAgent({question : string, context : number[], formating : boolean, answerProcessorCallback, websearch : boolean})
+    // then redirect to one of the two ask below queryAgent
+  
+    static async askTheActiveAgent(question : string, context:number[] = [], format : boolean = true) : Promise<IConversationElement>
     {
-        let newContext = []
-        const contextSpaceForScrapedDatas = AgentLibrary.library[this.#activeAgentName].getContextSize() - AgentLibrary.library[this.#activeAgentName].getNumPredict() - 100
-
         if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
+
         AgentLibrary.library[this.#activeAgentName].setContext(context)
-        // scrapedPages?.forEach(page => console.log(page.datas))
-        const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, curr)=> acc + '\n\n' + curr.datas, "Use the following datas as your prioritary source of information when replying to **MY REQUEST** :") : ""
-        const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, contextSpaceForScrapedDatas) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
-
-        let content = ""
-        // keep reading the streamed response until the stream is closed
         try{
-            while(true){
-                const { value } = await reader.read()
-
-                const decodedValue = new TextDecoder().decode(value)
-                /* memo : decodedValue example : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
-                console.log(decodedValue)
-                // error : {"model":"mistral-nemo:latest","created_at":"2024-09-29T23:06:43.0803818Z","response":"\").\n","done":false}
-                const json = JSON.parse(decodedValue)
-
-                if(json.done) {
-                    newContext = json.context || []
-                    answerProcessorCallback(content /*markdown*/, await AnswerFormatingService.format(content) /*html*/)
-                    break
-                }
-            
-                if (!json.done) {
-                    content += json.response
-                    if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
-                    answerProcessorCallback(content, await AnswerFormatingService.format(content))
-                }
-            }
-        } catch (error : unknown) {
-            if (error instanceof Error && error.name === 'AbortError') {
-              console.log('Stream aborted.')
-            } else {
-              console.error('Stream error : ', error)
-            }
+          const answer = await AgentLibrary.library[this.#activeAgentName].ask(question)
+          const responseAsHTML = await AnswerFormatingService.format(answer.response)
+          return {context : [...answer.context as number[]], answer : {asMarkdown : answer.response, asHTML : responseAsHTML}, sources : [], question : question}
+        }catch(error){
+          console.error("Failed to query the model : " + error)
+          throw error
         }
+    }
 
-        return newContext
+    static async askTheActiveAgentForAStreamedResponse(question : string, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<number[]>
+    {
+      if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
+
+      let newContext = []
+      const contextSpaceForScrapedDatas = AgentLibrary.library[this.#activeAgentName].getContextSize() - AgentLibrary.library[this.#activeAgentName].getNumPredict() - 1000
+
+      AgentLibrary.library[this.#activeAgentName].setContext(context)
+      // scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
+      const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, currentPage)=> acc + '\n\n' + currentPage.datas, "When replying to **MY REQUEST**, always use the following datas as your MAIN source of informations especialy if it superseeds your training dataset : ") : ""
+      // the agent receive an amount of scraped datas matching the context size available
+      const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, contextSpaceForScrapedDatas) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
+
+      let content = ""
+      let decod = ""
+      try{
+          while(true){
+              const { value } = await reader.read()
+
+              const decodedValue = new TextDecoder().decode(value)
+              decod = decodedValue
+              // check if the decoded value isn't malformed and fix it
+              const splitValues = decodedValue.match(/{"model[^}]*}/g)
+              const reconstructedValue = this.#reconstructMalformedValues(splitValues)
+              /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
+              const json = JSON.parse(reconstructedValue)
+
+              if(json.done) {
+                newContext = json.context || []
+                chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
+                break
+              }
+          
+              if (!json.done) {
+                content += json.response
+                if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
+                chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
+              }
+          }
+      } catch (error : unknown) {
+          if (error instanceof Error && error.name === 'AbortError') {
+            console.log('Stream aborted.')
+          } else {
+            console.error('Stream failed : ', error)
+            console.error(decod)
+          }
+          throw error
+      }
+
+      return newContext
+    }
+
+    // split one malformed block into multiple ones if needed
+    static #reconstructMalformedValues(values : string[] | null){
+        if(values == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+        if(values.length == 1) return values[0]
+        console.log("malformed : " + JSON.stringify(values))
+        const reconstructedValue = values.reduce((acc, value) => acc + JSON.parse(value).response, "")
+        return JSON.stringify({"model":"","created_at":"","response":reconstructedValue,"done":false})
     }
 
     static abortAgentLastRequest(){
@@ -83,7 +109,6 @@ export class ChatService{
     static setActiveAgent(name : string){
         if(!AgentLibrary.library[name]) return
         this.#activeAgentName = name
-        // console.log(this.#activeAgentName)
     }
 
     static getActiveAgentName() : string{
@@ -96,10 +121,15 @@ export class ChatService{
 
     static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
     {
-        if(!AgentLibrary.library['CompletionAgent']) throw new Error(`CompletionAgent is not available`)
-        AgentLibrary.library['CompletionAgent'].setContext(context)
-        const answer = (await AgentLibrary.library['CompletionAgent'].ask(promptToComplete))
-        return {context : answer.context as number[], response : answer.response}
+        try{
+          if(!AgentLibrary.library['CompletionAgent']) throw new Error(`CompletionAgent is not available`)
+          AgentLibrary.library['CompletionAgent'].setContext(context)
+          const answer = (await AgentLibrary.library['CompletionAgent'].ask(promptToComplete))
+          return {context : answer.context as number[], response : answer.response}
+        }catch(error){
+          console.error("Failed to complete the question : " + error)
+          throw error
+        }
     }
 }
 
@@ -149,4 +179,28 @@ async function streamWithRetry(url, maxRetries = 3) {
 streamWithRetry('https://api.example.com/stream')
   .catch(error => console.error("Streaming error:", error));
 
+  */
+
+  /*
+
+  async function controlledFetch(url) {
+    const response = await fetch(url);
+    const reader = response.body.getReader();
+
+    async function* readChunks() {
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            yield value; // Yield each chunk one at a time
+        }
+    }
+
+    for await (const chunk of readChunks()) {
+        // Process each chunk here
+        console.log(chunk);
+        // Optionally add delay or processing logic to control flow
+    }
+}
+
+controlledFetch('http://example.com/data');
   */
