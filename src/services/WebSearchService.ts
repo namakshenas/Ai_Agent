@@ -5,11 +5,18 @@ import { AgentLibrary } from "./AgentLibrary";
 
 export class WebSearchService{
 
-    static async scrapeRelatedDatas(query : string, maxPages : number = 3) : Promise<ScrapedPage[]>{
-        const reformulatedQuery = this.#trimQuotes(await this.#optimizeQuery(query))
-        const scrapedPages = await this.#callExternalScraper(reformulatedQuery, maxPages)
-        const summarizedScrapedPages = await this.#summarizeScrapedPages(scrapedPages, query)
-        return summarizedScrapedPages
+    static async scrapeRelatedDatas(query : string, maxPages : number = 3, summarize = false) : Promise<ScrapedPage[] | undefined>{
+        try{
+            console.log("**WebScraping**")
+            const optimizedQuery = await this.#optimizeQuery(query)
+            const trimedQuery = this.#trimQuotes(optimizedQuery)
+            const scrapedPages = await this.#callExternalScraper(trimedQuery, maxPages)
+            if(!summarize) return scrapedPages
+            const summarizedScrapedPages = await this.#summarizeScrapedPages(scrapedPages, query)
+            return summarizedScrapedPages
+        }catch(error){
+            console.error('Error while trying to scrape the needed datas :', error)
+        }
     }
 
     static async #callExternalScraper(query : string, maxPages : number = 3) : Promise<ScrapedPage[]>{ // !!! make use of maxPages
@@ -29,8 +36,6 @@ export class WebSearchService{
             }
     
             const scrapedPages : IScrapedPage[] | unknown = await response.json()
-
-            console.log(scrapedPages)
     
             // Validate the data structure
             if (!Array.isArray(scrapedPages)) {
@@ -41,15 +46,15 @@ export class WebSearchService{
             return scrapedPages.map(page => new ScrapedPage(page.datas, page.source))
 
         } catch (error) {
-            console.error('Error calling scraper:', error)
-            throw error // !!!???
+            console.error('Error calling the scraper API :', error)
+            throw error
         }
     }
 
     // convert the user request into an optimized search query
     static async #optimizeQuery(query : string) {
         const optimizedQuery = (await AgentLibrary.library['searchQueryOptimizer'].ask(query)).response
-        console.log(optimizedQuery)
+        // console.log("optimized query : " + optimizedQuery)
         return optimizedQuery
     }
 

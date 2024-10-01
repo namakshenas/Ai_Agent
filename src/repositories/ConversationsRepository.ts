@@ -31,7 +31,7 @@ export class ConversationsRepository{
         return
     }
 
-    static replaceTargetConversationHistory(id : number, history : IConversationElement[]){
+    static replaceConversationHistoryById(id : number, history : IConversationElement[]){
         this.chatConversations[id].history = history
     }
 

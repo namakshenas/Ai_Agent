@@ -16,7 +16,7 @@ export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : b
 
     async function refreshRunningModelInfos(){
       const runningModelsInfos = await OllamaService.getRunningModelInfos()
-      if(runningModelsInfos?.models != null) {
+      if(runningModelsInfos?.models[0]?.name != null) {
           setRunningModelsInfos({
               name : runningModelsInfos.models[0].name,
               size : runningModelsInfos.models[0].size,

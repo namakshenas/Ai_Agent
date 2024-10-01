@@ -5,7 +5,7 @@ import '../style/CustomTextarea.css'
 import { ChatService } from "../services/ChatService";
 import useKeyboardListener from "../hooks/CustomTextarea/useKeyboardListener";
 
-const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, handleAskModel_Streaming, activeConversationId} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
+const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, askMainAgent_Streaming, activeConversationId} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
 
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const suggestionDivRef = useRef<HTMLDivElement>(null)
@@ -18,7 +18,7 @@ const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentCont
         _setSuggestion(text)
     }
 
-    useKeyboardListener(textareaRef, handleAskModel_Streaming, activeConversationId, currentContext)
+    useKeyboardListener(textareaRef, askMainAgent_Streaming, activeConversationId, currentContext)
 
     useEffect(() => {
         if(textareaValue == "" && textareaRef.current) textareaRef.current.style.height = '100px'
@@ -86,7 +86,7 @@ interface IProps{
     textareaValue : string
     setTextareaValue : (text : string) => void
     currentContext : number[]
-    handleAskModel_Streaming : (message : string) => Promise<void>
+    askMainAgent_Streaming : (message : string) => Promise<void>
     activeConversationId : number
 }
 

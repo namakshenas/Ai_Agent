@@ -9,7 +9,7 @@ export default class ScrapedPage{
 
     get datas(){ return this.#datas }
 
-    get source(){return this.#source }
+    get source(){ return this.#source }
 
     setDatas(value : string){
         this.#datas = value

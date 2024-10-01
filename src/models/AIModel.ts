@@ -55,7 +55,8 @@ export class AIModel{
                     "Content-Type": "application/json",
                 },
                 body: this.#buildRequest({prompt, stream : false}),
-                signal: this.#signal
+                signal: this.#signal,
+                // keepalive: true
             });
 
             if (!response.ok) {
@@ -83,7 +84,8 @@ export class AIModel{
                     "Content-Type": "application/json",
                 },
                 body: this.#buildRequest({prompt, stream : true}),
-                signal: this.#signal
+                signal: this.#signal,
+                keepalive: true
             })
 
             if (!response.ok) {
@@ -122,7 +124,8 @@ export class AIModel{
                     "Content-Type": "application/json",
                 },
                 body: this.#buildEmbeddingRequest(sequence),
-                signal: this.#signal
+                signal: this.#signal,
+                // keepalive: true
             });
 
             if (!response.ok) {

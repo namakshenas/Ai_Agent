@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useReducer } from "react"
-import { IConversation } from "../interfaces/IConversation"
+import { IConversation, IConversationElement } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
 export function useConversationReducer() {
@@ -46,7 +46,7 @@ export function useConversationReducer() {
                 const newState = {...state, 
                     history : [...state.history, {
                         question : action.payload.question, 
-                        answer : {asMarkdown : action.payload.markdown, asHTML : action.payload.html}, 
+                        answer : {asMarkdown : action.payload.answer.asMarkdown, asHTML : action.payload.answer.asHTML}, 
                         context : action.payload.context,
                         sources : []
                     }]
@@ -105,7 +105,7 @@ type TAction =
     | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: string }
     | { type: ActionType.UPDATE_LAST_HISTORY_ANSWER; payload: { html : string, markdown : string }}
     | { type: ActionType.UPDATE_LAST_HISTORY_CONTEXT; payload: number[]}
-    | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: { question : string, html : string, markdown : string, context : number[] }}
+    | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement /*{ question : string, html : string, markdown : string, context : number[] }*/}
     | { type: ActionType.SET_CONVERSATION; payload: IConversation}
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
     | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: ScrapedPage[]/*string[]*/ }
