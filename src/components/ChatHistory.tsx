@@ -9,7 +9,7 @@ function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps)
 
   const historyContainerRef = useRef(null)
 
-  // setting up an observer that keep scrolling to the bottom of the main window
+  // setting up an observer that keep scrolling to the bottom of the chat window
   // when some new streamed text is added to the conversation history
   useEffect(() => {
     if(historyContainerRef.current == null) return
@@ -61,8 +61,8 @@ function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps)
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               {(index == (array.length -1)) ? 
-              <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
-              : <AnswerRow key={'answerRow' + index} answer={item.answer.asHTML} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>}
+              <AnswerRow key={'answerRow' + index} answer={item.answer} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
+              : <AnswerRow key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>}
             </article>
           ))
         }
