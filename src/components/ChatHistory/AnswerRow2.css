@@ -43,7 +43,27 @@
   h6 {
     width: 100%;
     font-size: 16px;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1,
+  h2 {
+    font-size: 21px;
+
+    &:first-child {
+      margin-top: 1px;
+    }
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+
+  h3:first-child,
+  h4:first-child,
+  h5:first-child,
+  h6:first-child {
+    margin-top: 4px;
   }
 
   h1 {
@@ -58,11 +78,24 @@
   h4:not(:first-child),
   h5:not(:first-child),
   h6:not(:first-child) {
-    margin-top: 1.5rem;
+    margin-top: 1.35rem;
   }
 
   h1 > strong {
     font-size: 1.2rem;
+  }
+
+  h1 + p,
+  h2 + p,
+  h3 + p,
+  h4 + p,
+  h5 + p,
+  h6 + p {
+    margin-top: 0.25rem !important;
+  }
+
+  h3 + h4 {
+    margin-top: 0.9rem !important;
   }
 
   .codeBlock h1,
@@ -76,7 +109,7 @@
 
   ol,
   ul {
-    margin: 1rem 0;
+    margin: 0.5rem 0 1rem 0;
   }
 
   ol strong,
@@ -87,7 +120,7 @@
   ol li,
   ul li {
     margin-left: 2rem;
-    margin-top: 1rem;
+    margin-top: 0.55rem;
     min-height: 24px;
     list-style: square;
   }
@@ -132,6 +165,17 @@
         fill: var(--secondary-button-hover-text-color);
       }
     }
+
+    &.inactive:hover {
+      background: #ffffffff;
+      box-shadow: 0 1px 2px -1px hsla(252, 29%, 53%, 0.08),
+        0 2px 4px hsla(246, 29%, 53%, 0.21);
+      outline: none;
+
+      svg path {
+        fill: var(--main-black-text-color);
+      }
+    }
   }
 }
 
@@ -146,7 +190,7 @@
 
 .codeBlock {
   opacity: 0.85;
-  margin: 1rem 0;
+  margin: 0.9rem 0 1rem 0;
   background: #e9ecf6aa;
   border-radius: 4px;
   border: 1px solid hsla(226, 45%, 76%, 0.55);
@@ -238,6 +282,7 @@ table {
 
 .answerItem {
   background-color: var(--answer-background-color);
+  /*padding-bottom: 1.4rem;*/
 
   a:any-link {
     color: var(--main-black-text-color);

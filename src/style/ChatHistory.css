@@ -67,3 +67,29 @@
   background: linear-gradient(to bottom, #ffffffff, #f5faff);
   cursor: pointer;
 }
+
+.WaitForRequestProcessingMessage {
+  height: 6rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid #6d48c1;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loop-fade {
+  animation: fade 2s infinite; /* Adjust duration as needed */
+}
