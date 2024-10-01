@@ -22,6 +22,8 @@ import { useWebSearchState } from "../hooks/useWebSearchState";
 
 function Chat() {
 
+    const htmlRef = useRef(document.documentElement)
+
     // contains all the logic used to update the conversation history and its context
     const { conversationState, dispatch, conversationStateRef } = useConversationReducer()
 
@@ -41,6 +43,7 @@ function Chat() {
 
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
     const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
+    // const [isARequestBeingProcessed_Background, setRequestBeingProcessed_Background] = useState(false)
 
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
@@ -48,27 +51,29 @@ function Chat() {
 
     const modelsList = useFetchModelsList()
 
-    // initializing the default conversation history & tracking the window visibility
-    // to abort the streaming request if the window stops being visible
+    // initializing the default conversation history
     useEffect(() => {
         ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
-        document.querySelector("html")!.style.overflow = "-moz-scrollbars-vertical"
-        document.querySelector("html")!.style.overflowY = "scroll"
 
-        const handleVisibilityChange = () => {
-            if(!document.hidden || !isStreamingRef.current) return
-            ChatService.abortAgentLastRequest()
-            setIsStreaming(false)
-            dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+        if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
+            htmlRef.current.style.overflow = "-moz-scrollbars-vertical";
+            htmlRef.current.style.overflowY = "scroll";
         }
 
+        return () => {
+            ConversationsRepository.clearAll()
+        }
+    }, [])
+
+    // tracking the window visibility
+    // => abort the streaming request if the window stops being visible
+    /*useEffect(() => {
         document.addEventListener("visibilitychange", handleVisibilityChange)
         // cleanup
         return () => {
-            ConversationsRepository.clearAll()
             document.removeEventListener("visibilitychange",handleVisibilityChange)
         }
-    }, [])
+    }, [])*/
 
     // triggered when switching between conversations
     useEffect(() => {
@@ -78,32 +83,36 @@ function Chat() {
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
     }, [activeConversationId])
 
-    // ---
-    // asking the model for a streamed response
-    // ---
-    async function handleAskModel_Streaming(message: string): Promise<void> {
+    // request a streaming response from the active chatService agent
+    async function askMainAgent_Streaming(message: string): Promise<void> {
         try {
             if (message == "" || isStreamingRef.current) return
+            // initiate context & a blank conversation QA pair
             const currentContext = conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []
             setIsStreaming(true)
             dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: message })
-            let newContext
+            let newContext = []
+
+            // two branches : webscrapping / internal knowledge
             if (isWebSearchActivatedRef.current) {
-                console.log("**WebScraping**")
-                const scrapedPages = await WebSearchService.scrapeRelatedDatas(message)
+                const scrapedPages = await WebSearchService.scrapeRelatedDatas(message, 3, false)
+                if(scrapedPages == null) return // !!! should display an error to the user
                 console.log("**LLM Loading**")
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedAnswerToHistory_Callback, currentContext, scrapedPages)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages)
+                if(isStreamingRef.current == false) return
                 dispatch({ type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, payload: scrapedPages })
             } else {
                 console.log("**LLM Loading**")
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedAnswerToHistory_Callback, currentContext)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedChunkToHistory_Callback, currentContext)
             }
-            // if the stream has been aborted, the following code shouldn't be executed
+
+            // if the stream has been aborted, the following block of code isn't executed
             if(isStreamingRef.current == false) return
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload: newContext })
-            // textarea emptied only if it hasn't been modified by the user during the streaming process
+            // the textarea is emptied only if the user has made no modifications to its content during the streaming process
             if(textareaValueRef.current == conversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
-            ConversationsRepository.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history)
+            // temporary : to simulate persistence
+            ConversationsRepository.replaceConversationHistoryById(activeConversationId, conversationStateRef.current.history)
             setIsStreaming(false)
         }
         catch (error: unknown) {
@@ -111,10 +120,19 @@ function Chat() {
         }
     }
 
-    // callback passed to the chatservice to display the streamed answer
-    function pushStreamedAnswerToHistory_Callback(contentAsMarkdown: string, contentAsHTML: string): void {
-        dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ANSWER, payload: { html: contentAsHTML, markdown: contentAsMarkdown } })
+    async function askMainAgent(message: string, context : number[] = []){
+        if (message == "" || isStreamingRef.current) return
+        return await ChatService.askTheActiveAgent(message, context)
     }
+
+    // callback passed to the chatservice to display the streamed answer
+    function pushStreamedChunkToHistory_Callback({markdown , html} : {markdown : string, html : string}): void {
+        dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ANSWER, payload: { html, markdown } })
+    }
+
+    // ---
+    // Click & Focus Events Handlers
+    // ---
 
     function handleAbortStreamingClick() {
         ChatService.abortAgentLastRequest()
@@ -138,10 +156,35 @@ function Chat() {
     function regenerateLastAnswer() {
         if(isStreamingRef.current) return
         const retrievedQuestion = conversationStateRef.current.history[conversationStateRef.current.history.length-1].question
-        ConversationsRepository.replaceTargetConversationHistory(activeConversationId, conversationStateRef.current.history.slice(0, -1))
+        ConversationsRepository.replaceConversationHistoryById(activeConversationId, conversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
-        handleAskModel_Streaming(retrievedQuestion)
+        askMainAgent_Streaming(retrievedQuestion)
     }
+
+    // when chrome lose focus, it aborts the streaming process
+    // to circumvent this issue, we :
+    // 1- abort the streaming request when the window stops being visible
+    // 2- start an unary request when window get the focus back
+    /*async function handleVisibilityChange() {
+        // care about visibility change only when a reply is being streamed
+        try{
+            if(!isStreamingRef.current || !document.hidden) return
+            ChatService.abortAgentLastRequest()
+            setIsStreaming(false)
+            // retrieving the context before the dispatching delete action : the action is asynchronous and we want to be sure we target the right context
+            const lastRelevantContext = conversationStateRef.current.history[conversationStateRef.current.history.length - 2]?.context || []
+            dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+            setRequestBeingProcessed_Background(true)
+            const response = await askMainAgent(textareaValueRef.current, lastRelevantContext)
+            if(response) dispatch({ type: ActionType.PUSH_NEW_HISTORY_ELEMENT, payload: {...response} })
+            setRequestBeingProcessed_Background(false)
+            setTextareaValue("")}
+        catch(error){
+            console.error(error)
+            ChatService.abortAgentLastRequest()
+            setRequestBeingProcessed_Background(false)
+        }
+    }*/
 
     return (
     <div id="globalContainer" className="globalContainer">
@@ -149,13 +192,13 @@ function Chat() {
         <main>
             <LoadedModelInfosBar refreshSignal={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
-                <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>
+                <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/> {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
             </div>
             <div className="stickyBottomContainer">
                 <CustomTextarea ref={customTextareaRef} 
                     setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
                     currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []} 
-                    handleAskModel_Streaming={handleAskModel_Streaming} activeConversationId={activeConversationId} />
+                    askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId} />
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
@@ -179,7 +222,7 @@ function Chat() {
                         <button className="cancelSendButton purpleShadow" onClick={handleAbortStreamingClick}>
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
-                        <button className="sendButton purpleShadow" onClick={() => handleAskModel_Streaming(textareaValue)}>Send</button>
+                        <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button>
                     }
                 </div>
             </div>
@@ -217,12 +260,22 @@ export default Chat
 // delete file
 // should handle reply with excel "code"
 // when regenerating an asnwer, old context is taken into account
-// if cancel streaming due to chrome being put in background, then should reiterate the request but not as a stream
 // hover deactivated microbuttons
 // prompt versioning
+// when user ask for an answer online, the search query generator should be able to take into account the previous questions to generate a better query
+// error when canceling a query with websearch : related to sources
+// error aborting before first chunk
+// hover right panel icon tags style
+/*
+time=2024-10-01T01:12:28.348+02:00 level=WARN source=server.go:594 msg="client connection closed before server finished loading, aborting load"
+time=2024-10-01T01:12:28.349+02:00 level=ERROR source=sched.go:455 msg="error loading llama server" error="timed out waiting for llama runner to start: context canceled"
+[GIN] 2024/10/01 - 01:12:28 | 499 |    2.3334852s |       127.0.0.1 | POST     "/api/generate"
+[GIN] 2024/10/01 - 01:12:28 | 500 |    257.6248ms |       127.0.0.1 | POST     "/api/generate"
+*/
 
 // readme : prompts optimized for mistral nemo
 // tell me if you face a formatting issue within an answer
+
 
 /*
 Valid Parameters and Values
@@ -242,12 +295,3 @@ top_k	Reduces the probability of generating nonsense. A higher value (e.g. 100) 
 top_p	Works together with top-k. A higher value (e.g., 0.95) will lead to more diverse text, while a lower value (e.g., 0.5) will generate more focused and conservative text. (Default: 0.9)	float	top_p 0.9
 min_p	Alternative to the top_p, and aims to ensure a balance of quality and variety. The parameter p represents the minimum probability for a token to be considered, relative to the probability of the most likely token. For example, with p=0.05 and the most likely token having a probability of 0.9, logits with a value less than 0.045 are filtered out. (Default: 0.0)
 */
-
-
-// asking the model for a non streamed response
-/*async function handleSendMessage(message : string) : Promise<void>{
-    if(textareaValue == null) return
-    const response = await ChatService.askTheActiveModel(message, conversationStateRef.current.history[conversationStateRef.current?.history.length-1]?.context || [])
-    dispatch({ type: ActionType.PUSHNEWHISTORYELEMENT, payload: {question : message, html : response.response, markdown : response.response, context : response.context} })
-    setTextareaValue("")
-}*/
