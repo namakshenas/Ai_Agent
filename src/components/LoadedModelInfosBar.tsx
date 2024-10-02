@@ -5,6 +5,8 @@ import { OllamaService } from '../services/OllamaService'
 
 export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : boolean}){
 
+    useEffect(() => {console.log("infos bar render")}, [])
+
     const [runningModelsInfos, setRunningModelsInfos] = useState<IRunningModelInfos | null>(null)
 
     useEffect(() => {

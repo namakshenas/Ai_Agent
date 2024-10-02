@@ -1,29 +1,60 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import { AIAgent } from "../../models/AIAgent";
-import Select from "../CustomSelect/Select";
+import Select, { IOption } from "../CustomSelect/Select";
 import './FormAgentSettings.css'
 import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
+import { AgentLibrary } from "../../services/AgentLibrary";
 
-export default function FormAgentSettings({agent, setModalVisibility, type} : IProps){
+export default function FormAgentSettings({agent, setModalVisibility} : IProps){
 
     const modelList = useFetchModelsList()
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
     const baseForm : IFormStructure = {
-        agentName: type == 'edit' ? agent.getName() : "",
-        modelName: type == 'edit' ? agent.getModelName() : modelList[0],
-        systemPrompt: type == 'edit' ? agent.getSystemPrompt().replace(/\t/g,'') : "",
-        temperature: type == 'edit' ? agent.getTemperature() : 0.1,
-        maxContextLength: type == 'edit' ? agent.getContextSize() : 1024,
-        maxTokensPerReply: type == 'edit' ? agent.getNumPredict() : 100,
+        agentName: agent ? agent.getName() : "",
+        modelName: agent ? agent.getModelName() : modelList[0],
+        systemPrompt: agent ? agent.getSystemPrompt().replace(/\t/g,'') : "",
+        temperature: agent ? agent.getTemperature() : 0.8,
+        maxContextLength: agent ? agent.getContextSize() : 2048,
+        maxTokensPerReply: agent ? agent.getNumPredict() : 128,
         webSearchEconomy: false,
     }
 
     const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
+
+    function handleSaveAgent(){
+        AgentLibrary.getAgent(formValues.agentName).setSettings({
+            modelName : formValues.modelName, 
+            systemPrompt : formValues.systemPrompt, 
+            context : [], 
+            contextSize : formValues.maxContextLength, 
+            temperature : formValues.temperature, 
+            numPredict : formValues.maxTokensPerReply
+        })
+    }
+
+    /*function handleSwitchAgent(option : IOption){
+        ChatService.setActiveAgent(option.value)
+        const agent = ChatService.getActiveAgent()
+        const newFormValues : IFormStructure = {
+            agentName: agent.getName(),
+            modelName: agent.getModelName(),
+            systemPrompt: agent.getSystemPrompt().replace(/\t/g,''),
+            temperature: agent.getTemperature(),
+            maxContextLength: agent.getContextSize(),
+            maxTokensPerReply: agent.getNumPredict(),
+            webSearchEconomy: true,
+        }
+        setFormValues({...newFormValues})
+    }*/
+
+    function handleSwitchModel(option : IOption){
+        setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
+    }
 
     function handleCancelClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
@@ -56,6 +87,7 @@ export default function FormAgentSettings({agent, setModalVisibility, type} : IP
                 defaultOption={formValues.modelName}
                 labelledBy="label-modelName" 
                 id="settingsSelectAgent"
+                onValueChange={handleSwitchModel}
             />
 
             <label id="label-systemPrompt" style={{gridArea:'e'}} className="form-label">System Prompt</label>
@@ -156,7 +188,7 @@ export default function FormAgentSettings({agent, setModalVisibility, type} : IP
             </div>
 
             <div style={{gridArea:'o', marginTop:'2rem', display:'flex', flexDirection:'column'}}>
-                <span style={{textAlign:'left', width:'100%', marginBottom:'0.25rem'}}>Advanced Options</span>
+                <div style={{display:'flex', textAlign:'left', width:'100%', marginBottom:'0.25rem'}}><span>Advanced Options</span><span style={{marginLeft:'auto', fontWeight:'500'}}>Coming Soon</span></div>
                 <hr/>
             </div>
 
@@ -169,9 +201,8 @@ export default function FormAgentSettings({agent, setModalVisibility, type} : IP
 }
 
 interface IProps{
-    agent : AIAgent
+    agent? : AIAgent
     setModalVisibility : (visibility : boolean) => void
-    type : 'create' | 'edit'
 }
 
 
