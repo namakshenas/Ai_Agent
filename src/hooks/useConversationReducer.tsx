@@ -3,9 +3,9 @@ import { useRef, useReducer } from "react"
 import { IConversation, IConversationElement } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
-export function useConversationReducer() {
+export function useConversationReducer({name, history, lastAgentUsed} : IConversation) {
 
-    const conversationStateRef = useRef<IConversation>({name : "First Conversation", history : [], lastAgentUsed  : ""})
+    const conversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed})
 
     function conversationReducer(state : IConversation, action : TAction){
         switch(action.type){
@@ -84,7 +84,7 @@ export function useConversationReducer() {
         }
     }
 
-    const [conversationState, dispatch] = useReducer(conversationReducer, {name : "conversation0", history : [], lastAgentUsed : ""})
+    const [conversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed})
 
     return {conversationState, dispatch, conversationStateRef}
 }

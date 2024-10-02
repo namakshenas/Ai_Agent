@@ -19,13 +19,14 @@ import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
+import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
 
 function Chat() {
 
     const htmlRef = useRef(document.documentElement)
 
     // contains all the logic used to update the conversation history and its context
-    const { conversationState, dispatch, conversationStateRef } = useConversationReducer()
+    const { conversationState, dispatch, conversationStateRef } = useConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : ""})
 
     const historyContainerRef = useRef<HTMLDivElement>(null)
 
@@ -51,8 +52,12 @@ function Chat() {
 
     const modelsList = useFetchModelsList()
 
+    const selectedPromptRef = useRef("")
+
     // initializing the default conversation history
     useEffect(() => {
+        console.log("chat render")
+
         ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
 
         if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
@@ -64,16 +69,6 @@ function Chat() {
             ConversationsRepository.clearAll()
         }
     }, [])
-
-    // tracking the window visibility
-    // => abort the streaming request if the window stops being visible
-    /*useEffect(() => {
-        document.addEventListener("visibilitychange", handleVisibilityChange)
-        // cleanup
-        return () => {
-            document.removeEventListener("visibilitychange",handleVisibilityChange)
-        }
-    }, [])*/
 
     // triggered when switching between conversations
     useEffect(() => {
@@ -120,10 +115,10 @@ function Chat() {
         }
     }
 
-    async function askMainAgent(message: string, context : number[] = []){
+    /*async function askMainAgent(message: string, context : number[] = []){
         if (message == "" || isStreamingRef.current) return
         return await ChatService.askTheActiveAgent(message, context)
-    }
+    }*/
 
     // callback passed to the chatservice to display the streamed answer
     function pushStreamedChunkToHistory_Callback({markdown , html} : {markdown : string, html : string}): void {
@@ -161,44 +156,24 @@ function Chat() {
         askMainAgent_Streaming(retrievedQuestion)
     }
 
-    // when chrome lose focus, it aborts the streaming process
-    // to circumvent this issue, we :
-    // 1- abort the streaming request when the window stops being visible
-    // 2- start an unary request when window get the focus back
-    /*async function handleVisibilityChange() {
-        // care about visibility change only when a reply is being streamed
-        try{
-            if(!isStreamingRef.current || !document.hidden) return
-            ChatService.abortAgentLastRequest()
-            setIsStreaming(false)
-            // retrieving the context before the dispatching delete action : the action is asynchronous and we want to be sure we target the right context
-            const lastRelevantContext = conversationStateRef.current.history[conversationStateRef.current.history.length - 2]?.context || []
-            dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
-            setRequestBeingProcessed_Background(true)
-            const response = await askMainAgent(textareaValueRef.current, lastRelevantContext)
-            if(response) dispatch({ type: ActionType.PUSH_NEW_HISTORY_ELEMENT, payload: {...response} })
-            setRequestBeingProcessed_Background(false)
-            setTextareaValue("")}
-        catch(error){
-            console.error(error)
-            ChatService.abortAgentLastRequest()
-            setRequestBeingProcessed_Background(false)
-        }
-    }*/
+    function setModalStatus(visibility : boolean, contentId : string) : void{
+        setModalVisibility(visibility)
+        setModalContentId(contentId)
+    }
 
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftPanel activeConversation={activeConversationId} setActiveConversation={setActiveConversationId}/>
+        <LeftPanel activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} setModalStatus={setModalStatus} selectedPromptRef={selectedPromptRef}/>
         <main>
             <LoadedModelInfosBar refreshSignal={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
-                <ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/> {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
+                {<ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
             </div>
             <div className="stickyBottomContainer">
-                <CustomTextarea ref={customTextareaRef} 
+                {<CustomTextarea ref={customTextareaRef} 
                     setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
                     currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []} 
-                    askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId} />
+                    askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId} />}
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
@@ -228,11 +203,16 @@ function Chat() {
             </div>
             {modalVisibility && 
                 <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
-                    <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility} type="edit"/>
+                    {{
+                        'formEditAgent' : <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>,
+                        'formNewAgent' : <FormAgentSettings setModalVisibility={setModalVisibility}/>,
+                        'formEditPrompt' : <FormPromptSettings setModalVisibility={setModalVisibility} selectedPromptRef={selectedPromptRef}/>,
+                        'formNewPrompt' : <FormPromptSettings setModalVisibility={setModalVisibility} />,
+                    } [modalContentId]}
                 </Modal>
             }
         </main>
-        <RightPanel activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility} modelsList={modelsList}/>
+        <RightPanel activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalStatus={setModalStatus} modelsList={modelsList}/>
     </div>
     )
 }
@@ -241,10 +221,9 @@ export default Chat
 
 // if closing the only conversation left, then creating a new blank conv
 // deleting conv => ask confirmation
-// when answer generation and switching conversation, QA pair being generated deleted
+// when answer generation and switching conversation, QA pair being generated deleted + abort
 // web search (infos)
 
-// search bar : when active magifying turns into a cross
 // !!!!! cancel inference after switching agent issues
 // create new agent or modify new agent give the user the possibility to load an existing prompt
 // copy code
@@ -253,28 +232,25 @@ export default Chat
 // in the top bar, button to see ALL the models running
 // auto calculate context ?
 // when switching model with an existing context, should embed the whole conversation to generate a new compatible context : should tell the user about the conv required
-// add as a sidewindow extension to browser
 // fixing issue with a textblock inside a table
 // token/s displayed => conversation
 // favorite documents
 // delete file
 // should handle reply with excel "code"
-// when regenerating an asnwer, old context is taken into account
-// hover deactivated microbuttons
+// when regenerating an asnwer, old context is not flushed
 // prompt versioning
 // when user ask for an answer online, the search query generator should be able to take into account the previous questions to generate a better query
-// error when canceling a query with websearch : related to sources
+// !!! fixed? error when canceling a query with websearch : related to sources
 // error aborting before first chunk
 // hover right panel icon tags style
-/*
-time=2024-10-01T01:12:28.348+02:00 level=WARN source=server.go:594 msg="client connection closed before server finished loading, aborting load"
-time=2024-10-01T01:12:28.349+02:00 level=ERROR source=sched.go:455 msg="error loading llama server" error="timed out waiting for llama runner to start: context canceled"
-[GIN] 2024/10/01 - 01:12:28 | 499 |    2.3334852s |       127.0.0.1 | POST     "/api/generate"
-[GIN] 2024/10/01 - 01:12:28 | 500 |    257.6248ms |       127.0.0.1 | POST     "/api/generate"
-*/
+// context compression when context available < max length per reply
+// fix markdown into textblock not being converted
+// check if ollama can be pinged in the starting window
 
 // readme : prompts optimized for mistral nemo
 // tell me if you face a formatting issue within an answer
+
+// add as a sidewindow extension to browser
 
 
 /*

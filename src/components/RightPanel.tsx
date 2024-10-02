@@ -8,7 +8,9 @@ import Select, { IOption } from './CustomSelect/Select'
 import { ChatService } from '../services/ChatService'
 import userPicture from '../assets/usericon4-2.png'
 
-export default function RightPanel({activeAgent, setModalVisibility, modelsList} : IProps){
+export default function RightPanel({activeAgent, setModalStatus, modelsList} : IProps){
+
+    useEffect(() => {console.log("right panel render")}, [])
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
@@ -59,8 +61,12 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
         setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
     }
 
-    function handleNewAgentClick(){
-        setModalVisibility(true)
+    function handleOpenEditAgentFormClick(){
+        setModalStatus(true, "formEditAgent")
+    }
+
+    function handleOpenNewAgentFormClick(){
+        setModalStatus(true, "formNewAgent")
     }
 
     useEffect(() => {
@@ -85,7 +91,7 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
                 <img src={userPicture}/>
             </div>
             <article className='newAgentContainer'>
-                <button className='purpleShadow' onClick={handleNewAgentClick}>+ Create a New Agent</button>
+                <button className='purpleShadow' onClick={handleOpenNewAgentFormClick}>+ Create a New Agent</button>
             </article>
             <article className='settingsFormContainer'>
                 <label id="label-agentName">Agent Powering the Chat</label>
@@ -114,7 +120,7 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
                         type="text" 
                         value={formValues.systemPrompt.length > 37 ? formValues.systemPrompt.substring(0, 34)+'...' : formValues.systemPrompt}
                     />
-                    <button className='purpleShadow' onClick={() => setModalVisibility(true)}>
+                    <button className='purpleShadow' onClick={handleOpenEditAgentFormClick}>
                         <svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M21.9984 5.76357C21.9992 5.61882 21.9715 5.47532 21.9167 5.34131C21.862 5.2073 21.7813 5.08541 21.6794 4.98263L17.0157 0.318979C16.913 0.217037 16.7911 0.136386 16.6571 0.0816487C16.5231 0.0269117 16.3796 -0.000833794 16.2348 3.12556e-06C16.0901 -0.000833794 15.9466 0.0269117 15.8125 0.0816487C15.6785 0.136386 15.5566 0.217037 15.4539 0.318979L12.3411 3.43175L0.318995 15.4538C0.217053 15.5566 0.136401 15.6785 0.0816639 15.8125C0.026927 15.9465 -0.000818536 16.09 1.83843e-05 16.2348V20.8984C1.83843e-05 21.1902 0.115902 21.4699 0.322177 21.6762C0.528451 21.8825 0.80822 21.9984 1.09994 21.9984H5.76359C5.9175 22.0067 6.07145 21.9827 6.21546 21.9277C6.35946 21.8728 6.49032 21.7882 6.59953 21.6794L18.5556 9.65728L21.6794 6.59951C21.7796 6.49278 21.8614 6.37011 21.9214 6.23654C21.932 6.14886 21.932 6.06023 21.9214 5.97256C21.9265 5.92136 21.9265 5.86977 21.9214 5.81857L21.9984 5.76357ZM5.31262 19.7985H2.19985V16.6858L13.122 5.76357L16.2348 8.87634L5.31262 19.7985ZM17.7857 7.32546L14.6729 4.21269L16.2348 2.6618L19.3366 5.76357L17.7857 7.32546Z" fill="white"/>
                         </svg>
@@ -173,7 +179,7 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
                     <span>Processing Speed</span>
                 </div>
                 <div className='settingsSaveContainer'>
-                    <button className='more purpleShadow' onClick={() => setModalVisibility(true)}>More Settings</button>
+                    <button className='more purpleShadow' onClick={handleOpenEditAgentFormClick}>More Settings</button>
                     {
                         !showSavingSuccessfulBtn ? <button className='save purpleShadow' onClick={handleSaveAgent}>Save</button>
                         :<button className='save purpleShadow'>
@@ -190,6 +196,6 @@ export default function RightPanel({activeAgent, setModalVisibility, modelsList}
 
 interface IProps{
     activeAgent : AIAgent
-    setModalVisibility: React.Dispatch<React.SetStateAction<boolean>>
+    setModalStatus : (visibility : boolean, contentId : string) => void
     modelsList : string[]
 }
