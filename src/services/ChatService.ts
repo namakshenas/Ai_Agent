@@ -60,7 +60,7 @@ export class ChatService{
           while(true){
               const { value } = await reader.read()
 
-              const decodedValue = new TextDecoder().decode(value)
+              const decodedValue = new TextDecoder().decode(value).replace('"{"', '"["').replace('"}"', '"]"').replace('"}\\', '"]\\').replace('" }"', '" ]"')
               decod = decodedValue
               // check if the decoded value isn't malformed and fix it
               const splitValues = decodedValue.match(/{"model[^}]*}/g)
@@ -71,6 +71,7 @@ export class ChatService{
               if(json.done) {
                 newContext = json.context || []
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
+                this.abortAgentLastRequest()
                 break
               }
           
@@ -86,6 +87,7 @@ export class ChatService{
           } else {
             console.error('Stream failed : ', error)
             console.error(decod)
+            this.abortAgentLastRequest()
           }
           throw error
       }

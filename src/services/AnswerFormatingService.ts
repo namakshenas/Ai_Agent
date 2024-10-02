@@ -4,7 +4,11 @@ import { marked } from "marked"
 class AnswerFormatingService{
 
     static async format(answer : string) : Promise<string>{
-        return this.#emojitransformer(await this.#codetransformer(await marked(this.#stripCodeBlockSyntax(answer))))
+        const answerWithCodeBlockSyntaxStriped = this.#stripCodeBlockSyntax(answer)
+        const answerWithMarkdownConvertedToHTML = await marked(answerWithCodeBlockSyntaxStriped)
+        const answerWithCodeFormated = this.#codetransformer(answerWithMarkdownConvertedToHTML)
+        return this.#emojitransformer(answerWithCodeFormated)
+        // return this.#emojitransformer(this.#codetransformer(await marked(this.#stripCodeBlockSyntax(answer))))
     }
 
     static #codetransformer(text : string) : string {
