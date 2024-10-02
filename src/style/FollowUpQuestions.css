@@ -24,8 +24,6 @@
     flex-shrink: 0;
 
     svg {
-      transform: translateY(-0.5px);
-
       path {
         fill: var(--purple-button-color);
       }

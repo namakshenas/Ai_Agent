@@ -1,6 +1,10 @@
 .answerContainer {
   width: 100%;
 
+  p {
+    line-height: 170%;
+  }
+
   & > p:first-child {
     margin-top: 3px;
   }
@@ -48,7 +52,7 @@
 
   h1,
   h2 {
-    font-size: 21px;
+    font-size: 20px;
 
     &:first-child {
       margin-top: 1px;
