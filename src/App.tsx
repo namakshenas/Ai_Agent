@@ -10,6 +10,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ModelSelection />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="*" element={<ModelSelection />} />
         </Routes>
       </BrowserRouter>
     );

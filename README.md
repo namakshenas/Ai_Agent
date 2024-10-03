@@ -75,12 +75,12 @@ Open your browser and visit http://localhost:5173 to use the application.
 
 ## VII - Contributing
 
-I'm not looking of any contributor until the v1.0.0 release.
+I'm not looking of any contributor until the v1.0.0 release. Thanks a lot for your support.
 
 ## VIII - Acknowledgments
 
 - Georgi Gerganov for llama.cpp.
-- Ollama team for providing its API.
+- The Ollama team for providing its API.
 - React and Vite communities for their excellent tools.
 - All contributors and supporters of the project.
-- All the people producing GGUF models..
+- All the people producing GGUF models.

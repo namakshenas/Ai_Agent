@@ -7,8 +7,9 @@ import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
 import { AgentLibrary } from "../../services/AgentLibrary";
+import { ChatService } from "../../services/ChatService";
 
-export default function FormAgentSettings({agent, setModalVisibility} : IProps){
+export default function FormAgentSettings({agent, memoizedSetModalStatus, setCurrentAgent} : IProps){
 
     const modelList = useFetchModelsList()
 
@@ -26,7 +27,7 @@ export default function FormAgentSettings({agent, setModalVisibility} : IProps){
 
     const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
 
-    function handleSaveAgent(){
+    /*function handleSaveAgent(){
         AgentLibrary.getAgent(formValues.agentName).setSettings({
             modelName : formValues.modelName, 
             systemPrompt : formValues.systemPrompt, 
@@ -35,7 +36,7 @@ export default function FormAgentSettings({agent, setModalVisibility} : IProps){
             temperature : formValues.temperature, 
             numPredict : formValues.maxTokensPerReply
         })
-    }
+    }*/
 
     /*function handleSwitchAgent(option : IOption){
         ChatService.setActiveAgent(option.value)
@@ -58,11 +59,21 @@ export default function FormAgentSettings({agent, setModalVisibility} : IProps){
 
     function handleCancelClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
-        setModalVisibility(false)
+        memoizedSetModalStatus({visibility : false})
     }
 
     function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
+        AgentLibrary.getAgent(formValues.agentName).setSettings({
+            modelName : formValues.modelName, 
+            systemPrompt : formValues.systemPrompt, 
+            context : [], 
+            contextSize : formValues.maxContextLength, 
+            temperature : formValues.temperature, 
+            numPredict : formValues.maxTokensPerReply
+        })
+        if(setCurrentAgent) setCurrentAgent(ChatService.getActiveAgent())
+        memoizedSetModalStatus({visibility : false})
     }
 
     return (
@@ -202,7 +213,8 @@ export default function FormAgentSettings({agent, setModalVisibility} : IProps){
 
 interface IProps{
     agent? : AIAgent
-    setModalVisibility : (visibility : boolean) => void
+    memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
+    setCurrentAgent ?: React.Dispatch<React.SetStateAction<AIAgent>>
 }
 
 

@@ -1,22 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef} from "react";
 import '../style/CustomTextarea.css'
-import { ChatService } from "../services/ChatService";
 import useKeyboardListener from "../hooks/CustomTextarea/useKeyboardListener";
 
 const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentContext, askMainAgent_Streaming, activeConversationId} : IProps, ref : ForwardedRef<ImperativeHandle>) => {
 
+    // const [textareaValue, setTextareaValue] = useState("")
     const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const suggestionDivRef = useRef<HTMLDivElement>(null)
-    const [suggestion, _setSuggestion] = useState("")
-    const suggestionRef = useRef("")
+    // const suggestionDivRef = useRef<HTMLDivElement>(null)
+    // const [suggestion, _setSuggestion] = useState("")
+    // const suggestionRef = useRef("")
     const autoCompletion = useRef(false)
 
-    function setSuggestion(text : string) {
+    /*function setSuggestion(text : string) {
         suggestionRef.current = text
         _setSuggestion(text)
-    }
+    }*/
 
     useKeyboardListener(textareaRef, askMainAgent_Streaming, activeConversationId, currentContext)
 
@@ -32,35 +32,35 @@ const CustomTextarea = forwardRef(({textareaValue, setTextareaValue, currentCont
     }))
 
     // the three fn below should integrate a custom completion hook
-    async function askAutoComplete(sentence : string) : Promise<void>{
+    /*async function askAutoComplete(sentence : string) : Promise<void>{
         const response = await ChatService.askTheActiveAgentForAutoComplete(sentence, currentContext || [])
         setSuggestion(response.response)
-    }
+    }*/
 
-    function applyAutoCompleteOnTabPress(event : KeyboardEvent) : void {
+    /*function applyAutoCompleteOnTabPress(event : KeyboardEvent) : void {
         if(document.activeElement?.id == "mainTextArea" && event.key === 'Tab') {
             event.preventDefault()
             setTextareaValue(textareaValue + suggestionRef.current)
             if(textareaRef.current) (textareaRef.current as HTMLTextAreaElement).value = textareaRef.current?.value + suggestionRef.current
             setSuggestion("")
         }
-    }
+    }*/
 
-    function updateSuggestionPosition(textarea : HTMLTextAreaElement) : void {
+    /*function updateSuggestionPosition(textarea : HTMLTextAreaElement) : void {
         const coordinates = getLastCharCoordinates(textarea)
         if(suggestionDivRef.current) {
             suggestionDivRef.current.style.left = coordinates.x+8+`px`
             suggestionDivRef.current.style.top = coordinates.y+`px`
         }
-    }
+    }*/
 
     function handleInput(text : string) : void{
         setTextareaValue(text)
         if(textareaRef.current) autoGrow(textareaRef.current)
         if(autoCompletion.current){
-            askAutoComplete(text)
+            // askAutoComplete(text)
             const textarea = textareaRef.current as HTMLTextAreaElement
-            updateSuggestionPosition(textarea)
+            // updateSuggestionPosition(textarea)
         }
     }
 
@@ -95,7 +95,7 @@ export interface ImperativeHandle {
 }
 
 
-function getLastCharCoordinates(textarea: HTMLTextAreaElement) : { x: number, y: number } {
+/*function getLastCharCoordinates(textarea: HTMLTextAreaElement) : { x: number, y: number } {
     // Create a mirrored div of the textarea
     const mirror = document.createElement('div')
     
@@ -143,4 +143,4 @@ function getLastCharCoordinates(textarea: HTMLTextAreaElement) : { x: number, y:
     document.body.removeChild(mirror)
     
     return coordinates;
-}
+}*/

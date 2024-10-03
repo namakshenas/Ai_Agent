@@ -277,6 +277,16 @@ export class AIModel{
     getNumPredict() : number {
         return this.#numPredict
     }
+
+    asString(){
+        return JSON.stringify({
+            model : this.#modelName,
+            systemPrompt : this.#systemPrompt,
+            contextSize : this.#contextSize,
+            numPredict : this.#numPredict,
+            temperature : this.#temperature,
+        })
+    }
 }
 
 export interface IAIModelParams{
