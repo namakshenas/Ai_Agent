@@ -3,21 +3,21 @@ import { useRef, useReducer } from "react"
 import { IConversation, IConversationElement } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
-export function useConversationReducer({name, history, lastAgentUsed} : IConversation) {
+export function useConversationReducer({name, history, lastModelUsed} : IConversation) {
 
-    const conversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed})
+    const conversationStateRef = useRef<IConversation>({name : name, history : history, lastModelUsed  : lastModelUsed})
 
     function conversationReducer(state : IConversation, action : TAction){
         switch(action.type){
             case ActionType.NEW_BLANK_HISTORY_ELEMENT : {
                 const newState = {...state, 
                     history : [...state.history, {
-                        question : action.payload, 
+                        question : action.payload.message, 
                         answer : {asMarkdown : "", asHTML : ""}, 
                         context : [],
                         sources : [],
-                    }]
-                }
+                }]}
+                newState.lastModelUsed = action.payload.modelUsed
                 conversationStateRef.current = {...newState}
                 return {...newState}
             }
@@ -84,7 +84,7 @@ export function useConversationReducer({name, history, lastAgentUsed} : IConvers
         }
     }
 
-    const [conversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed})
+    const [conversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastModelUsed  : lastModelUsed})
 
     return {conversationState, dispatch, conversationStateRef}
 }
@@ -102,11 +102,11 @@ export enum ActionType {
 }
 
 type TAction = 
-    | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: string }
-    | { type: ActionType.UPDATE_LAST_HISTORY_ANSWER; payload: { html : string, markdown : string }}
-    | { type: ActionType.UPDATE_LAST_HISTORY_CONTEXT; payload: number[]}
+    | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, modelUsed : string } }
+    | { type: ActionType.UPDATE_LAST_HISTORY_ANSWER; payload: { html : string, markdown : string } }
+    | { type: ActionType.UPDATE_LAST_HISTORY_CONTEXT; payload: number[] }
     | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement /*{ question : string, html : string, markdown : string, context : number[] }*/}
-    | { type: ActionType.SET_CONVERSATION; payload: IConversation}
+    | { type: ActionType.SET_CONVERSATION; payload: IConversation }
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
     | { type: ActionType.ADD_SOURCES_TO_LAST_ANSWER; payload: ScrapedPage[]/*string[]*/ }
     ;
