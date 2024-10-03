@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react'
 import '../style/FollowUpQuestions.css'
 import { ChatService } from '../services/ChatService'
 import { IConversationElement } from '../interfaces/IConversation'
-import { AgentLibrary } from '../services/AgentLibrary'
+import React from 'react'
 
-function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps){
+// function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps){
+
+const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps) => {
+
+    useEffect(() => {console.log("fup questions render")})
 
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
 
@@ -55,7 +59,9 @@ function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea, isS
             </button>
         </div>
     )
-}
+}, (prevProps, nextProps) => {
+    return prevProps.isStreaming === nextProps.isStreaming;
+})
 
 export default FollowUpQuestions;
 
