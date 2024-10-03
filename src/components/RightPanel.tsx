@@ -7,10 +7,12 @@ import { AgentLibrary } from '../services/AgentLibrary'
 import Select, { IOption } from './CustomSelect/Select'
 import { ChatService } from '../services/ChatService'
 import userPicture from '../assets/usericon4-2.png'
+import React from 'react'
 
-export default function RightPanel({activeAgent, setModalStatus, modelsList} : IProps){
+// export default function RightPanel({activeAgent, setModalStatus, modelsList} : IProps){
+const RightPanel = React.memo(({activeAgent, memoizedSetModalStatus, modelsList} : IProps) => {
 
-    useEffect(() => {console.log("right panel render")}, [])
+    useEffect(() => {console.log("right panel render")})
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
@@ -29,7 +31,9 @@ export default function RightPanel({activeAgent, setModalStatus, modelsList} : I
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
 
-    function handleSaveAgent(){
+    function handleSaveAgent(e : React.MouseEvent<HTMLButtonElement>){
+        e.preventDefault()
+        // !!! add db and offline
         AgentLibrary.getAgent(formValues.agentName).setSettings({
             modelName : formValues.modelName, 
             systemPrompt : formValues.systemPrompt, 
@@ -62,11 +66,11 @@ export default function RightPanel({activeAgent, setModalStatus, modelsList} : I
     }
 
     function handleOpenEditAgentFormClick(){
-        setModalStatus(true, "formEditAgent")
+        memoizedSetModalStatus({visibility : true, contentId : "formEditAgent"})
     }
 
     function handleOpenNewAgentFormClick(){
-        setModalStatus(true, "formNewAgent")
+        memoizedSetModalStatus({visibility : true, contentId : "formNewAgent"})
     }
 
     useEffect(() => {
@@ -97,7 +101,7 @@ export default function RightPanel({activeAgent, setModalStatus, modelsList} : I
                 <label id="label-agentName">Agent Powering the Chat</label>
                 <Select 
                     width="100%"
-                    options={AgentLibrary.getAgentsNameList().map((agentName) => ({ label: agentName, value: agentName }))} 
+                    options={/* retrieve from db */ AgentLibrary.getAgentsNameList().map((agentName) => ({ label: agentName, value: agentName }))} 
                     defaultOption={formValues.agentName}
                     labelledBy="label-agentName" 
                     id="settingsSelectAgent"
@@ -192,10 +196,14 @@ export default function RightPanel({activeAgent, setModalStatus, modelsList} : I
             </article>
         </aside>
     )
-}
+}, (prevProps, nextProps) => {
+    return prevProps.activeAgent.asString() === nextProps.activeAgent.asString() && prevProps.modelsList === nextProps.modelsList
+})
+
+export default RightPanel
 
 interface IProps{
     activeAgent : AIAgent
-    setModalStatus : (visibility : boolean, contentId : string) => void
+    memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     modelsList : string[]
 }
