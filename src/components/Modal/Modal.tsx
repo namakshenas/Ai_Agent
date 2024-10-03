@@ -2,7 +2,7 @@
 import { ReactNode, useEffect, useRef } from 'react'
 import './Modal.css'
 
-function Modal({children, modalVisibility, setModalVisibility, /*modalContent,*/ containerCSSClass} : IProps){
+function Modal({children, modalVisibility, memoizedSetModalStatus, /*modalContent,*/ containerCSSClass} : IProps){
 
     const dialogRef = useRef<HTMLDialogElement>(null)
     const modalVisibilityRef = useRef<boolean>(modalVisibility)
@@ -15,7 +15,7 @@ function Modal({children, modalVisibility, setModalVisibility, /*modalContent,*/
     // needs to pass setModalVisibility to modalContent
     return (
         <dialog data-testid="modal" ref={dialogRef} 
-            onClick={(e) => { if (e.target === dialogRef.current) setModalVisibility(false) }} 
+            onClick={(e) => { if (e.target === dialogRef.current) memoizedSetModalStatus({visibility : false}) }} 
             onCancel={(e) => e.preventDefault()}>
                 <div className='modalHorizPadding'></div>
                 <div className='modalVertPaddingNChildrenContainer'>
@@ -35,5 +35,5 @@ interface IProps{
     modalVisibility : boolean
     // modalContent : JSX.Element
     containerCSSClass? : string
-    setModalVisibility : (bool : boolean) => void
+    memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
 }
