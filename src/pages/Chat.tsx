@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory";
 import '../style/Chat.css'
@@ -20,19 +20,27 @@ import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
+import useFetchPromptsList from "../hooks/useFetchPromptsList";
 
 function Chat() {
 
-    const htmlRef = useRef(document.documentElement)
+    useEffect(() => console.log("chat render"))
+    
+    // {"name":"defaultAssistantPrompt","prompt":"You are an helpful assistant.","meta":{"revision":0,"created":1727917753940,"version":0},"$loki":2}
+    const {promptsList, setPromptsList} = useFetchPromptsList()
 
+    const [activeConversationId, setActiveConversationId] = useState<number>(0)
     // contains all the logic used to update the conversation history and its context
-    const { conversationState, dispatch, conversationStateRef } = useConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : ""})
+    const { conversationState, dispatch, conversationStateRef } = useConversationReducer({name : "First Conversation", history : [], lastModelUsed  : ""})
 
     const historyContainerRef = useRef<HTMLDivElement>(null)
 
+    const [currentAgent, setCurrentAgent] = useState(ChatService.getActiveAgent())
+
+    // keep textarea value at this level for the moment being
     const [textareaValue, _setTextareaValue] = useState("")
     const textareaValueRef = useRef<string>("")
-    // forwarded to the textarea to get access to its focus method
+    // forwarded to the textarea to retrieve its focus method
     const customTextareaRef = useRef<ImperativeHandle>(null)
 
     function setTextareaValue(value: string) {
@@ -40,24 +48,24 @@ function Chat() {
         _setTextareaValue(value)
     }
 
-    const [activeConversationId, setActiveConversationId] = useState<number>(0)
-
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
     const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
-    // const [isARequestBeingProcessed_Background, setRequestBeingProcessed_Background] = useState(false)
-
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
-    const { modalVisibility, setModalVisibility, modalContentId, setModalContentId } = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
+    const {modalVisibility, modalContentId, setModalVisibility, setModalContentId} = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
+    const memoizedSetModalStatus = useCallback(({visibility, contentId} : {visibility : boolean, contentId? : string}) => {
+        setModalVisibility(visibility)
+        if(contentId) setModalContentId(contentId)
+    }, [])
+
+    // used by the left panel to communicate to the page which prompt should be opened within a modal
+    const selectedPromptRef = useRef("")
 
     const modelsList = useFetchModelsList()
 
-    const selectedPromptRef = useRef("")
-
-    // initializing the default conversation history
+    // initializing the conversation history with an empty element  & the scrollbar behavior
+    const htmlRef = useRef(document.documentElement)
     useEffect(() => {
-        console.log("chat render")
-
         ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
 
         if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
@@ -85,7 +93,7 @@ function Chat() {
             // initiate context & a blank conversation QA pair
             const currentContext = conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []
             setIsStreaming(true)
-            dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: message })
+            dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, modelUsed : ChatService.getActiveAgent().getModelName()}})
             let newContext = []
 
             // two branches : webscrapping / internal knowledge
@@ -125,9 +133,12 @@ function Chat() {
         dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ANSWER, payload: { html, markdown } })
     }
 
-    // ---
+
+    /***
+    //
     // Click & Focus Events Handlers
-    // ---
+    //
+    ***/
 
     function handleAbortStreamingClick() {
         ChatService.abortAgentLastRequest()
@@ -156,14 +167,9 @@ function Chat() {
         askMainAgent_Streaming(retrievedQuestion)
     }
 
-    function setModalStatus(visibility : boolean, contentId : string) : void{
-        setModalVisibility(visibility)
-        setModalContentId(contentId)
-    }
-
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftPanel activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} setModalStatus={setModalStatus} selectedPromptRef={selectedPromptRef}/>
+        <LeftPanel conversationStateRef={conversationStateRef} activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} promptsList={promptsList} selectedPromptRef={selectedPromptRef}/>
         <main>
             <LoadedModelInfosBar refreshSignal={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
@@ -202,17 +208,17 @@ function Chat() {
                 </div>
             </div>
             {modalVisibility && 
-                <Modal modalVisibility={modalVisibility} setModalVisibility={setModalVisibility}>
+                <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
                     {{
-                        'formEditAgent' : <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalVisibility={setModalVisibility}/>,
-                        'formNewAgent' : <FormAgentSettings setModalVisibility={setModalVisibility}/>,
-                        'formEditPrompt' : <FormPromptSettings setModalVisibility={setModalVisibility} selectedPromptRef={selectedPromptRef}/>,
-                        'formNewPrompt' : <FormPromptSettings setModalVisibility={setModalVisibility} />,
+                        'formEditAgent' : <FormAgentSettings agent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} memoizedSetModalStatus={memoizedSetModalStatus} setCurrentAgent={setCurrentAgent}/>,
+                        'formNewAgent' : <FormAgentSettings memoizedSetModalStatus={memoizedSetModalStatus}/>,
+                        'formEditPrompt' : <FormPromptSettings memoizedSetModalStatus={memoizedSetModalStatus} promptsList={promptsList} selectedPromptRef={selectedPromptRef}/>,
+                        'formNewPrompt' : <FormPromptSettings memoizedSetModalStatus={memoizedSetModalStatus} />,
                     } [modalContentId]}
                 </Modal>
             }
         </main>
-        <RightPanel activeAgent={AgentLibrary.getAgent(ChatService.getActiveAgentName())} setModalStatus={setModalStatus} modelsList={modelsList}/>
+        <RightPanel activeAgent={currentAgent} memoizedSetModalStatus={memoizedSetModalStatus} modelsList={modelsList}/>
     </div>
     )
 }
@@ -246,6 +252,7 @@ export default Chat
 // context compression when context available < max length per reply
 // fix markdown into textblock not being converted
 // check if ollama can be pinged in the starting window
+// when switching conversations, should restore the last model used & the last agent?
 
 // readme : prompts optimized for mistral nemo
 // tell me if you face a formatting issue within an answer
