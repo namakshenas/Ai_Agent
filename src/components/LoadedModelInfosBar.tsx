@@ -2,10 +2,12 @@
 import { useEffect, useState } from 'react'
 import './LoadedModelInfosBar.css'
 import { OllamaService } from '../services/OllamaService'
+import React from 'react'
 
-export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : boolean}){
+// export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : boolean}){
+const LoadedModelInfosBar = React.memo(({ refreshSignal } : {refreshSignal : boolean}) => {
 
-    useEffect(() => {console.log("infos bar render")}, [])
+    useEffect(() => {console.log("infos bar render")})
 
     const [runningModelsInfos, setRunningModelsInfos] = useState<IRunningModelInfos | null>(null)
 
@@ -42,13 +44,6 @@ export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : b
             <div className='allocationBarContainer' style={{display:'flex', flexDirection:'column'}}>
                 <div className='rowContainer'><span style={{padding:'0', justifyContent:'right'}}>VRAM</span><div className='barContainer' style={{height:'8px'}}><div style={{width : runningModelsInfos?.percentageInVRAM ? 100 * 1.2 : 0 }} className='barVRAM'></div></div></div>
                 <div className='rowContainer'><span style={{padding:'0', justifyContent:'right'}}>RAM</span><div className='barContainer' style={{height:'8px'}}><div style={{width : 120 - (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='barRAM'></div></div></div>
-                {/*<span style={{flexGrow:0}}>GPU</span>
-                <div className='barContainer'>
-                    <div style={{width : (runningModelsInfos?.percentageInVRAM || 0) * 1.2 }} className='bar'>
-                      <span>{runningModelsInfos?.percentageInVRAM ? Math.floor(runningModelsInfos?.percentageInVRAM) + '%' : ""}</span>
-                    </div>
-                </div>
-                <span style={{flexGrow:0}}>CPU</span>*/}
             </div>
             <span className='label'>Size</span>
             <span className='value'>{ runningModelsInfos?.size ? (runningModelsInfos.size/1000000000).toFixed(2) + ' GB' : "N/A" }</span>
@@ -62,7 +57,9 @@ export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : b
         </div>
       </div>
     )
-}
+})
+
+export default LoadedModelInfosBar
 
 // hover % allocation bar
 
