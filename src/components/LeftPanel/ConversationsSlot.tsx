@@ -1,10 +1,17 @@
-import { useState } from "react"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useEffect, useState } from "react"
 import { IConversation } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
 
-export function ConversationsSlot({activeConversation, setActiveConversation} : IProps){
-    const [conversationsListState, setConversationsListState] = useState<IConversation[]>(ConversationsRepository.getConversations())
+export function ConversationsSlot({conversationStateRef, activeConversation, setActiveConversation} : IProps){
+    // should be replaced by a fn from the reducer
+    const [conversationsListState, setConversationsListState] = useState<IConversation[]>(ConversationsRepository.getConversations()) 
     const [conversationsListPage, setConversationsListPage] = useState<number>(0)
+
+    // when the conversation state is modified, retrieve the conversations from the repository and update the displayed list
+    useEffect(() => {
+        setConversationsListState(ConversationsRepository.getConversations())
+    }, [conversationStateRef.current])
 
     function handNewConversation() : void{
         ConversationsRepository.pushNewConversation("no_name", [], "")
@@ -88,4 +95,5 @@ export function ConversationsSlot({activeConversation, setActiveConversation} : 
 interface IProps{
     activeConversation : number
     setActiveConversation : (index : number) => void
+    conversationStateRef: React.MutableRefObject<IConversation>
 }

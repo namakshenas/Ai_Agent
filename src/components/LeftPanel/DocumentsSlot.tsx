@@ -1,21 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useRef, useState } from "react";
-import DocumentsRepository from "../../repositories/DocumentsRepository";
 import { IRAGDocument } from "../../interfaces/IRAGDocument";
+import useFetchDocsList from "../../hooks/useFetchDocsList";
 
 export default function DocumentsSlot(){
 
-    const RAGDocuments = DocumentsRepository.getDocuments().slice(0,6)
+    // const RAGDocuments = DocumentsRepository.getDocuments().slice(0,6)
 
     const units = ["B", "KB", "MB", "GB"]
 
-    const [documents, _setDocuments] = useState<IRAGDocument[]>([...RAGDocuments])
+    const { docsList, docsListRef, setDocsList} = useFetchDocsList()
+
+    /*const [documents, _setDocuments] = useState<IRAGDocument[]>([...RAGDocuments])
     const documentsRef = useRef<IRAGDocument[]>([...RAGDocuments])
 
     function setDocuments(documents: IRAGDocument[]){
         _setDocuments(documents)
         documentsRef.current = documents
-    }
+    }*/
 
     const [documentsListPage, setDocumentsListPage] = useState<number>(0)
 
@@ -61,10 +63,10 @@ export default function DocumentsSlot(){
     }
 
     function handleFileClick(fileId : number) : void {
-        const newDocs = [...documentsRef.current]
+        const newDocs = [...docsListRef.current]
         const targetFileIndex = newDocs.findIndex(doc => doc.id === fileId)
         newDocs[targetFileIndex].selected = !newDocs[targetFileIndex].selected
-        setDocuments(newDocs)
+        setDocsList(newDocs)
     }
 
     function handleNextPage() : void{
@@ -76,12 +78,12 @@ export default function DocumentsSlot(){
     }
 
     function getFilteredDocs() : IRAGDocument[]{
-        return documents.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase()))
+        return docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase()))
     }
 
     function nBlankFileSlotsNeededAsFillers() : number{
-        if (documentsListPage*5+5 < documents.length) return 0
-        return documentsListPage*5+5 - documents.length
+        if (documentsListPage*5+5 < docsListRef.current.length) return 0
+        return documentsListPage*5+5 - docsListRef.current.length
     }
 
     return(
@@ -110,7 +112,7 @@ export default function DocumentsSlot(){
                 </div>
                 <ul style={{marginTop:'0.5rem'}}>
                     {
-                        documents.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase())).slice(documentsListPage * 5, documentsListPage * 5 + 5).map((document, id) => (
+                        docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase())).slice(documentsListPage * 5, documentsListPage * 5 + 5).map((document, id) => (
                             <li className={document.selected ? "activeDocument" : ""} onClick={() => handleFileClick(document.id)} key={"documentLi"+id}>
                                 {document.selected && <div style={{height:'100%', width:'6px', background:'#6d48c1'}}></div>}
                                 {/*document.selected && <svg className="star" width="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>*/}
