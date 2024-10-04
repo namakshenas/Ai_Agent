@@ -6,52 +6,28 @@ import './FormAgentSettings.css'
 import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
-import { AgentLibrary } from "../../services/AgentLibrary";
 import { ChatService } from "../../services/ChatService";
+import AgentService from "../../services/AgentService";
+import { AgentLibrary } from "../../services/AgentLibrary";
+import Chat from "../../pages/Chat";
 
-export default function FormAgentSettings({agent, memoizedSetModalStatus, setCurrentAgent} : IProps){
+export default function FormAgentSettings({currentAgent, memoizedSetModalStatus, setCurrentAgent} : IProps){
 
     const modelList = useFetchModelsList()
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
     const baseForm : IFormStructure = {
-        agentName: agent ? agent.getName() : "",
-        modelName: agent ? agent.getModelName() : modelList[0],
-        systemPrompt: agent ? agent.getSystemPrompt().replace(/\t/g,'') : "",
-        temperature: agent ? agent.getTemperature() : 0.8,
-        maxContextLength: agent ? agent.getContextSize() : 2048,
-        maxTokensPerReply: agent ? agent.getNumPredict() : 128,
+        agentName: currentAgent ? currentAgent.getName() : "",
+        modelName: currentAgent ? currentAgent.getModelName() : modelList[0],
+        systemPrompt: currentAgent ? currentAgent.getSystemPrompt().replace(/\t/g,'') : "",
+        temperature: currentAgent ? currentAgent.getTemperature() : 0.8,
+        maxContextLength: currentAgent ? currentAgent.getContextSize() : 2048,
+        maxTokensPerReply: currentAgent ? currentAgent.getNumPredict() : 128,
         webSearchEconomy: false,
     }
 
     const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
-
-    /*function handleSaveAgent(){
-        AgentLibrary.getAgent(formValues.agentName).setSettings({
-            modelName : formValues.modelName, 
-            systemPrompt : formValues.systemPrompt, 
-            context : [], 
-            contextSize : formValues.maxContextLength, 
-            temperature : formValues.temperature, 
-            numPredict : formValues.maxTokensPerReply
-        })
-    }*/
-
-    /*function handleSwitchAgent(option : IOption){
-        ChatService.setActiveAgent(option.value)
-        const agent = ChatService.getActiveAgent()
-        const newFormValues : IFormStructure = {
-            agentName: agent.getName(),
-            modelName: agent.getModelName(),
-            systemPrompt: agent.getSystemPrompt().replace(/\t/g,''),
-            temperature: agent.getTemperature(),
-            maxContextLength: agent.getContextSize(),
-            maxTokensPerReply: agent.getNumPredict(),
-            webSearchEconomy: true,
-        }
-        setFormValues({...newFormValues})
-    }*/
 
     function handleSwitchModel(option : IOption){
         setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
@@ -64,15 +40,32 @@ export default function FormAgentSettings({agent, memoizedSetModalStatus, setCur
 
     function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
-        AgentLibrary.getAgent(formValues.agentName).setSettings({
+        /*AgentLibrary.getAgent(formValues.agentName).setSettings({
             modelName : formValues.modelName, 
             systemPrompt : formValues.systemPrompt, 
             context : [], 
             contextSize : formValues.maxContextLength, 
             temperature : formValues.temperature, 
             numPredict : formValues.maxTokensPerReply
-        })
-        if(setCurrentAgent) setCurrentAgent(ChatService.getActiveAgent())
+        })*/
+        const newAgent = new AIAgent(ChatService.getActiveAgent().getName(), formValues.modelName)
+        .setContextSize(formValues.maxContextLength)
+        .setNumPredict(formValues.maxTokensPerReply)
+        .setSystemPrompt(formValues.systemPrompt)
+        .setTemperature(formValues.temperature)
+        .setName(formValues.agentName)
+
+        // if edit
+        if(currentAgent?.getName()) {
+            AgentLibrary.addAgent(newAgent)
+            if(setCurrentAgent) setCurrentAgent(AgentLibrary.getAgent(newAgent.getName()))
+            ChatService.setActiveAgent(newAgent.getName())
+            AgentLibrary.removeAgent(currentAgent.getName())
+        }
+
+        AgentService.update(newAgent)
+        if(setCurrentAgent) setCurrentAgent(newAgent)
+            
         memoizedSetModalStatus({visibility : false})
     }
 
@@ -89,7 +82,7 @@ export default function FormAgentSettings({agent, memoizedSetModalStatus, setCur
                 className="form-input" 
                 spellCheck="false"
                 value={formValues.agentName}
-                onChange={(e) => setFormValues(formValues => ({...formValues, agentName : e.currentTarget.value}))}
+                onChange={(e) => setFormValues(formValues => ({...formValues, agentName : e.target?.value}))}
             />
             <div/>
             <Select 
@@ -212,7 +205,7 @@ export default function FormAgentSettings({agent, memoizedSetModalStatus, setCur
 }
 
 interface IProps{
-    agent? : AIAgent
+    currentAgent? : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     setCurrentAgent ?: React.Dispatch<React.SetStateAction<AIAgent>>
 }

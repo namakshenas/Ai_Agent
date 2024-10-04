@@ -4,8 +4,8 @@ import './LoadedModelInfosBar.css'
 import { OllamaService } from '../services/OllamaService'
 import React from 'react'
 
-// export default function LoadedModelInfosBar({refreshSignal} : {refreshSignal : boolean}){
-const LoadedModelInfosBar = React.memo(({ refreshSignal } : {refreshSignal : boolean}) => {
+// function LoadedModelInfosBar() {
+const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : {hasStreamingEnded : boolean}) => {
 
     useEffect(() => {console.log("infos bar render")})
 
@@ -13,10 +13,10 @@ const LoadedModelInfosBar = React.memo(({ refreshSignal } : {refreshSignal : boo
 
     useEffect(() => {
       async function effect(){
-        if(refreshSignal) await refreshRunningModelInfos()
+        if(hasStreamingEnded) await refreshRunningModelInfos()
       }
       effect()
-    }, [refreshSignal])
+    }, [hasStreamingEnded])
 
     async function refreshRunningModelInfos(){
       const runningModelsInfos = await OllamaService.getRunningModelInfos()
@@ -57,7 +57,13 @@ const LoadedModelInfosBar = React.memo(({ refreshSignal } : {refreshSignal : boo
         </div>
       </div>
     )
-})
+}/*, (prevProps, nextProps) => {
+    // refresh only when signal pass to true
+    if (prevProps.refreshSignal !== nextProps.refreshSignal && nextProps.refreshSignal === true) {
+      return false
+    }
+    return true
+}*/)
 
 export default LoadedModelInfosBar
 
