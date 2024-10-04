@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import IPrompt from "../../interfaces/IPrompt";
+import useFetchPromptsList from "../../hooks/useFetchPromptsList";
 // import PromptLibrary from "../../services/PromptLibrary";
 
-export function PromptsSlot({memoizedSetModalStatus, selectedPromptRef, promptsList} : IProps){
+export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef, isAPIOffline} : IProps){
     
     const [promptsListPage, setPromptsListPage] = useState(0)
+    const {promptsList, setPromptsList} = useFetchPromptsList()
 
     function handleNextPage() : void{
         setPromptsListPage(page => page + 1 < Math.ceil(promptsList.length/3) ? page+1 : 0)
@@ -21,7 +22,7 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptRef, promptsL
     }
 
     function handleOpenEditPromptFormClick(promptName : string) : void {
-        selectedPromptRef.current = promptName
+        selectedPromptNameRef.current = promptName
         memoizedSetModalStatus({visibility : true, contentId : "formEditPrompt"})
     }
 
@@ -57,6 +58,6 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptRef, promptsL
 
 interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId : string}) => void
-    selectedPromptRef : React.MutableRefObject<string>
-    promptsList : IPrompt[]
+    selectedPromptNameRef : React.MutableRefObject<string>
+    isAPIOffline : boolean
 }
