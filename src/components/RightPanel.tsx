@@ -8,21 +8,24 @@ import Select, { IOption } from './CustomSelect/Select'
 import { ChatService } from '../services/ChatService'
 import userPicture from '../assets/usericon4-2.png'
 import React from 'react'
+import AgentService from '../services/AgentService'
+import useFetchModelsList from '../hooks/useFetchModelsList'
 
-// export default function RightPanel({activeAgent, setModalStatus, modelsList} : IProps){
-const RightPanel = React.memo(({activeAgent, memoizedSetModalStatus, modelsList} : IProps) => {
+const RightPanel = React.memo(({currentAgent, setCurrentAgent, memoizedSetModalStatus/*, modelsList*/} : IProps) => {
 
-    useEffect(() => {console.log("right panel render")})
+    const modelsList = useFetchModelsList()
+
+    useEffect(() => {console.log("right panel render")}) 
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
     const currentFormValues : IFormStructure = {
-        agentName: activeAgent.getName(),
-        modelName: activeAgent.getModelName(),
-        systemPrompt: activeAgent.getSystemPrompt().replace(/\t/g,''),
-        temperature: activeAgent.getTemperature(),
-        maxContextLength: activeAgent.getContextSize(),
-        maxTokensPerReply: activeAgent.getNumPredict(),
+        agentName: currentAgent.getName(),
+        modelName: currentAgent.getModelName(),
+        systemPrompt: currentAgent.getSystemPrompt().replace(/\t/g,''),
+        temperature: currentAgent.getTemperature(),
+        maxContextLength: currentAgent.getContextSize(),
+        maxTokensPerReply: currentAgent.getNumPredict(),
         webSearchEconomy: true,
     }
 
@@ -31,17 +34,28 @@ const RightPanel = React.memo(({activeAgent, memoizedSetModalStatus, modelsList}
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
 
+
+    // the multiple renders on save are due to the multiple graphical states of the save button
     function handleSaveAgent(e : React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
         // !!! add db and offline
-        AgentLibrary.getAgent(formValues.agentName).setSettings({
+        /*AgentLibrary.getAgent(formValues.agentName).setSettings({
             modelName : formValues.modelName, 
             systemPrompt : formValues.systemPrompt, 
             context : [], 
             contextSize : formValues.maxContextLength, 
             temperature : formValues.temperature, 
             numPredict : formValues.maxTokensPerReply
-        })
+        })*/
+
+        const newAgent = new AIAgent(ChatService.getActiveAgent().getName(), formValues.modelName)
+        .setContextSize(formValues.maxContextLength)
+        .setNumPredict(formValues.maxTokensPerReply)
+        .setSystemPrompt(formValues.systemPrompt)
+        .setTemperature(formValues.temperature)
+
+        AgentService.update(newAgent)
+        if(setCurrentAgent) setCurrentAgent(newAgent)
 
         setShowSavingSuccessfulBtn(true)
     }
@@ -90,7 +104,7 @@ const RightPanel = React.memo(({activeAgent, memoizedSetModalStatus, modelsList}
         <aside className="rightDrawer">
             <div className='userSettingsContainer'>
                 <span style={{marginLeft:'68px', fontSize:'15px'}}>
-                    <a href="https://ollama.com/" target="_blank">Ollama Installation Guide</a>
+                    <a href="https://ollama.com/library?sort=newest" target="_blank">Check the latest Models</a>
                 </span>
                 <img src={userPicture}/>
             </div>
@@ -196,14 +210,16 @@ const RightPanel = React.memo(({activeAgent, memoizedSetModalStatus, modelsList}
             </article>
         </aside>
     )
-}, (prevProps, nextProps) => {
-    return prevProps.activeAgent.asString() === nextProps.activeAgent.asString() && prevProps.modelsList === nextProps.modelsList
-})
+}/*, (prevProps, nextProps) => {
+    // refresh only when modelsList state change
+    return prevProps.modelsList === nextProps.modelsList
+}*/)
 
 export default RightPanel
 
 interface IProps{
-    activeAgent : AIAgent
+    currentAgent : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
-    modelsList : string[]
+    /*modelsList : string[]*/
+    setCurrentAgent : React.Dispatch<React.SetStateAction<AIAgent>>
 }
