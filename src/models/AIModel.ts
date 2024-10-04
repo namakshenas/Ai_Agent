@@ -56,22 +56,24 @@ export class AIModel{
                 },
                 body: this.#buildRequest({prompt, stream : false}),
                 signal: this.#signal,
-                // keepalive: true
             });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
 
             return await response.json()
             
         } catch (error) {
+            // in case of manual request abortion
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
                 }
                 throw new Error(`Failed to fetch: ${error.message}`);
             }
+            this.abortLastRequest()
             throw new Error("An unknown error occurred.");
         }
     }
@@ -85,11 +87,11 @@ export class AIModel{
                 },
                 body: this.#buildRequest({prompt, stream : true}),
                 signal: this.#signal,
-                keepalive: true
+                // keepalive: true
             })
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status}`)
             }
 
             const reader = response.body?.getReader()
@@ -99,12 +101,14 @@ export class AIModel{
             return reader
 
         } catch (error) {
+            // in case of manual request abortion
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
                 }
                 throw new Error(`Failed to fetch: ${error.message}`);
             }
+            this.abortLastRequest()
             throw new Error("An unknown error occurred.");
         }
     }
@@ -200,6 +204,7 @@ export class AIModel{
 
     setNumPredict(value : number){
         this.#numPredict = value
+        return this
     }
 
     setSettings({ modelName = "llama3.1:8b", systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8, numPredict = 1024 } : IAIModelParams){
@@ -251,9 +256,13 @@ export class AIModel{
     }
 
     abortLastRequest(){
-        this.#abortController.abort("Signal aborted.")
+        if(this.#abortController) this.#abortController.abort("Signal aborted.")
         // need to create a new abort controller and a new signal
         // or subsequent request will be aborted from the get go
+        this.generateNewAbortControllerAndSignal()
+    }
+
+    generateNewAbortControllerAndSignal(){
         this.#abortController = new AbortController()
         this.#signal = this.#abortController.signal
     }

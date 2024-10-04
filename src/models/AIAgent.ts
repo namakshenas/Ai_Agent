@@ -28,8 +28,9 @@ export class AIAgent extends AIModel {
         this.#name = name
     }
 
-    setName(name : string) : void {
+    setName(name : string) : AIAgent {
         this.#name = name
+        return this
     }
 
     getName() : string{
@@ -62,11 +63,11 @@ export class AIAgent extends AIModel {
         return response // if there is not next agent, this is the final reply
     }
 
-    override asString(){
+    asString(){
         return JSON.stringify({
             name : this.#name,
             model : this.getModelName(),
-            systemPrompt : this.getContextSize(),
+            systemPrompt : this.getSystemPrompt(),
             contextSize : this.getContextSize(),
             numPredict : this.getNumPredict(),
             temperature : this.getTemperature(),
