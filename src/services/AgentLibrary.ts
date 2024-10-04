@@ -29,6 +29,7 @@ export class AgentLibrary {
 
     static addAgent(agent: AIAgent) {
         this.library = {...this.library, [agent.getName()] : agent}
+        console.log(this.library)
     }
 
     static saveAgent(agent: AIAgent) {
@@ -43,6 +44,10 @@ export class AgentLibrary {
         return false;
     }
 
+    static updateAgent(agent: AIAgent) {
+        this.saveAgent(agent)
+    }
+
     static getAgent(agentName: string): AIAgent {
         return this.library[agentName]
     }
@@ -53,6 +58,10 @@ export class AgentLibrary {
     
     static getAgentsNameList(): Array<string> {
         return Object.getOwnPropertyNames(this.library)
+    }
+
+    static doesAgentExist(agentName: string): boolean {
+        return this.getAgent(agentName) !== undefined
     }
 }
 

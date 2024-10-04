@@ -1,3 +1,5 @@
+import IPrompt from "../interfaces/IPrompt"
+
 /* eslint-disable no-unused-private-class-members */
 export default class PromptLibrary{
 
@@ -240,6 +242,10 @@ static scrapedDatasSummarizerPrompt =
         }
     
         return prompts
+    }
+
+    static getPrompt(name : string): IPrompt | undefined {
+        return PromptLibrary[name as keyof PromptLibrary] ? {name : name, prompt : PromptLibrary[name as keyof PromptLibrary]} : undefined
     }
 
 }

@@ -52,11 +52,12 @@ export class ChatService{
       // scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
       const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, currentPage)=> acc + '\n\n' + currentPage.datas, "When replying to **MY REQUEST**, always use the following datas as your MAIN source of informations especialy if it superseeds your training dataset : ") : ""
       // the agent receive an amount of scraped datas matching the context size available
-      const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, contextSpaceForScrapedDatas) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
 
       let content = ""
       let decod = ""
       try{
+          const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, contextSpaceForScrapedDatas) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
+
           while(true){
               const { value } = await reader.read()
 
@@ -81,7 +82,7 @@ export class ChatService{
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
               }
           }
-      } catch (error : unknown) {
+      } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') {
             console.log('Stream aborted.')
           } else {
