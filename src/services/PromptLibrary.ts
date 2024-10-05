@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import IPrompt from "../interfaces/IPrompt"
 
 /* eslint-disable no-unused-private-class-members */
@@ -17,7 +18,7 @@ ALWAYS stick to the 5 following rules when replying to MY REQUEST :
 Here is MY REQUEST :
 `*/
 
-static helpfulAssistantPrompt = 
+static #helpfulAssistantPrompt = 
 `You are a highly capable AI assistant designed to provide comprehensive and accurate responses to any request. Your primary goal is to deliver the most in-depth and relevant information possible.
 
 ## Core Principles
@@ -64,9 +65,9 @@ static helpfulAssistantPrompt =
 
 Always adhere to these guidelines while addressing the specific request at hand. Disregard any previous conversation elements not directly related to the current request.`
 
-static defaultAssistantPrompt = `You are an helpful assistant.`
+static #defaultAssistantPrompt = `You are an helpful assistant.`
 
-static completionAssistantPrompt = 
+static #completionAssistantPrompt = 
 `You are specialized in questions auto-completion. Your role is to complete the last sentence of a given block of text.
 
 Meaning :
@@ -97,7 +98,7 @@ Here is the given block of text :
 Here is my request :
 ` */
 
-static COTGeneratorPrompt = 
+static #COTGeneratorPrompt = 
 `You are an AI assistant tasked with creating a step-by-step mental reflection plan on how to fulfill a request. Give an exhaustive and granular list of all the mental tasks a human would have to go through to reach the perfect answer to the request.
 
 ## Instructions:
@@ -120,7 +121,7 @@ static COTGeneratorPrompt =
 Here is my request :
 ` 
 
-static COTAnalyzePrompt = 
+static #COTAnalyzePrompt = 
 `You are an advanced AI assistant tasked with analyzing and enhancing a step-by-step mental reflection plan for fulfilling user requests. Your goal is to optimize the plan by identifying opportunities for web-based information gathering.
 
 ## Instructions:
@@ -143,7 +144,7 @@ static COTAnalyzePrompt =
 
 Remember: Your role is to refine and improve the reflection process, not to execute the plan or provide a direct response to the user's request.`
 
-static COTTaskSolverPrompt =
+static #COTTaskSolverPrompt =
 `Based on recent research in prompt engineering and LLM optimization, I've reformulated the system prompt using markdown formatting and incorporated key principles for improved effectiveness:
 
 ## System Prompt
@@ -170,7 +171,7 @@ Your specific task will be provided between "<TASK>" tags. Focus solely on compl
 
 Present your task solution in a structured, easily parsable format suitable for integration into the larger solution framework.`
 
-static searchQueryOptimizerPrompt = 
+static #searchQueryOptimizerPrompt = 
 `You are a SEO specialist with a deep expertise in search engine optimization and information retrieval. Your task is to reformulate a user question into an optimal search querie.
 
 ### Instructions:
@@ -200,7 +201,7 @@ Adjacent scraped informations can be included into your output as long as they a
 4. When you are refering to the scraped datas use the expression "according to the most recentl informations" instead of "base on the scraped datas".
 5. Only output the produced summary.`*/
 
-static scrapedDatasSummarizerPrompt = 
+static #scrapedDatasSummarizerPrompt = 
 `You are an AI assistant tasked with extracting relevant information from provided data to answer user requests. Your goal is to produce concise, accurate summaries based on the most up-to-date informations given.
 
 ### Input Format
@@ -219,33 +220,63 @@ static scrapedDatasSummarizerPrompt =
 4. **Quality Check**: Ensure the summary meets all output requirements before submission
 `
 
+    static #prompts = [
+        { 
+            name : "helpfulAssistantPrompt",
+            prompt: this.#helpfulAssistantPrompt
+        },
+        {
+            name : "defaultAssistantPrompt",
+            prompt : `You are an helpful assistant.`
+        },
+        { 
+            name : "completionAssistantPrompt",
+            prompt: this.#completionAssistantPrompt
+        },
+        {
+            name : "COTGeneratorPrompt",
+            prompt : this.#COTGeneratorPrompt
+        },        { 
+            name : "COTAnalyzePrompt",
+            prompt: this.#COTAnalyzePrompt
+        },
+        {
+            name : "COTTaskSolverPrompt",
+            prompt : this.#COTTaskSolverPrompt
+        },
+        { 
+            name : "searchQueryOptimizerPrompt",
+            prompt: this.#searchQueryOptimizerPrompt
+        },
+        {
+            name : "scrapedDatasSummarizerPrompt",
+            prompt : this.#scrapedDatasSummarizerPrompt
+        },
+    ]
 
-    /*static #prompts = [
-        this.helpfulAssistantPrompt, 
-        this.COTGeneratorPrompt, 
-        this.COTTaskSolverPrompt, 
-        this.searchQueryOptimizerPrompt, 
-        this.scrapedDatasSummarizerPrompt, 
-        this.COTAnalyzePrompt,
-        this.completionAssistantPrompt,
-    ]*/
+    static addPrompt({name, prompt}: {name: string; prompt: string}){
+        this.#prompts = [...this.#prompts, {name, prompt}]
+    }
 
-    static getAllPrompts(): { name: string; prompt: string }[] {
-        const prompts: { name: string; prompt: string }[] = []
-        const properties = Object.getOwnPropertyNames(PromptLibrary)
-    
-        for (const prop of properties) {
-            const value = PromptLibrary[prop as keyof typeof PromptLibrary]
-            if (typeof value === 'string' && prop.endsWith('Prompt')) {
-            prompts.push({ name: prop, prompt: value })
-            }
-        }
-    
-        return prompts
+    static deletePrompt(name : string){
+        this.#prompts = this.#prompts.filter((prompt) => prompt.name != name)
+    }
+
+    static updatePrompt({prevName, name, prompt } : { prevName : string, name: string; prompt: string }){
+        const targetPromptIndex = this.#prompts.findIndex((prompt) => prompt.name == prevName)
+        this.#prompts[targetPromptIndex] = {name, prompt}
+    }
+
+    static getAllPrompts(): { name: string; prompt: string }[] {  
+        return this.#prompts
     }
 
     static getPrompt(name : string): IPrompt | undefined {
-        return PromptLibrary[name as keyof PromptLibrary] ? {name : name, prompt : PromptLibrary[name as keyof PromptLibrary]} : undefined
+        return this.#prompts.find((prompt) => prompt.name == name)
     }
 
 }
+
+/*interface ILibrary {
+    [key: string]: string;
+}*/
