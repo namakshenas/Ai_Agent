@@ -97,13 +97,47 @@ export class ChatService{
     }
 
     // split one malformed block into multiple ones if needed
-    static #reconstructMalformedValues(values : string[] | null){
-        if(values == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
-        if(values.length == 1) return values[0]
-        console.log("malformed : " + JSON.stringify(values))
-        const reconstructedValue = values.reduce((acc, value) => acc + JSON.parse(value).response, "")
-        return JSON.stringify({"model":"","created_at":"","response":reconstructedValue,"done":false})
+    static #reconstructMalformedValues(values : string[] | null) : string{
+      try{
+        if(values == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false}) // !!! should be true?
+          if(values.length == 1) return values[0]
+          console.log("malformed : " + JSON.stringify(values))
+          const reconstructedValue = values.reduce((acc, value) => acc + JSON.parse(value).response, "")
+          // if one of the malformed chunk is the {..., done : true } chunk
+          // then the reconstructed chunk becomes a {..., done : true } chunk itself
+          const isDone = values.reduce((acc, value) => acc && JSON.parse(value).done, false)
+          const aggregatedChunk = {...JSON.parse(values[values.length-1])}
+          aggregatedChunk.response = reconstructedValue
+          aggregatedChunk.done = isDone
+          console.log("reformed : " + JSON.stringify(aggregatedChunk))
+          return JSON.stringify(aggregatedChunk)
+      } catch (error) {
+        console.error(`Can't reconstruct these values : ` + JSON.stringify(values))
+        throw error
+      }
+        //return JSON.stringify({"model":"","created_at":"","response":reconstructedValue,"done":isDone})
     }
+
+    /*
+    malformed : ["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7492932Z\",
+    \"response\":\".\",\"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7747315Z\",
+    \"response\":\"\",\"done\":true,\"done_reason\":\"stop\",
+    \"context\":[],
+    \"total_duration\":22789130800,\"load_duration\":56604900,\"prompt_eval_count\":2443,
+    \"prompt_eval_duration\":400843000,\"eval_count\":568,\"eval_duration\":22325068000}"]
+    */
+
+    /*
+    ["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1209571Z\",\"response\":\" combining\",\"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1559578Z\",\"response\":\" both\", \"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1899585Z\",\"response\":\" techniques\",\"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.2256907Z\",\"response\":\" when\",\"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.2599159Z\",\"response\":\" appropriate\",\"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.356391Z\",\"response\":\".\",\"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.3698499Z\",\"response\":\" This\",\"done\":false}",
+    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.3993651Z\",\"response\":\" balance\",\"done\":false}"]
+    */
 
     static abortAgentLastRequest(){
         AgentLibrary.library[this.#activeAgentName].abortLastRequest()
