@@ -18,13 +18,10 @@ import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
-import usePingAPI from "../hooks/usePingAPI";
 
-function Chat() {
+function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
     useEffect(() => console.log("chat render"))
-
-    const isAPIOffline = usePingAPI()
     
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
 
@@ -34,14 +31,9 @@ function Chat() {
 
     const historyContainerRef = useRef<HTMLDivElement>(null)
 
-    // !!! replace by a ref instead of a usestate?
-    const [currentAgent, setCurrentAgent] = useState(ChatService.getActiveAgent())
-
-    // refresh the right panel when the active agent changes
-    const [forceRightPanelRender, setForceRightPanelRender] = useState(0);
-    useEffect(() => { 
-        setForceRightPanelRender(prev => prev + 1)
-    }, [currentAgent])
+    // refresh the right panel when the active agent changes // move inside right panel?
+    const [forceRightPanelRefresh, setForceRightPanelRefresh] = useState(0);
+    const [forceLeftPanelRefresh, setForceLeftPanelRefresh] = useState(0);
 
     // keep textarea value at this level for the moment being
     const [textareaValue, _setTextareaValue] = useState("")
@@ -60,7 +52,7 @@ function Chat() {
         if(contentId) setModalContentId(contentId)
     }, [])
 
-    // used by the left panel to communicate to the page which prompt should be opened within a modal
+    // used to memorize which prompt has been clicked in the left panel : use by the modal
     const selectedPromptNameRef = useRef("")
 
     const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
@@ -172,7 +164,7 @@ function Chat() {
 
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftPanel conversationStateRef={conversationStateRef} activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>
+        <LeftPanel key={"lp-" + forceLeftPanelRefresh} conversationStateRef={conversationStateRef} activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>
         <main>
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
@@ -186,7 +178,7 @@ function Chat() {
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
-                    <div className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
+                    <div style={{opacity : isAPIOffline ? '0.3' : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Search the Web</span>
                         <div className='switchContainer'>
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
@@ -213,15 +205,15 @@ function Chat() {
             {modalVisibility && 
                 <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
                     {{
-                        'formEditAgent' : <FormAgentSettings currentAgent={currentAgent} memoizedSetModalStatus={memoizedSetModalStatus} setCurrentAgent={setCurrentAgent}/>,
-                        'formNewAgent' : <FormAgentSettings memoizedSetModalStatus={memoizedSetModalStatus}/>,
-                        'formEditPrompt' : <FormPromptSettings memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>,
-                        'formNewPrompt' : <FormPromptSettings memoizedSetModalStatus={memoizedSetModalStatus} />,
+                        'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
+                        'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
+                        'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>,
+                        'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} isAPIOffline={isAPIOffline}/>,
                     } [modalContentId]}
                 </Modal>
             }
         </main>
-        <RightPanel key={forceRightPanelRender} currentAgent={currentAgent} setCurrentAgent={setCurrentAgent} memoizedSetModalStatus={memoizedSetModalStatus}/> {/* modelsList={modelsList} */}
+        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>
     </div>
     )
 }
@@ -245,6 +237,7 @@ export default Chat
 // token/s displayed => conversation
 // favorite documents
 // delete file
+// save load conversations
 // should handle reply with excel "code"
 // when regenerating an asnwer, old context is not flushed
 // prompt versioning
@@ -257,6 +250,13 @@ export default Chat
 // check if ollama can be pinged in the starting window
 // when switching conversations, should restore the last model used & the last agent?
 // fix the abort last request auto executed
+// modale : "checking if the api is online" or simply check at the starting window
+// icon to copy prompts from modale
+// bug switching conv during streaming, but maybe related to the first reply
+// verify when tiping new agent name or prompt that it is not already existing
+// better followup questions formatting control
+// when new agent form : model untouched => wrong model
+// issue with prompt modal when history is scrolleddown
 
 // readme : prompts optimized for mistral nemo
 // tell me if you face a formatting issue within an answer
