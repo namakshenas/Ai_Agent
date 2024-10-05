@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AIAgent } from "../../models/AIAgent";
 import Select, { IOption } from "../CustomSelect/Select";
 import './FormAgentSettings.css'
@@ -7,23 +7,23 @@ import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
-import AgentService from "../../services/AgentService";
 import { AgentLibrary } from "../../services/AgentLibrary";
-import Chat from "../../pages/Chat";
+import AgentService from "../../services/AgentService";
 
-export default function FormAgentSettings({currentAgent, memoizedSetModalStatus, setCurrentAgent} : IProps){
+export default function FormAgentSettings({memoizedSetModalStatus, setForceRightPanelRefresh, role, isAPIOffline} : IProps){
 
     const modelList = useFetchModelsList()
+    const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
 
     const baseForm : IFormStructure = {
-        agentName: currentAgent ? currentAgent.getName() : "",
-        modelName: currentAgent ? currentAgent.getModelName() : modelList[0],
-        systemPrompt: currentAgent ? currentAgent.getSystemPrompt().replace(/\t/g,'') : "",
-        temperature: currentAgent ? currentAgent.getTemperature() : 0.8,
-        maxContextLength: currentAgent ? currentAgent.getContextSize() : 2048,
-        maxTokensPerReply: currentAgent ? currentAgent.getNumPredict() : 128,
+        agentName: role == "edit" ? currentAgent.current.getName() : "",
+        modelName: role == "edit" ? currentAgent.current.getModelName() : modelList[0],
+        systemPrompt: role == "edit" ? currentAgent.current.getSystemPrompt().replace(/\t/g,'') : "",
+        temperature: role == "edit" ? currentAgent.current.getTemperature() : 0.8,
+        maxContextLength: role == "edit" ? currentAgent.current.getContextSize() : 2048,
+        maxTokensPerReply: role == "edit" ? currentAgent.current.getNumPredict() : 128,
         webSearchEconomy: false,
     }
 
@@ -38,33 +38,40 @@ export default function FormAgentSettings({currentAgent, memoizedSetModalStatus,
         memoizedSetModalStatus({visibility : false})
     }
 
+    function areFormDatasValid(){
+        if(formValues.agentName == "") return false
+        if(formValues.modelName == "") return false
+        if(formValues.systemPrompt == "") return false
+        if(formValues.temperature < 0 || formValues.temperature > 1) return false
+        if(formValues.maxContextLength < 1024 || formValues.maxContextLength > 8388608) return false
+        if(formValues.maxTokensPerReply < 1 || formValues.maxTokensPerReply > 128000) return false
+        return true
+    }
+
     function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
-        /*AgentLibrary.getAgent(formValues.agentName).setSettings({
-            modelName : formValues.modelName, 
-            systemPrompt : formValues.systemPrompt, 
-            context : [], 
-            contextSize : formValues.maxContextLength, 
-            temperature : formValues.temperature, 
-            numPredict : formValues.maxTokensPerReply
-        })*/
+        if(!areFormDatasValid()) return // !!! error message missing
         const newAgent = new AIAgent(ChatService.getActiveAgent().getName(), formValues.modelName)
+        .setModel(formValues.modelName)
         .setContextSize(formValues.maxContextLength)
         .setNumPredict(formValues.maxTokensPerReply)
         .setSystemPrompt(formValues.systemPrompt)
         .setTemperature(formValues.temperature)
         .setName(formValues.agentName)
 
-        // if edit
-        if(currentAgent?.getName()) {
-            AgentLibrary.addAgent(newAgent)
-            if(setCurrentAgent) setCurrentAgent(AgentLibrary.getAgent(newAgent.getName()))
-            ChatService.setActiveAgent(newAgent.getName())
-            AgentLibrary.removeAgent(currentAgent.getName())
+        // update the offline agent library
+        if(role == "edit") AgentLibrary.removeAgent(currentAgent.current.getName())
+        AgentLibrary.addAgent(newAgent)
+
+        // update the backend agent database
+        if(!isAPIOffline){
+            if(role == "edit") AgentService.update(newAgent)
+            if(role == "create") AgentService.save(newAgent)
         }
 
-        AgentService.update(newAgent)
-        if(setCurrentAgent) setCurrentAgent(newAgent)
+        ChatService.setActiveAgent(newAgent.getName())
+
+        if(setForceRightPanelRefresh) setForceRightPanelRefresh(prev => prev + 1)
             
         memoizedSetModalStatus({visibility : false})
     }
@@ -113,11 +120,12 @@ export default function FormAgentSettings({currentAgent, memoizedSetModalStatus,
             <div className="inputNSliderContainer">
                 <input
                 aria-labelledby="label-temperature"
-                type="text" 
                 className="form-input"
                 spellCheck="false"
+                type="number"
+                step="0.01" min="0" max="1" 
                 value={formValues.temperature}
-                onChange={(e) => setFormValues(formValues => ({...formValues, temperature : parseInt(e.target?.value) | 0}))}
+                onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                 />
                 <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                     <div className="sliderbarContainer">
@@ -136,11 +144,11 @@ export default function FormAgentSettings({currentAgent, memoizedSetModalStatus,
             <div className="inputNSliderContainer">
                 <input 
                     aria-labelledby="label-maxTokensPerReply"
-                    type="text"
-                    className="form-input"
                     spellCheck="false"
+                    type="number"
+                    className="form-input"
                     value={formValues.maxTokensPerReply}
-                    onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : parseInt(e.target?.value) | 0}))}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                 />
                 <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                     <div className="sliderbarContainer">
@@ -163,11 +171,12 @@ export default function FormAgentSettings({currentAgent, memoizedSetModalStatus,
             <div className="inputNSliderContainer">
                 <input
                     aria-labelledby="label-maxContextLength" 
-                    type="text"
+                    spellCheck="false" 
+                    type="number"
+                    step="1" min="0" max="1000000" 
                     className="form-input"
-                    spellCheck="false"
                     value={formValues.maxContextLength}
-                    onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : parseInt(e.target?.value) | 0}))}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                 />
                 <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                     <div className="sliderbarContainer">
@@ -205,9 +214,11 @@ export default function FormAgentSettings({currentAgent, memoizedSetModalStatus,
 }
 
 interface IProps{
-    currentAgent? : AIAgent
+    // currentAgent? : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
-    setCurrentAgent ?: React.Dispatch<React.SetStateAction<AIAgent>>
+    setForceRightPanelRefresh? : React.Dispatch<React.SetStateAction<number>>
+    role : "edit" | "create"
+    isAPIOffline? : boolean
 }
 
 
