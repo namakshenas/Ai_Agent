@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { IConversation } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
+import { ChatService } from "../../services/ChatService"
 
 export function ConversationsSlot({conversationStateRef, activeConversation, setActiveConversation} : IProps){
     // should be replaced by a fn from the reducer
@@ -22,6 +23,9 @@ export function ConversationsSlot({conversationStateRef, activeConversation, set
     }
 
     function handleSetActiveConversation(id : number) : void{
+        ChatService.abortAgentLastRequest()
+        /*setIsStreaming(false)
+        dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })*/
         setActiveConversation(id)
     }
 
