@@ -6,7 +6,7 @@ import useFetchPromptsList from "../../hooks/useFetchPromptsList";
 export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef, isAPIOffline} : IProps){
     
     const [promptsListPage, setPromptsListPage] = useState(0)
-    const {promptsList, setPromptsList} = useFetchPromptsList()
+    const {promptsList, setPromptsList} = useFetchPromptsList(isAPIOffline)
 
     function handleNextPage() : void{
         setPromptsListPage(page => page + 1 < Math.ceil(promptsList.length/3) ? page+1 : 0)

@@ -27,7 +27,11 @@ export function useKeyboardHandler(
             // when the right custom select is in focus
             if(document.activeElement?.id == id){
                 if(e.code == "Enter" || e.code == "NumpadEnter" || e.code == "Space") {
-                    !isListboxExpanded() ? openSelectOptions(e) : closeSelectOptions(e)
+                    if(!isListboxExpanded()) {
+                        openSelectOptions(e)
+                    } else {
+                        closeSelectOptions(e)
+                    }
                 }
                 if(e.code == "ArrowUp") {
                     if(!isListboxExpanded()) setListboxAsExpanded(true)
@@ -92,13 +96,15 @@ export function useKeyboardHandler(
     function setMinusTenOptionActive(e : KeyboardEvent){
         e.preventDefault()
         const activeOptionIndex = getActiveOptionIndex(activeOptionRef)
-        options[activeOptionIndex - 10] != null ? setActiveOption(options[activeOptionIndex - 10]) : setFirstOptionActive(e)
+        if(options[activeOptionIndex - 10] != null) return setActiveOption(options[activeOptionIndex - 10])
+        setFirstOptionActive(e)
     }
 
     function setPlusTenOptionActive(e : KeyboardEvent){
         e.preventDefault()
         const activeOptionIndex = getActiveOptionIndex(activeOptionRef)
-        options[activeOptionIndex + 10] != null ? setActiveOption(options[activeOptionIndex + 10]) : setLastOptionActive(e)
+        if(options[activeOptionIndex + 10] != null) return setActiveOption(options[activeOptionIndex + 10])
+        setLastOptionActive(e)
     }
 
     function setPrevOptionActive(e : KeyboardEvent){

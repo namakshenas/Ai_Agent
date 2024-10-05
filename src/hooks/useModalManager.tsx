@@ -36,12 +36,7 @@ function useModalManager({initialVisibility, initialModalContentId} : IModalObje
 
     }, [modalVisibility])
 
-    /*function setModalStatus({visibility, contentId} : {visibility : boolean, contentId? : string}) : void{
-        setModalVisibility(visibility)
-        if(contentId) setModalContentId(contentId)
-    }*/
-
-    return { modalVisibility, setModalVisibility, modalContentId, setModalContentId/*, memoizedSetModalStatus*/ }
+    return { modalVisibility, setModalVisibility, modalContentId, setModalContentId }
 }
 
 export default useModalManager

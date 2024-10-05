@@ -11,21 +11,23 @@ import React from 'react'
 import AgentService from '../services/AgentService'
 import useFetchModelsList from '../hooks/useFetchModelsList'
 
-const RightPanel = React.memo(({currentAgent, setCurrentAgent, memoizedSetModalStatus/*, modelsList*/} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus} : IProps) => {
 
+    // retrieved for the ollama api
     const modelsList = useFetchModelsList()
 
     useEffect(() => {console.log("right panel render")}) 
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
+    const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
 
     const currentFormValues : IFormStructure = {
-        agentName: currentAgent.getName(),
-        modelName: currentAgent.getModelName(),
-        systemPrompt: currentAgent.getSystemPrompt().replace(/\t/g,''),
-        temperature: currentAgent.getTemperature(),
-        maxContextLength: currentAgent.getContextSize(),
-        maxTokensPerReply: currentAgent.getNumPredict(),
+        agentName: currentAgent.current.getName(),
+        modelName: currentAgent.current.getModelName(),
+        systemPrompt: currentAgent.current.getSystemPrompt().replace(/\t/g,''),
+        temperature: currentAgent.current.getTemperature(),
+        maxContextLength: currentAgent.current.getContextSize(),
+        maxTokensPerReply: currentAgent.current.getNumPredict(),
         webSearchEconomy: true,
     }
 
@@ -38,15 +40,6 @@ const RightPanel = React.memo(({currentAgent, setCurrentAgent, memoizedSetModalS
     // the multiple renders on save are due to the multiple graphical states of the save button
     function handleSaveAgent(e : React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
-        // !!! add db and offline
-        /*AgentLibrary.getAgent(formValues.agentName).setSettings({
-            modelName : formValues.modelName, 
-            systemPrompt : formValues.systemPrompt, 
-            context : [], 
-            contextSize : formValues.maxContextLength, 
-            temperature : formValues.temperature, 
-            numPredict : formValues.maxTokensPerReply
-        })*/
 
         const newAgent = new AIAgent(ChatService.getActiveAgent().getName(), formValues.modelName)
         .setContextSize(formValues.maxContextLength)
@@ -54,12 +47,17 @@ const RightPanel = React.memo(({currentAgent, setCurrentAgent, memoizedSetModalS
         .setSystemPrompt(formValues.systemPrompt)
         .setTemperature(formValues.temperature)
 
+        // update the offline library
+        AgentLibrary.updateAgent(newAgent)
+        // update the backend db !!! isAPIoffline?
         AgentService.update(newAgent)
-        if(setCurrentAgent) setCurrentAgent(newAgent)
+        // make sure that the chat active agent is now the updated agent
+        ChatService.setActiveAgent(newAgent.getName())
 
         setShowSavingSuccessfulBtn(true)
     }
 
+    // switch active agent
     function handleSwitchAgent(option : IOption){
         ChatService.setActiveAgent(option.value)
         const agent = ChatService.getActiveAgent()
@@ -75,36 +73,37 @@ const RightPanel = React.memo(({currentAgent, setCurrentAgent, memoizedSetModalS
         setFormValues({...newFormValues})
     }
 
+    // switch active model
     function handleSwitchModel(option : IOption){
         setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
     }
 
+    // edit agent
     function handleOpenEditAgentFormClick(){
         memoizedSetModalStatus({visibility : true, contentId : "formEditAgent"})
     }
 
+    // create new agent
     function handleOpenNewAgentFormClick(){
         memoizedSetModalStatus({visibility : true, contentId : "formNewAgent"})
     }
 
+    // save button animation
     useEffect(() => {
         if(!showSavingSuccessfulBtn) return
-        
         timeoutRef.current = setTimeout(() => setShowSavingSuccessfulBtn(false), 2500)
-  
         return () => {
             if (timeoutRef.current) {
             clearTimeout(timeoutRef.current)
             }
-        }
-        
+        }     
     }, [showSavingSuccessfulBtn])
 
     return(
         <aside className="rightDrawer">
             <div className='userSettingsContainer'>
-                <span style={{marginLeft:'68px', fontSize:'15px'}}>
-                    <a href="https://ollama.com/library?sort=newest" target="_blank">Check the latest Models</a>
+                <span style={{marginLeft:'36px', fontSize:'15px'}}>
+                    <a href="https://ollama.com/library?sort=newest" target="_blank">Check the latest Models for Ollama</a>
                 </span>
                 <img src={userPicture}/>
             </div>
@@ -115,7 +114,7 @@ const RightPanel = React.memo(({currentAgent, setCurrentAgent, memoizedSetModalS
                 <label id="label-agentName">Agent Powering the Chat</label>
                 <Select 
                     width="100%"
-                    options={/* retrieve from db */ AgentLibrary.getAgentsNameList().map((agentName) => ({ label: agentName, value: agentName }))} 
+                    options={/* !!!! retrieve from db */ AgentLibrary.getAgentsNameList().map((agentName) => ({ label: agentName, value: agentName }))} 
                     defaultOption={formValues.agentName}
                     labelledBy="label-agentName" 
                     id="settingsSelectAgent"
@@ -218,8 +217,8 @@ const RightPanel = React.memo(({currentAgent, setCurrentAgent, memoizedSetModalS
 export default RightPanel
 
 interface IProps{
-    currentAgent : AIAgent
+    // currentAgent : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     /*modelsList : string[]*/
-    setCurrentAgent : React.Dispatch<React.SetStateAction<AIAgent>>
+    // setCurrentAgent : React.Dispatch<React.SetStateAction<AIAgent>>
 }

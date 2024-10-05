@@ -10,7 +10,7 @@ dialog {
   animation-name: modalAppears;
   animation-duration: 0.2s;
   animation-timing-function: ease-out;
-  position: relative;
+  position: absolute;
   width: 100%;
   max-width: 1200px;
 }
