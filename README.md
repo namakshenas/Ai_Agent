@@ -40,6 +40,7 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 - Ollama (installed and running locally) : https://ollama.com/download
 - OSSPITABack running if you want access to the websearch functionality.
 - At least one open source model.
+- Nvidia CUDA if needed : https://developer.nvidia.com/cuda-downloads
 
 Models Recommandations :
 

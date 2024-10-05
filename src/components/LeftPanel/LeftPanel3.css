@@ -29,7 +29,7 @@
       font-family: "Montserrat";
       /*transform: translateY(-1px);*/
       color: #6d48c1;
-      animation: slideInFromLeft 0.5s ease-out forwards;
+      /*animation: slideInFromLeft 0.5s ease-out forwards;*/
     }
 
     img {
@@ -38,7 +38,7 @@
       border-radius: 100%;
       opacity: 0.9;
       box-shadow: 0 2px 4px #8565ab60, 0 4px 8px #8565ab40, 0 8px 16px #8565ab40;
-      animation: slideInFromRight 0.5s ease-out forwards;
+      /*animation: slideInFromRight 0.5s ease-out forwards;*/
     }
   }
 
