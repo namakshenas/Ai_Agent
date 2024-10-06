@@ -250,7 +250,7 @@
 
           .conversationTrashBtn {
             height: 36px;
-            width: 36px;
+            width: 31px;
             flex-shrink: 0;
             margin: 0;
             background: none;
@@ -335,6 +335,24 @@
       column-gap: 0.5rem;
       width: 100%;
       margin-top: 0.25rem;
+
+      span {
+        display: flex;
+        height: 34px;
+        justify-content: center;
+        align-items: center;
+        margin-top: 8px;
+        font-size: 14px;
+        background: #f8f8fc99;
+        box-shadow: 0 1px 2px -1px hsla(252, 29%, 53%, 0.3),
+          0 4px 8px -1px hsla(246, 29%, 52%, 0.21);
+        padding: 0 0.85rem;
+        border-radius: 34px;
+        min-width: 96px;
+        color: var(--main-black-text-color);
+        /*color: var(--label-grey-text-color);*/
+        font-weight: 500;
+      }
     }
   }
 }

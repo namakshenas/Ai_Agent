@@ -8,9 +8,11 @@ import { IConversationElement } from "../interfaces/IConversation"
 function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps) {
 
   const historyContainerRef = useRef(null)
+  const autoScrollingObsRef = useRef<MutationObserver>()
 
   // setting up an observer that keep scrolling to the bottom of the chat window
   // when some new streamed text is added to the conversation history
+  // !!! obs should be active only when isStreaming is true
   useEffect(() => {
     if(historyContainerRef.current == null) return
     const observer = new MutationObserver((mutations) => {
@@ -22,6 +24,7 @@ function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps)
           })
       })
     })
+    autoScrollingObsRef.current = observer
     observer.observe(historyContainerRef.current, { attributes : true, childList: true, subtree: true })
 
     return () => {

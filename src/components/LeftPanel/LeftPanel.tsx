@@ -9,29 +9,29 @@ import React from 'react'
 import { IConversation } from '../../interfaces/IConversation'
 
 // export default function LeftPanel({activeConversation, setActiveConversation, setModalStatus, selectedPromptRef} : IProps){
-const LeftPanel = React.memo(({activeConversation, conversationStateRef, setActiveConversation, memoizedSetModalStatus, selectedPromptNameRef, isAPIOffline} : IProps) => {
+const LeftPanel = React.memo(({activeConversationId, activeConversationStateRef, setActiveConversationId, memoizedSetModalStatus, selectedPromptNameRef, isAPIOffline} : IProps) => {
 
     useEffect(() => {console.log("left panel render")})
 
     return(
         <aside className="leftDrawer">
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
-            <ConversationsSlot conversationStateRef={conversationStateRef} activeConversation={activeConversation} setActiveConversation={setActiveConversation}/>
+            <ConversationsSlot activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId}/>
             <DocumentsSlot isAPIOffline={isAPIOffline}/>
             <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus} isAPIOffline={isAPIOffline}/>
         </aside>
     )
 }, (prevProps, nextProps) => {
-    return prevProps.activeConversation === nextProps.activeConversation && prevProps.conversationStateRef.current === nextProps.conversationStateRef.current /* && prevProps.promptsList === nextProps.promptsList // should refresh with a key instead*/ ;
+    return prevProps.activeConversationId === nextProps.activeConversationId && prevProps.activeConversationStateRef.current === nextProps.activeConversationStateRef.current /* && prevProps.promptsList === nextProps.promptsList // should refresh with a key instead*/ ;
 })
 
 export default LeftPanel
 
 interface IProps{
-    activeConversation : number
-    setActiveConversation : (index : number) => void
+    activeConversationId : number
+    setActiveConversationId : (index : number) => void
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId : string}) => void
     selectedPromptNameRef : React.MutableRefObject<string>
-    conversationStateRef: React.MutableRefObject<IConversation>
+    activeConversationStateRef: React.MutableRefObject<IConversation>
     isAPIOffline : boolean
 }
