@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useRef, useReducer } from "react"
+import { useRef, useReducer, useState } from "react"
 import { IConversation, IConversationElement } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
-export function useConversationReducer({name, history, lastModelUsed} : IConversation) {
+export function useActiveConversationReducer({name, history, lastModelUsed} : IConversation) {
 
-    const conversationStateRef = useRef<IConversation>({name : name, history : history, lastModelUsed  : lastModelUsed})
+    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastModelUsed  : lastModelUsed})
+    const [activeConversationId, setActiveConversationId] = useState<number>(0)
 
     function conversationReducer(state : IConversation, action : TAction){
         switch(action.type){
@@ -18,7 +19,7 @@ export function useConversationReducer({name, history, lastModelUsed} : IConvers
                         sources : [],
                 }]}
                 newState.lastModelUsed = action.payload.modelUsed
-                conversationStateRef.current = {...newState}
+                activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
 
@@ -28,7 +29,7 @@ export function useConversationReducer({name, history, lastModelUsed} : IConvers
                 }
                 const historyId = newState.history.length -1
                 newState.history[historyId].answer = {asHTML : action.payload.html, asMarkdown : action.payload.markdown}
-                conversationStateRef.current = {...newState}
+                activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
 
@@ -38,7 +39,7 @@ export function useConversationReducer({name, history, lastModelUsed} : IConvers
                 }
                 const historyId = newState.history.length -1
                 newState.history[historyId].context = [...action.payload]
-                conversationStateRef.current = {...newState}
+                activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
 
@@ -51,12 +52,12 @@ export function useConversationReducer({name, history, lastModelUsed} : IConvers
                         sources : []
                     }]
                 }
-                conversationStateRef.current = {...newState}
+                activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
 
             case ActionType.SET_CONVERSATION : {
-                conversationStateRef.current = {...action.payload}
+                activeConversationStateRef.current = {...action.payload}
                 return {...action.payload}
             }
 
@@ -65,7 +66,7 @@ export function useConversationReducer({name, history, lastModelUsed} : IConvers
                 const newState = {...state, 
                     history : [...state.history].slice(0, -1)
                 }
-                conversationStateRef.current = {...newState}
+                activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
 
@@ -76,7 +77,7 @@ export function useConversationReducer({name, history, lastModelUsed} : IConvers
                         asMarkdown : page.source, 
                         asHTML : page.sourceAsHTMLSpan(),
                     }))
-                conversationStateRef.current = {...newState}
+                activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
             
@@ -84,9 +85,9 @@ export function useConversationReducer({name, history, lastModelUsed} : IConvers
         }
     }
 
-    const [conversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastModelUsed  : lastModelUsed})
+    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastModelUsed  : lastModelUsed})
 
-    return {conversationState, dispatch, conversationStateRef}
+    return {activeConversationState, dispatch, activeConversationStateRef, activeConversationId, setActiveConversationId}
 }
 
 export type reducerDispatchType = React.Dispatch<{type: string, payload: any}>

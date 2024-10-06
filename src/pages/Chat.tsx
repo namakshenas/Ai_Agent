@@ -7,7 +7,7 @@ import '../style/Chat.css'
 import { ConversationsRepository } from "../repositories/ConversationsRepository";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import CustomTextarea, { ImperativeHandle } from "../components/CustomTextarea";
-import { ActionType, useConversationReducer } from "../hooks/useConversationReducer";
+import { ActionType, useActiveConversationReducer } from "../hooks/useActiveConversationReducer";
 import { WebSearchService } from "../services/WebSearchService";
 import Modal from "../components/Modal/Modal";
 import FormAgentSettings from "../components/Modal/FormAgentSettings";
@@ -18,6 +18,7 @@ import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
+import { IConversation } from "../interfaces/IConversation";
 
 function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
@@ -25,20 +26,23 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
     
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
 
-    const [activeConversationId, setActiveConversationId] = useState<number>(0)
-    // contains all the logic used to update the conversation history and its context
-    const { conversationState, dispatch, conversationStateRef } = useConversationReducer({name : "First Conversation", history : [], lastModelUsed  : ""})
+    // contains all the logic used to manage the active conversation history and its context
+    // -> used when chat history is displayed + for conversation selection
+    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastModelUsed  : ""})
 
+    // ref used for the autoscroll feature happening during response streaming
     const historyContainerRef = useRef<HTMLDivElement>(null)
 
-    // refresh the right panel when the active agent changes // move inside right panel?
+    // refresh the right panel when the active agent changes
     const [forceRightPanelRefresh, setForceRightPanelRefresh] = useState(0);
     const [forceLeftPanelRefresh, setForceLeftPanelRefresh] = useState(0);
 
     // keep textarea value at this level for the moment being
     const [textareaValue, _setTextareaValue] = useState("")
     const textareaValueRef = useRef<string>("")
+
     // forwarded to the textarea to retrieve its focus method
+    // -> used when clicking on one of the three suggestions
     const customTextareaRef = useRef<ImperativeHandle>(null)
 
     function setTextareaValue(value: string) {
@@ -46,22 +50,25 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
         _setTextareaValue(value)
     }
 
+    // dealing with the modal visibility & switching it's content
     const {modalVisibility, modalContentId, setModalVisibility, setModalContentId} = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
     const memoizedSetModalStatus = useCallback(({visibility, contentId} : {visibility : boolean, contentId? : string}) => {
         setModalVisibility(visibility)
         if(contentId) setModalContentId(contentId)
     }, [])
 
-    // used to memorize which prompt has been clicked in the left panel : use by the modal
+    // used to memorize which prompt has been clicked in the left panel
+    // -> used by the modal
     const selectedPromptNameRef = useRef("")
 
     const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
-    // initializing the conversation history with an empty element  & the scrollbar behavior
+    // init the conversations repository with an empty conversation 
+    // & set the scrollbar behavior
     const htmlRef = useRef(document.documentElement)
     useEffect(() => {
-        ConversationsRepository.pushNewConversation(conversationStateRef.current.name, conversationStateRef.current.history, ChatService.getActiveAgentName())
+        ConversationsRepository.pushNewConversation(activeConversationStateRef.current.name, activeConversationStateRef.current.history, activeConversationStateRef.current.lastModelUsed)
 
         if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
             htmlRef.current.style.overflow = "-moz-scrollbars-vertical";
@@ -73,7 +80,8 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
         }
     }, [])
 
-    // triggered when switching between conversations
+    // when switching between conversations
+    // -> streaming aborted + displaying the history of the select conversation
     useEffect(() => {
         if (isStreaming) ChatService.abortAgentLastRequest()
         setIsStreaming(false)
@@ -81,22 +89,34 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
     }, [activeConversationId])
 
-    // request a streaming response from the active chatService agent
+
+    /***
+    //
+    // LLM Requests
+    //
+    ***/
+
+    // request a streamed response from the active chatService agent
     async function askMainAgent_Streaming(message: string): Promise<void> {
         try {
             if (message == "" || isStreamingRef.current) return
-            // initiate context & a blank conversation QA pair
-            const currentContext = conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []
+            // if the model has been switched between two questions 
+            // -> convert the last conversationState context
+            const currentContext = await convertContextOnModelSwitch(activeConversationStateRef.current)
             setIsStreaming(true)
+            // activeConversationState -> create a blank conversation QA pair
             dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, modelUsed : ChatService.getActiveAgent().getModelName()}})
             let newContext = []
 
+            // !!! should move scraping to chatService?
             // two branches : webscrapping / internal knowledge
             if (isWebSearchActivatedRef.current) {
                 const scrapedPages = await WebSearchService.scrapeRelatedDatas(message, 3, false)
                 if(scrapedPages == null) return // !!! should display an error to the user
                 console.log("**LLM Loading**")
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages)
+                // format MM/DD/YYYY
+                const currentDate = "Current date : " + new Date().getFullYear() + "/" + new Date().getMonth() + "/" + new Date().getUTCDate() + ". "
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages)
                 if(isStreamingRef.current == false) return
                 dispatch({ type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, payload: scrapedPages })
             } else {
@@ -108,30 +128,49 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
             if(isStreamingRef.current == false) return
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload: newContext })
             // the textarea is emptied only if the user has made no modifications to its content during the streaming process
-            if(textareaValueRef.current == conversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
+            if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // temporary : to simulate persistence
-            ConversationsRepository.replaceConversationHistoryById(activeConversationId, conversationStateRef.current.history)
+            ConversationsRepository.replaceConversationHistoryById(activeConversationId, activeConversationStateRef.current.history)
             setIsStreaming(false)
         }
         catch (error: unknown) {
-            console.log(error)
+            console.error(error)
         }
     }
 
-    /*async function askMainAgent(message: string, context : number[] = []){
+    /*
+    // sends an unary request to the active agent
+    async function askMainAgent(message: string, context : number[] = []){
         if (message == "" || isStreamingRef.current) return
         return await ChatService.askTheActiveAgent(message, context)
     }*/
 
-    // callback passed to the chatservice to display the streamed answer
+    // callback passed to the chatService so it can display the streamed answer
     function pushStreamedChunkToHistory_Callback({markdown , html} : {markdown : string, html : string}): void {
         dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ANSWER, payload: { html, markdown } })
+    }
+
+    // !!! will have to convert the conv into token using tokenizer and return only last num_ctx tokens
+    async function convertContextOnModelSwitch(conversationState : IConversation) : Promise<number[]>{
+        if (conversationState?.lastModelUsed != "" && conversationState?.lastModelUsed != ChatService.getActiveAgent().getModelName()) {
+            console.log("last used model : " + conversationState?.lastModelUsed)
+            console.log("new model : " + ChatService.getActiveAgent().getModelName())
+            const activeAgent = ChatService.getActiveAgent()
+            console.log("old context : " + JSON.stringify(conversationState.history[conversationState.history.length - 1]?.context || []))
+            const concatenatedConversation = conversationState.history.reduce((acc , conversationQA) => acc + conversationQA.question + "\n\n\n" + conversationQA.answer.asMarkdown + "\n" , "")
+            console.log("concat conversation : " + concatenatedConversation)
+            console.log(activeAgent.getModelName())
+            const newContext = await activeAgent.tokenize(concatenatedConversation)
+            console.log("new context : " + JSON.stringify(newContext))
+            return newContext
+        }
+        return conversationState.history[conversationState.history.length - 1]?.context || []
     }
 
 
     /***
     //
-    // Click & Focus Events Handlers
+    // Events Handlers
     //
     ***/
 
@@ -156,29 +195,29 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
     function regenerateLastAnswer() {
         if(isStreamingRef.current) return
-        const retrievedQuestion = conversationStateRef.current.history[conversationStateRef.current.history.length-1].question
-        ConversationsRepository.replaceConversationHistoryById(activeConversationId, conversationStateRef.current.history.slice(0, -1))
+        const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
+        ConversationsRepository.replaceConversationHistoryById(activeConversationId, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
         askMainAgent_Streaming(retrievedQuestion)
     }
 
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftPanel key={"lp-" + forceLeftPanelRefresh} conversationStateRef={conversationStateRef} activeConversation={activeConversationId} setActiveConversation={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>
+        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>
         <main>
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
-                {<ChatHistory history={conversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
+                {<ChatHistory history={activeConversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
             </div>
             <div className="stickyBottomContainer">
                 {<CustomTextarea ref={customTextareaRef} 
                     setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
-                    currentContext={conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context || []} 
+                    currentContext={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || []} 
                     askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId} />}
-                {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={conversationState.history[conversationState.history.length - 1]}
+                {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
-                    <div style={{opacity : isAPIOffline ? '0.3' : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
+                    <div title="active the web search" style={{opacity : isAPIOffline ? '0.3' : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Search the Web</span>
                         <div className='switchContainer'>
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
@@ -186,16 +225,16 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
                     </div>
                     <div className="infosBottomContainer">
                         Available Context : {
-                            conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length === 0 ? "N/A" : ChatService.getActiveAgent().getContextSize() - (conversationStateRef.current.history[conversationStateRef.current.history.length - 1]?.context.length || 0)
+                            activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context.length === 0 ? "N/A" : ChatService.getActiveAgent().getContextSize() - (activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context.length || 0)
                         }
                     </div>
-                    <button className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>
+                    <button title="top of the page" className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>
                         <svg style={{transform:'translateY(1px)'}} height="20" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fillRule="evenodd" clipRule="evenodd" d="M27.2975 2.5233C27.2975 3.91688 26.1678 5.04659 24.7742 5.04659H2.5233C1.12972 5.04659 0 3.91688 0 2.5233V2.5233C0 1.12972 1.12972 0 2.5233 0H24.7742C26.1678 0 27.2975 1.12972 27.2975 2.5233V2.5233ZM11.4127 8.16757C12.5843 6.996 14.4838 6.996 15.6554 8.16757L23.6272 16.1394C24.5231 17.0353 24.5231 18.4877 23.6272 19.3835V19.3835C22.7314 20.2793 21.279 20.2793 20.3832 19.3835L15.828 14.8283V29.7061C15.828 30.973 14.8009 32 13.5341 32V32C12.2672 32 11.2401 30.973 11.2401 29.7061V14.8283L6.79963 19.2688C5.9038 20.1646 4.45138 20.1646 3.55556 19.2688V19.2688C2.65973 18.373 2.65973 16.9206 3.55556 16.0247L11.4127 8.16757Z" fill="#6D48C1"/>
                         </svg>
                     </button>
                     {isStreaming ? 
-                        <button className="cancelSendButton purpleShadow" onClick={handleAbortStreamingClick}>
+                        <button title="cancel the request" className="cancelSendButton purpleShadow" onClick={handleAbortStreamingClick}>
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
                         <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button>
@@ -257,6 +296,8 @@ export default Chat
 // better followup questions formatting control
 // when new agent form : model untouched => wrong model
 // issue with prompt modal when history is scrolleddown
+// from now one, always reply with a single whitespace
+// detach sticky bottom during streaming
 
 // readme : prompts optimized for mistral nemo
 // tell me if you face a formatting issue within an answer
