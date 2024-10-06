@@ -98,7 +98,7 @@
       box-shadow: 0 1px 2px -1px hsla(252, 29%, 53%, 0.3),
         0 4px 8px hsla(246, 29%, 53%, 0.21);
 
-      &::after {
+      /*&::after {
         position: absolute;
         top: 0;
         transform: translateY(-50%) translateX(-50%) scale(0);
@@ -122,7 +122,7 @@
       &:hover::after {
         transform: translateY(-1px) translateX(calc(-100% - 8px)) scale(1);
         opacity: 1;
-      }
+      }*/
 
       svg path {
         fill: var(--label-grey-text-color);
