@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 /* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IConversationElement } from "../interfaces/IConversation";
@@ -46,42 +47,47 @@ export class ChatService{
       if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
 
       let newContext = []
-      const contextSpaceForScrapedDatas = AgentLibrary.library[this.#activeAgentName].getContextSize() - AgentLibrary.library[this.#activeAgentName].getNumPredict() - 1000
 
       AgentLibrary.library[this.#activeAgentName].setContext(context)
       // scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
       const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, currentPage)=> acc + '\n\n' + currentPage.datas, "When replying to **MY REQUEST**, always use the following datas as your MAIN source of informations especialy if it superseeds your training dataset : ") : ""
+      const availableContextForWebDatas = AgentLibrary.library[this.#activeAgentName].getContextSize() - AgentLibrary.library[this.#activeAgentName].getNumPredict() - 1000
+      const webDatasSizedForAvailableContext = concatenatedWebDatas.substring(0, availableContextForWebDatas)
       // the agent receive an amount of scraped datas matching the context size available
 
       let content = ""
       let decod = ""
       try{
-          const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(concatenatedWebDatas.substring(0, contextSpaceForScrapedDatas) + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
+          const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(webDatasSizedForAvailableContext + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
 
           while(true){
               const { value } = await reader.read()
 
-              const decodedValue = new TextDecoder().decode(value).replace('"{"', '"["').replace('"}"', '"]"').replace('"}\\', '"]\\').replace('" }"', '" ]"')
+              const decodedValue = new TextDecoder().decode(value)
+              //.replace('"{"', '"["').replace('"}"', '"]"').replace('"}\\', '"]\\').replace('" }"', '" ]"').replace('"}$"', '"]$"')
               decod = decodedValue
-              // check if the decoded value isn't malformed and fix it
-              const splitValues = decodedValue.match(/{"model[^}]*}/g)
-              const reconstructedValue = this.#reconstructMalformedValues(splitValues)
+              // check if the decoded value isn't malformed and fix it if it is
+              // const splitValues = decodedValue.match(/{"model[^}]*}/g)
+              const reconstructedValue = this.#reconstructMalformedValues(decodedValue)
               /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
+              console.log(reconstructedValue)
+              // {"model":"mistral-nemo:latest","created_at":"2024-10-06T03:10:02.5907059Z","response":" }
               const json = JSON.parse(reconstructedValue)
 
               if(json.done) {
                 newContext = json.context || []
+                content += json.response
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
-                this.abortAgentLastRequest()
                 break
               }
           
               if (!json.done) {
                 content += json.response
-                if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
+                // if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
               }
           }
+          this.abortAgentLastRequest()
       } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') {
             console.log('Stream aborted.')
@@ -96,48 +102,36 @@ export class ChatService{
       return newContext
     }
 
+    // write three functions in javascript for a tetris game
     // split one malformed block into multiple ones if needed
-    static #reconstructMalformedValues(values : string[] | null) : string{
+    static #reconstructMalformedValues(value : string | null) : string{
       try{
-        if(values == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false}) // !!! should be true?
-          if(values.length == 1) return values[0]
-          console.log("malformed : " + JSON.stringify(values))
-          const reconstructedValue = values.reduce((acc, value) => acc + JSON.parse(value).response, "")
-          // if one of the malformed chunk is the {..., done : true } chunk
-          // then the reconstructed chunk becomes a {..., done : true } chunk itself
-          const isDone = values.reduce((acc, value) => acc && JSON.parse(value).done, false)
-          const aggregatedChunk = {...JSON.parse(values[values.length-1])}
-          aggregatedChunk.response = reconstructedValue
-          aggregatedChunk.done = isDone
-          console.log("reformed : " + JSON.stringify(aggregatedChunk))
-          return JSON.stringify(aggregatedChunk)
+        console.log("untouchedValue : " + value)
+        if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+        const splitValues = value.split("}\n{")
+        if(splitValues.length == 1) return value.trim()
+         // !!! should be true?
+        const bracedValues = splitValues.map(value => {
+          let trimmedValue = value.trim()
+          if(!trimmedValue.startsWith("{")) trimmedValue = "{" + trimmedValue
+          if(!trimmedValue.endsWith("}")) trimmedValue = trimmedValue + "}"
+          return trimmedValue
+        })
+        const reconstructedValue = bracedValues.reduce((acc, value) => acc + JSON.parse(value).response, "")
+        // if one of the malformed chunk is the {..., done : true } chunk
+        // then the reconstructed chunk becomes a {..., done : true } chunk itself
+        const isDone = bracedValues.reduce((acc, value) => acc || JSON.parse(value).done, false)
+        const aggregatedChunk = {...JSON.parse(bracedValues[bracedValues.length-1])}
+        aggregatedChunk.response = reconstructedValue
+        aggregatedChunk.done = isDone
+        console.log("reformed : " + JSON.stringify(aggregatedChunk))
+        return JSON.stringify(aggregatedChunk)
       } catch (error) {
-        console.error(`Can't reconstruct these values : ` + JSON.stringify(values))
+        console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
         throw error
       }
         //return JSON.stringify({"model":"","created_at":"","response":reconstructedValue,"done":isDone})
     }
-
-    /*
-    malformed : ["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7492932Z\",
-    \"response\":\".\",\"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7747315Z\",
-    \"response\":\"\",\"done\":true,\"done_reason\":\"stop\",
-    \"context\":[],
-    \"total_duration\":22789130800,\"load_duration\":56604900,\"prompt_eval_count\":2443,
-    \"prompt_eval_duration\":400843000,\"eval_count\":568,\"eval_duration\":22325068000}"]
-    */
-
-    /*
-    ["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1209571Z\",\"response\":\" combining\",\"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1559578Z\",\"response\":\" both\", \"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1899585Z\",\"response\":\" techniques\",\"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.2256907Z\",\"response\":\" when\",\"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.2599159Z\",\"response\":\" appropriate\",\"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.356391Z\",\"response\":\".\",\"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.3698499Z\",\"response\":\" This\",\"done\":false}",
-    "{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.3993651Z\",\"response\":\" balance\",\"done\":false}"]
-    */
 
     static abortAgentLastRequest(){
         AgentLibrary.library[this.#activeAgentName].abortLastRequest()
@@ -171,73 +165,63 @@ export class ChatService{
 }
 
 /*
+keep as ref :
 
-async function streamWithRetry(url, maxRetries = 3) {
-  const response = await fetch(url);
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
+malformed : ["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7492932Z\",
+\"response\":\".\",\"done\":false}",
+"{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7747315Z\",
+\"response\":\"\",\"done\":true,\"done_reason\":\"stop\", \"context\":[],
+\"total_duration\":22789130800,\"load_duration\":56604900,\"prompt_eval_count\":2443,
+\"prompt_eval_duration\":400843000,\"eval_count\":568,\"eval_duration\":22325068000}"]
+*/
 
-  let retryCount = 0;
+/*
+["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1209571Z\",\"response\":\" combining\",\"done\":false}",
+"{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1559578Z\",\"response\":\" both\", \"done\":false}",]
+*/
 
-  async function readChunk() {
-    try {
-      const { value, done } = await reader.read();
-      
-      if (done) {
-        return null;
-      }
+/*
 
-      const decodedValue = decoder.decode(value);
-      
-      // Process the decoded value here
-      console.log("Received chunk:", decodedValue);
+malformed : ["{\"model\":\"mistral-nemo:latest\",
+\"created_at\":\"2024-10-05T20:01:44.3270787Z\",
+\"response\":\" fiction\",\"done\":false}",
 
-      return decodedValue;
-    } catch (error) {
-      if (retryCount < maxRetries) {
-        retryCount++;
-        console.log(`Retrying... Attempt ${retryCount}`);
-        return readChunk(); // Retry reading the chunk
-      } else {
-        throw new Error("Max retries reached");
-      }
-    }
-  }
+"{\"model\":\"mistral-nemo:latest\",
+\"created_at\":\"2024-10-05T20:01:44.4080908Z\",
+\"response\":\",\",\"done\":false}",
 
-  while (true) {
-    const chunk = await readChunk();
-    if (chunk === null) break;
-    // You can implement additional logic here to decide 
-    // if you want to regenerate the current chunk
-  }
-}
+"{\"model\":\"mistral-nemo:latest\",
+\"created_at\":\"2024-10-05T20:01:44.4080908Z\",
+\"response\":\" and\",\"done\":false}",
 
-// Usage
-streamWithRetry('https://api.example.com/stream')
-  .catch(error => console.error("Streaming error:", error));
+"{\"model\":\"mistral-nemo:latest\",
+\"created_at\":\"2024-10-05T20:01:44.4800404Z\",
+\"response\":\" superhero\",\"done\":false}",
 
-  */
+"{\"model\":\"mistral-nemo:latest\",
+\"created_at\":\"2024-10-05T20:01:44.4800404Z\",
+\"response\":\" films\",\"done\":false}",
 
-  /*
+"{\"model\":\"mistral-nemo:latest\",
+\"created_at\":\"2024-10-05T20:01:44.5650422Z\",
+\"response\":\".\",\"done\":false}",
 
-  async function controlledFetch(url) {
-    const response = await fetch(url);
-    const reader = response.body.getReader();
+"{\"model\":\"mistral-nemo:latest\",
+\"created_at\":\"2024-10-05T20:01:44.5650422Z\",
+\"response\":\"\",\"done\":true,
+\"done_reason\":\"stop\",\"context\":[],
+\"total_duration\":22473708500,\"load_duration\":34018100,
+\"prompt_eval_count\":459,\"prompt_eval_duration\":40253000,
+\"eval_count\":674,\"eval_duration\":22397935000}"]
 
-    async function* readChunks() {
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            yield value; // Yield each chunk one at a time
-        }
-    }
+reformed : 
+{"model":"mistral-nemo:latest",
+"created_at":"2024-10-05T20:01:44.5650422Z",
+"response":" fiction, and superhero films.","done":true,
+"done_reason":"stop","context":[],
+"total_duration":22473708500,"load_duration":34018100,
+"prompt_eval_count":459,"prompt_eval_duration":40253000,
+"eval_count":674,"eval_duration":22397935000}
 
-    for await (const chunk of readChunks()) {
-        // Process each chunk here
-        console.log(chunk);
-        // Optionally add delay or processing logic to control flow
-    }
-}
 
-controlledFetch('http://example.com/data');
-  */
+*/
