@@ -71,6 +71,7 @@ export class AIModel{
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
                 }
+                this.abortLastRequest()
                 throw new Error(`Failed to fetch: ${error.message}`);
             }
             this.abortLastRequest()
@@ -106,6 +107,7 @@ export class AIModel{
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
                 }
+                this.abortLastRequest()
                 throw new Error(`Failed to fetch: ${error.message}`);
             }
             this.abortLastRequest()
@@ -128,7 +130,7 @@ export class AIModel{
                     "Content-Type": "application/json",
                 },
                 body: this.#buildEmbeddingRequest(sequence),
-                signal: this.#signal,
+                // signal: this.#signal,
                 // keepalive: true
             });
 
@@ -143,7 +145,34 @@ export class AIModel{
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
                 }
-                throw new Error(`Failed to fetch: ${error.message}`);
+                throw new Error(`Failed to create embeddings : ${error.message}`);
+            }
+            throw new Error("An unknown error occurred.");
+        }
+    }
+
+    async tokenize(sequence : string) : Promise<number[]> {
+        try {
+            const response = await fetch("http://127.0.0.1:11434/api/tokenize", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: this.#buildTokenizeRequest(sequence),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return (await response.json())?.tokens
+
+        } catch (error) {
+            if (error instanceof Error) {
+                if (error.name === 'AbortError') {
+                    throw new Error("Request was aborted.");
+                }
+                throw new Error(`Failed to tokenize : ${error.message}`);
             }
             throw new Error("An unknown error occurred.");
         }
@@ -248,8 +277,18 @@ export class AIModel{
      * @description Builds the request body for generating embeddings for the given sequence.
      */
     #buildEmbeddingRequest (sequence : unknown) : string {
+        console.log(this.#modelName)
         return JSON.stringify({
-            "model": /*"mxbai-embed-large"*/ "nomic-embed-text",
+            "model": /*"mxbai-embed-large"*/ "nomic-embed-text" /*this.#modelName*/,
+            "prompt": sequence,
+            /*"stream": false,*/
+        })
+    }
+
+    #buildTokenizeRequest (sequence : unknown) : string {
+        console.log(this.#modelName)
+        return JSON.stringify({
+            "model": /*"mxbai-embed-large"*/ /*"nomic-embed-text"*/ this.#modelName,
             "prompt": sequence,
             /*"stream": false,*/
         })
