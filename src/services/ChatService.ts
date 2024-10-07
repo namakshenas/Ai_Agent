@@ -1,5 +1,3 @@
-/* eslint-disable no-useless-escape */
-/* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IConversationElement } from "../interfaces/IConversation";
 import { AIAgent } from "../models/AIAgent";
@@ -42,7 +40,7 @@ export class ChatService{
         }
     }
 
-    static async askTheActiveAgentForAStreamedResponse(question : string, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<number[]>
+    static async askTheActiveAgentForAStreamedResponse(question : string, showErrorModal: (message : string) => void, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<number[]>
     {
       if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
 
@@ -64,14 +62,11 @@ export class ChatService{
               const { value } = await reader.read()
 
               const decodedValue = new TextDecoder().decode(value)
-              //.replace('"{"', '"["').replace('"}"', '"]"').replace('"}\\', '"]\\').replace('" }"', '" ]"').replace('"}$"', '"]$"')
               decod = decodedValue
-              // check if the decoded value isn't malformed and fix it if it is
-              // const splitValues = decodedValue.match(/{"model[^}]*}/g)
+              // check if the decoded value isn't malformed -> fix it if it is
               const reconstructedValue = this.#reconstructMalformedValues(decodedValue)
               /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
               console.log(reconstructedValue)
-              // {"model":"mistral-nemo:latest","created_at":"2024-10-06T03:10:02.5907059Z","response":" }
               const json = JSON.parse(reconstructedValue)
 
               if(json.done) {
@@ -92,6 +87,7 @@ export class ChatService{
           if (error instanceof Error && error.name === 'AbortError') {
             console.log('Stream aborted.')
           } else {
+            showErrorModal("Stream failed : " + error)
             console.error('Stream failed : ', error)
             console.error(decod)
             this.abortAgentLastRequest()
@@ -127,10 +123,10 @@ export class ChatService{
         console.log("reformed : " + JSON.stringify(aggregatedChunk))
         return JSON.stringify(aggregatedChunk)
       } catch (error) {
+        this.abortAgentLastRequest()
         console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
         throw error
       }
-        //return JSON.stringify({"model":"","created_at":"","response":reconstructedValue,"done":isDone})
     }
 
     static abortAgentLastRequest(){
@@ -163,65 +159,3 @@ export class ChatService{
         }
     }
 }
-
-/*
-keep as ref :
-
-malformed : ["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7492932Z\",
-\"response\":\".\",\"done\":false}",
-"{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.7747315Z\",
-\"response\":\"\",\"done\":true,\"done_reason\":\"stop\", \"context\":[],
-\"total_duration\":22789130800,\"load_duration\":56604900,\"prompt_eval_count\":2443,
-\"prompt_eval_duration\":400843000,\"eval_count\":568,\"eval_duration\":22325068000}"]
-*/
-
-/*
-["{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1209571Z\",\"response\":\" combining\",\"done\":false}",
-"{\"model\":\"mistral-nemo:latest\",\"created_at\":\"2024-10-05T16:33:48.1559578Z\",\"response\":\" both\", \"done\":false}",]
-*/
-
-/*
-
-malformed : ["{\"model\":\"mistral-nemo:latest\",
-\"created_at\":\"2024-10-05T20:01:44.3270787Z\",
-\"response\":\" fiction\",\"done\":false}",
-
-"{\"model\":\"mistral-nemo:latest\",
-\"created_at\":\"2024-10-05T20:01:44.4080908Z\",
-\"response\":\",\",\"done\":false}",
-
-"{\"model\":\"mistral-nemo:latest\",
-\"created_at\":\"2024-10-05T20:01:44.4080908Z\",
-\"response\":\" and\",\"done\":false}",
-
-"{\"model\":\"mistral-nemo:latest\",
-\"created_at\":\"2024-10-05T20:01:44.4800404Z\",
-\"response\":\" superhero\",\"done\":false}",
-
-"{\"model\":\"mistral-nemo:latest\",
-\"created_at\":\"2024-10-05T20:01:44.4800404Z\",
-\"response\":\" films\",\"done\":false}",
-
-"{\"model\":\"mistral-nemo:latest\",
-\"created_at\":\"2024-10-05T20:01:44.5650422Z\",
-\"response\":\".\",\"done\":false}",
-
-"{\"model\":\"mistral-nemo:latest\",
-\"created_at\":\"2024-10-05T20:01:44.5650422Z\",
-\"response\":\"\",\"done\":true,
-\"done_reason\":\"stop\",\"context\":[],
-\"total_duration\":22473708500,\"load_duration\":34018100,
-\"prompt_eval_count\":459,\"prompt_eval_duration\":40253000,
-\"eval_count\":674,\"eval_duration\":22397935000}"]
-
-reformed : 
-{"model":"mistral-nemo:latest",
-"created_at":"2024-10-05T20:01:44.5650422Z",
-"response":" fiction, and superhero films.","done":true,
-"done_reason":"stop","context":[],
-"total_duration":22473708500,"load_duration":34018100,
-"prompt_eval_count":459,"prompt_eval_duration":40253000,
-"eval_count":674,"eval_duration":22397935000}
-
-
-*/

@@ -111,7 +111,7 @@ export class AIModel{
                 throw new Error(`Failed to fetch: ${error.message}`);
             }
             this.abortLastRequest()
-            throw new Error("An unknown error occurred.");
+            throw new Error("An error occurred during streaming.");
         }
     }
 

@@ -19,6 +19,7 @@ import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
 import { IConversation } from "../interfaces/IConversation";
+import ErrorAlert from "../components/Modal/ErrorAlert";
 
 function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
@@ -89,6 +90,12 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
     }, [activeConversationId])
 
+    const errorMessageRef = useRef("")
+    function showErrorModal(errorMessage : string){
+        errorMessageRef.current = errorMessage
+        setModalContentId("error")
+        setModalVisibility(true)
+    }
 
     /***
     //
@@ -116,17 +123,17 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
                 console.log("**LLM Loading**")
                 // format MM/DD/YYYY
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + new Date().getMonth() + "/" + new Date().getUTCDate() + ". "
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
                 if(isStreamingRef.current == false) return
                 dispatch({ type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, payload: scrapedPages })
             } else {
                 console.log("**LLM Loading**")
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, pushStreamedChunkToHistory_Callback, currentContext)
+                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext)
             }
 
             // if the stream has been aborted, the following block of code isn't executed
             if(isStreamingRef.current == false) return
-            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload: newContext })
+            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload: newContext || [] })
             // the textarea is emptied only if the user has made no modifications to its content during the streaming process
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // temporary : to simulate persistence
@@ -241,18 +248,19 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
                     }
                 </div>
             </div>
-            {modalVisibility && 
-                <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
-                    {{
-                        'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
-                        'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
-                        'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>,
-                        'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} isAPIOffline={isAPIOffline}/>,
-                    } [modalContentId]}
-                </Modal>
-            }
         </main>
         <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>
+        {modalVisibility && 
+            <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
+                {{
+                    'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
+                    'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
+                    'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>,
+                    'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} isAPIOffline={isAPIOffline}/>,
+                    'error' : <ErrorAlert errorMessage={errorMessageRef.current}/>,
+                } [modalContentId]}
+            </Modal>
+        }
     </div>
     )
 }
