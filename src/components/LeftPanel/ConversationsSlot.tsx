@@ -16,6 +16,7 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
 
     // ConversationsRepository.getConversations() polling
 
+    // conversation list polling every 3s
     useEffect(() => {
         setConversationsListState(ConversationsRepository.getConversations())
 
