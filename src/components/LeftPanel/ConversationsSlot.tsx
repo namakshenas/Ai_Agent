@@ -75,7 +75,7 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
                     CONVERSATIONS<span className='nPages'>Page {conversationsListPage+1} on {Math.ceil(conversationsListState.length/3)}</span>
                 </h3>
                 <ul style={{minHeight : '118px'}}>
-                    {conversationsListState.slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => (
+                    {conversationsListState.slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => 
                         conversationsListPage*3+id != activeConversationId ?
                         <li onClick={() => handleSetActiveConversation(conversationsListPage*3+id)} key={"conversation" + conversationsListPage*3+id} role="button">
                             {conversation.history[0]?.question.substring(0, 45) || conversation.name}
@@ -91,13 +91,13 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
                                 </svg>
                             </button>
                         </li>
-                    ))}
+                    )}
                     {
                         nBlankConversationSlotsNeededAsFillers() > 0 && Array(nBlankConversationSlotsNeededAsFillers()).fill("").map((el,id) => (<li className='fillerItem' key={"blank"+id}></li>))
                     }
                 </ul>
                 <div className='buttonsContainer'>
-                    <span>Page {conversationsListPage+1} / {Math.ceil(conversationsListState.length/3)}</span>
+                    <span className="activePage">Page {conversationsListPage+1}&nbsp;<span>/&nbsp;{Math.ceil(conversationsListState.length/3)}</span></span>
                     <button title="previous page" className="white" style={{marginLeft:'auto'}} onClick={handlePreviousConversationsListPage}>
                         <svg height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>

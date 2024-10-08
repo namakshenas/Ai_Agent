@@ -104,7 +104,7 @@ export default function DocumentsSlot({isAPIOffline} : {isAPIOffline : boolean})
                         }
                     </div>
                     <div title="filter" className={documentsActiveTool == "filter" ? "filterContainer active" : "filterContainer"} onClick={handleFilterContainerClick}>
-                        {documentsActiveTool == "filter" && <input autoFocus ref={filterInputRef} type="text" placeholder="Filter"/>}
+                        {documentsActiveTool == "filter" && <input autoFocus ref={filterInputRef} type="text" placeholder="Filter (Coming soon)"/>}
                         <svg style={{transform:'translateY(1px)'}} width="15" height="14" viewBox="0 0 19 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.8125 1.875H0.9375C0.68886 1.875 0.450403 1.77623 0.274587 1.60041C0.0987721 1.4246 0 1.18614 0 0.9375C0 0.68886 0.0987721 0.450403 0.274587 0.274587C0.450403 0.0987719 0.68886 0 0.9375 0H17.8125C18.0611 0 18.2996 0.0987719 18.4754 0.274587C18.6512 0.450403 18.75 0.68886 18.75 0.9375C18.75 1.18614 18.6512 1.4246 18.4754 1.60041C18.2996 1.77623 18.0611 1.875 17.8125 1.875ZM14.6875 7.25H4.0625C3.81386 7.25 3.5754 7.15123 3.39959 6.97541C3.22377 6.7996 3.125 6.56114 3.125 6.3125C3.125 6.06386 3.22377 5.8254 3.39959 5.64959C3.5754 5.47377 3.81386 5.375 4.0625 5.375H14.6875C14.9361 5.375 15.1746 5.47377 15.3504 5.64959C15.5262 5.8254 15.625 6.06386 15.625 6.3125C15.625 6.56114 15.5262 6.7996 15.3504 6.97541C15.1746 7.15123 14.9361 7.25 14.6875 7.25ZM10.9375 12.625H7.8125C7.56386 12.625 7.3254 12.5262 7.14959 12.3504C6.97377 12.1746 6.875 11.9361 6.875 11.6875C6.875 11.4389 6.97377 11.2004 7.14959 11.0246C7.3254 10.8488 7.56386 10.75 7.8125 10.75H10.9375C11.1861 10.75 11.4246 10.8488 11.6004 11.0246C11.7762 11.2004 11.875 11.4389 11.875 11.6875C11.875 11.9361 11.7762 12.1746 11.6004 12.3504C11.4246 12.5262 11.1861 12.625 10.9375 12.625Z" fill="#7983B5"/>
                         </svg>
@@ -113,7 +113,7 @@ export default function DocumentsSlot({isAPIOffline} : {isAPIOffline : boolean})
                 <ul style={{marginTop:'0.5rem'}}>
                     {
                         docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase())).slice(documentsListPage * 5, documentsListPage * 5 + 5).map((document, id) => (
-                            <li className={document.selected ? "activeDocument" : ""} onClick={() => handleFileClick(document.id)} key={"documentLi"+id}>
+                            <li title="Click to target with RAG" className={document.selected ? "activeDocument" : ""} onClick={() => handleFileClick(document.id)} key={"documentLi"+id}>
                                 {document.selected && <div style={{height:'100%', width:'6px', background:'#6d48c1'}}></div>}
                                 {/*document.selected && <svg className="star" width="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>*/}
                                 {document.filename}

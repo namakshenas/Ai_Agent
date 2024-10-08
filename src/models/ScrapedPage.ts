@@ -20,6 +20,6 @@ export default class ScrapedPage{
     }
 
     sourceAsHTMLSpan() : string { 
-        return `<span class="source"><a href="${this.#source}">${this.#source}</a></span>`
+        return `<span class="source"><a target="_blank" rel="noopener noreferrer" href="${this.#source}">${this.#source}</a></span>`
     }
 }
