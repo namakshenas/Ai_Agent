@@ -133,7 +133,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
             // if the stream has been aborted, the following block of code isn't executed
             if(isStreamingRef.current == false) return
-            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_CONTEXT, payload: newContext || [] })
+            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT, payload: newContext || [] })
             // the textarea is emptied only if the user has made no modifications to its content during the streaming process
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // temporary : to simulate persistence
@@ -141,6 +141,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
             setIsStreaming(false)
         }
         catch (error: unknown) {
+            ChatService.abortAgentLastRequest()
             console.error(error)
         }
     }
@@ -154,7 +155,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
     // callback passed to the chatService so it can display the streamed answer
     function pushStreamedChunkToHistory_Callback({markdown , html} : {markdown : string, html : string}): void {
-        dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ANSWER, payload: { html, markdown } })
+        dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload: { html, markdown } })
     }
 
     // !!! will have to convert the conv into token using tokenizer and return only last num_ctx tokens
@@ -224,7 +225,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
-                    <div title="active the web search" style={{opacity : isAPIOffline ? '0.3' : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
+                    <div title="active the web search" style={isAPIOffline ? {opacity : '0.3', pointerEvents: 'none'} : {opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Search the Web</span>
                         <div className='switchContainer'>
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>

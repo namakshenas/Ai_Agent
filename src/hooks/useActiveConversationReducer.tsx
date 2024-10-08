@@ -23,7 +23,7 @@ export function useActiveConversationReducer({name, history, lastModelUsed} : IC
                 return {...newState}
             }
 
-            case ActionType.UPDATE_LAST_HISTORY_ANSWER : {
+            case ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER : {
                 const newState = {...state, 
                     history : [...state.history]
                 }
@@ -33,7 +33,7 @@ export function useActiveConversationReducer({name, history, lastModelUsed} : IC
                 return {...newState}
             }
 
-            case ActionType.UPDATE_LAST_HISTORY_CONTEXT : {
+            case ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT : {
                 const newState = {...state, 
                     history : [...state.history]
                 }
@@ -94,18 +94,18 @@ export type reducerDispatchType = React.Dispatch<{type: string, payload: any}>
 
 export enum ActionType {
     NEW_BLANK_HISTORY_ELEMENT = "NEW_BLANK_HISTORY_ELEMENT",
-    UPDATE_LAST_HISTORY_ANSWER = "UPDATE_LAST_HISTORY_ANSWER",
+    UPDATE_LAST_HISTORY_ELEMENT_ANSWER = "UPDATE_LAST_HISTORY_ANSWER",
     PUSH_NEW_HISTORY_ELEMENT = "PUSHNEWHISTORYELEMENT",
     SET_CONVERSATION = "SET_CONVERSATION",
-    UPDATE_LAST_HISTORY_CONTEXT = "UPDATE_LAST_HISTORY_CONTEXT",
+    UPDATE_LAST_HISTORY_ELEMENT_CONTEXT = "UPDATE_LAST_HISTORY_CONTEXT",
     DELETE_LAST_HISTORY_ELEMENT = "DELETE_LAST_HISTORY_ELEMENT",
     ADD_SOURCES_TO_LAST_ANSWER = "ADD_SOURCES_TO_LAST_ANSWER",
 }
 
 type TAction = 
     | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, modelUsed : string } }
-    | { type: ActionType.UPDATE_LAST_HISTORY_ANSWER; payload: { html : string, markdown : string } }
-    | { type: ActionType.UPDATE_LAST_HISTORY_CONTEXT; payload: number[] }
+    | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER; payload: { html : string, markdown : string } }
+    | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT; payload: number[] }
     | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement /*{ question : string, html : string, markdown : string, context : number[] }*/}
     | { type: ActionType.SET_CONVERSATION; payload: IConversation }
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }
