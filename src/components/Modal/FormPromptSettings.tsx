@@ -42,7 +42,24 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         memoizedSetModalStatus({visibility  : false})
     }
 
-    return(<form className="prompt-form">
+    return(
+    <div className="formNHistoryContainer">
+        <div className="historyContainer">
+            <h3>Prompt History <span style={{fontWeight:'400'}}>(Coming soon)</span></h3>
+            <div className="historyTable">
+                <div className="historyHeader">
+                    <div>Prompt Name</div><div>Version</div>
+                </div>
+                <div className="historyBody">
+                    <div className="historyRow"><div>Prompt Name</div><div>1.0.0</div></div>
+                    <div className="historyRow"><div>Prompt Name</div><div>0.1.4</div></div>
+                    <div className="historyRow"><div>Prompt Name</div><div>0.0.3</div></div>
+                    <div className="historyRow"><div>Prompt Name</div><div>0.0.2</div></div>
+                    <div className="historyRow"><div>Prompt Name</div><div>0.0.1</div></div>
+                </div>
+            </div>
+        </div>
+        <form className="prompt-form">
         <label id="label-name" style={{marginTop:0}}>Name</label>
         <input aria-labelledby="label-name" 
             style={{maxWidth:'50%'}} type="text" 
@@ -63,7 +80,9 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
             <button onClick={handleCancelClick} className="cancel-button purpleShadow">Cancel</button>
             <button onClick={handleSaveClick} className="save-button purpleShadow">Save</button>
         </div>
-    </form>)
+        </form>
+    </div>
+    )
 }
 
 interface IProps{
