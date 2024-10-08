@@ -39,7 +39,12 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: var(--base-container-background-color);
+    /*background-color: var(--base-container-background-color);*/
+    background: linear-gradient(
+      to bottom,
+      #ffffff66,
+      var(--base-container-background-color)
+    );
     border: 1px solid var(--base-container-border-color);
     border-radius: 6px;
     padding: 18px 1rem;
@@ -278,12 +283,16 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: var(--base-container-background-color);
+    /*background-color: var(--base-container-background-color);*/
+    background: linear-gradient(
+      to bottom,
+      #ffffff66,
+      var(--base-container-background-color)
+    );
     border: 1px solid var(--base-container-border-color);
     border-radius: 6px;
     padding: 12px 1rem;
     width: 100%;
-    /*flex: 0 0 100%;*/
     border: 1px solid #ffffffaa;
     box-shadow: 0 6px 12px -2px #42396b30;
     margin-bottom: 12px;
