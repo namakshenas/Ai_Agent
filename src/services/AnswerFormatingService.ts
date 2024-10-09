@@ -8,7 +8,6 @@ class AnswerFormatingService{
         const answerWithMarkdownConvertedToHTML = await marked(answerWithCodeBlockSyntaxStriped)
         const answerWithCodeFormated = this.#codetransformer(answerWithMarkdownConvertedToHTML)
         return this.#emojitransformer(answerWithCodeFormated)
-        // return this.#emojitransformer(this.#codetransformer(await marked(this.#stripCodeBlockSyntax(answer))))
     }
 
     static #codetransformer(text : string) : string {
