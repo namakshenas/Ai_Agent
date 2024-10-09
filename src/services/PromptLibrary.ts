@@ -4,19 +4,7 @@ import IPrompt from "../interfaces/IPrompt"
 /* eslint-disable no-unused-private-class-members */
 export default class PromptLibrary{
 
-/*static helpfulAssistantPrompt2 = 
-`You are an helpful assistant always giving the most in-depth answers to any request.
-
-ALWAYS stick to the 5 following rules when replying to MY REQUEST :
-1. Don't write any programming code if the topic of MY REQUEST is not code related.
-2. Add a new line before a new section or a new paragraph.
-3. All programming code produced should be encapsulated within markdown delimiters called triple backticks followed by the programming language used : \`\`\`programming_language.
-4. DON'T USE <pre> and <code> tags!
-5. DON'T USE triple backticks for non-code related text.
-6. Ignore all parts of the conversation that is not related to the request.
-
-Here is MY REQUEST :
-`*/
+    static promptsCounter = 8
 
 static #helpfulAssistantPrompt = 
 `You are a highly capable AI assistant designed to provide comprehensive and accurate responses to any request. Your primary goal is to deliver the most in-depth and relevant information possible.
@@ -86,36 +74,19 @@ Here are some examples showing the logic your output should always fulfill :
 Here is the given block of text :
 `
 
-/*static COTGeneratorPrompt2 = 
-`You are an assistant writing a step-by-step mental reflection plan on how to fulfill a request. Give an exhaustive and granular list of all the mental tasks a human would have to go through to reach the perfect answer to the request.
-
-1. This list of tasks should always be returned as a table with 3 columns : id, task, description.
-2. Avoid any obvious task like "comprehend the request".
-3. Includes tasks considering physical, chemical and temporal constraints if any involved.
-4. Don't use the <pre> and <code> tags.
-5. Don't reply to the request. Only reply with your list of mental tasks.
-
-Here is my request :
-` */
-
 static #COTGeneratorPrompt = 
 `You are an AI assistant tasked with creating a step-by-step mental reflection plan on how to fulfill a request. Give an exhaustive and granular list of all the mental tasks a human would have to go through to reach the perfect answer to the request.
 
 ## Instructions:
 
 1. Analyze the given request thoroughly.
-
 2. Present the tasks in a markdown table with the following columns:
    | ID | Task | Description |
 
 3. Ensure tasks are specific, non-obvious, and actionable. Avoid generic steps like "understand the request."
-
 4. Consider relevant physical, chemical, and temporal constraints in your task list.
-
 5. Aim for a minimum of 15 tasks to ensure comprehensive coverage.
-
 6. Don't use the <pre> and <code> tags.
-
 7. Do not respond to the request directly.  Only reply with your list of mental tasks.
 
 Here is my request :
@@ -220,54 +191,80 @@ static #scrapedDatasSummarizerPrompt =
 4. **Quality Check**: Ensure the summary meets all output requirements before submission
 `
 
-    static #prompts = [
+    static #prompts : IPrompt[] = [
         { 
+            id : "p1",
             name : "helpfulAssistantPrompt",
-            prompt: this.#helpfulAssistantPrompt
+            prompt: this.#helpfulAssistantPrompt,
+            status : "base",
+            version: '0.0.1'
         },
         {
+            id : "p2",
             name : "defaultAssistantPrompt",
-            prompt : `You are an helpful assistant.`
+            prompt : `You are an helpful assistant.`,
+            status : "base",
+            version: '0.0.1'
         },
         { 
+            id : "p3",
             name : "completionAssistantPrompt",
-            prompt: this.#completionAssistantPrompt
+            prompt: this.#completionAssistantPrompt,
+            status : "base",
+            version: '0.0.1'
         },
         {
+            id : "p4",
             name : "COTGeneratorPrompt",
-            prompt : this.#COTGeneratorPrompt
-        },        { 
-            name : "COTAnalyzePrompt",
-            prompt: this.#COTAnalyzePrompt
-        },
-        {
-            name : "COTTaskSolverPrompt",
-            prompt : this.#COTTaskSolverPrompt
-        },
+            prompt : this.#COTGeneratorPrompt,
+            status : "base",
+            version: '0.0.1'
+        },        
         { 
-            name : "searchQueryOptimizerPrompt",
-            prompt: this.#searchQueryOptimizerPrompt
+            id : "p5",
+            name : "COTAnalyzePrompt",
+            prompt: this.#COTAnalyzePrompt,
+            status : "base",
+            version: '0.0.1'
         },
         {
+            id : "p6",
+            name : "COTTaskSolverPrompt",
+            prompt : this.#COTTaskSolverPrompt,
+            status : "base",
+            version: '0.0.1'
+        },
+        {
+            id : "p7",
+            name : "searchQueryOptimizerPrompt",
+            prompt: this.#searchQueryOptimizerPrompt,
+            status : "base",
+            version: '0.0.1'
+        },
+        {
+            id : "p8",
             name : "scrapedDatasSummarizerPrompt",
-            prompt : this.#scrapedDatasSummarizerPrompt
+            prompt : this.#scrapedDatasSummarizerPrompt,
+            status : "base",
+            version: '0.0.1'
         },
     ]
 
-    static addPrompt({name, prompt}: {name: string; prompt: string}){
-        this.#prompts = [...this.#prompts, {name, prompt}]
+    static addPrompt(name: string, prompt: string, version : string){
+        this.#prompts = [...this.#prompts, {id : "p" + this.promptsCounter + 1, name, prompt, version : version, status : 'standard'}]
+        this.promptsCounter += 1
     }
 
-    static deletePrompt(name : string){
-        this.#prompts = this.#prompts.filter((prompt) => prompt.name != name)
+    static deletePrompt(id : string){
+        this.#prompts = this.#prompts.filter((prompt) => prompt.id != id)
     }
 
-    static updatePrompt({prevName, name, prompt } : { prevName : string, name: string; prompt: string }){
-        const targetPromptIndex = this.#prompts.findIndex((prompt) => prompt.name == prevName)
-        this.#prompts[targetPromptIndex] = {name, prompt}
+    static updatePrompt(id : string, name: string, prompt: string, version : string){
+        const targetPromptIndex = this.#prompts.findIndex((prompt) => prompt.id == id)
+        this.#prompts[targetPromptIndex] = {id, name, prompt, version : version, status : 'standard'}
     }
 
-    static getAllPrompts(): { name: string; prompt: string }[] {  
+    static getAllPrompts(): {id : string, name: string; prompt: string, version : string }[] {  
         return this.#prompts
     }
 
@@ -280,3 +277,18 @@ static #scrapedDatasSummarizerPrompt =
 /*interface ILibrary {
     [key: string]: string;
 }*/
+
+
+/*static helpfulAssistantPrompt2 = 
+`You are an helpful assistant always giving the most in-depth answers to any request.
+
+ALWAYS stick to the 5 following rules when replying to MY REQUEST :
+1. Don't write any programming code if the topic of MY REQUEST is not code related.
+2. Add a new line before a new section or a new paragraph.
+3. All programming code produced should be encapsulated within markdown delimiters called triple backticks followed by the programming language used : \`\`\`programming_language.
+4. DON'T USE <pre> and <code> tags!
+5. DON'T USE triple backticks for non-code related text.
+6. Ignore all parts of the conversation that is not related to the request.
+
+Here is MY REQUEST :
+`*/
