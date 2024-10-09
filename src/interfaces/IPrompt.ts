@@ -1,6 +1,9 @@
 export default interface IPrompt {
+    id : string
     name : string
     prompt : string
+    status : string
+    version : string
     /*meta? : {revision : number, created? : number, version? : number}
     $loki?  : number*/
 }

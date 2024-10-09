@@ -1,6 +1,5 @@
+import { ILokiBaseInterface } from "./ILokiBaseInterface";
 import IPrompt from "./IPrompt"
 
-export default interface IPromptResponse extends IPrompt {
-    meta : {revision : number, created? : number, version? : number}
-    $loki  : number
+export default interface IPromptResponse extends IPrompt, ILokiBaseInterface {
 }
