@@ -68,8 +68,8 @@ export class AIAgent extends AIModel {
             name : this.#name,
             model : this.getModelName(),
             systemPrompt : this.getSystemPrompt(),
-            contextSize : this.getContextSize(),
-            numPredict : this.getNumPredict(),
+            num_ctx : this.getContextSize(),
+            num_predict : this.getNumPredict(),
             temperature : this.getTemperature(),
         })
     }

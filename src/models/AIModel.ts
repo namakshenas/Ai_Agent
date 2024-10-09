@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { ICompletionResponse } from "../interfaces/ICompletionResponse"
+import { IEmbeddingResponse } from "../interfaces/IEmbeddingResponse"
+
 /**
  * @class AIModel
  * @description A class representing an AI model for generating text and embeddings.
@@ -13,30 +17,21 @@ export class AIModel{
     #modelName : string
     #systemPrompt : string
     #context : number[]
-    #contextSize : number
+    #num_ctx : number
     #temperature : number
-    #numPredict : number
+    #num_predict : number
     #abortController = new AbortController()
     #signal = this.#abortController.signal
     // add keep alive!!!!!
     // add format : json
 
-    /**
-     * @constructor
-     * @param {Object} params - The parameters for the AI model.
-     * @param {string} params.modelName - The name of the AI model.
-     * @param {string} [params.systemPrompt='You are a helpful assistant.'] - The system prompt for the AI model.
-     * @param {number[]} [params.context=[]] - The context for the AI model.
-     * @param {number} [params.contextSize=2048] - The size of the context for the AI model.
-     * @param {number} [params.temperature=0.8] - The temperature for the AI model.
-     */
-    constructor({ modelName = "llama3.1:8b", systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8, numPredict = 1024 } : IAIModelParams){
+    constructor({ modelName = "llama3.1:8b", systemPrompt =  'You are a helpful assistant.', context = [], num_ctx = 2048, temperature = 0.8, num_predict = 1024 } : IAIModelParams){
         this.#modelName = modelName
         // this.#stream = stream
         this.#systemPrompt = systemPrompt
         this.#context = context
-        this.#contextSize = contextSize
-        this.#numPredict = numPredict
+        this.#num_ctx = num_ctx
+        this.#num_predict = num_predict
         this.#temperature = temperature
     }
 
@@ -215,7 +210,7 @@ export class AIModel{
      */
     setContextSize(value : number) : this {
         if(value < 0) value = 0
-        this.#contextSize = value
+        this.#num_ctx = value
         return this
     }
 
@@ -232,16 +227,16 @@ export class AIModel{
     }
 
     setNumPredict(value : number){
-        this.#numPredict = value
+        this.#num_predict = value
         return this
     }
 
-    setSettings({ modelName = "llama3.1:8b", systemPrompt =  'You are a helpful assistant.', context = [], contextSize = 2048, temperature = 0.8, numPredict = 1024 } : IAIModelParams){
+    setSettings({ modelName = "llama3.1:8b", systemPrompt =  'You are a helpful assistant.', context = [], num_ctx = 2048, temperature = 0.8, num_predict = 1024 } : IAIModelParams){
         this.#modelName = modelName
         this.#systemPrompt = systemPrompt
         this.#context = context
-        this.#contextSize = contextSize
-        this.#numPredict = numPredict
+        this.#num_ctx = num_ctx
+        this.#num_predict = num_predict
         this.#temperature = temperature
     }
 
@@ -262,9 +257,9 @@ export class AIModel{
         }
         const requestWithOptions = {...baseRequest, 
             "options": { 
-                "num_ctx": this.#contextSize,
+                "num_ctx": this.#num_ctx,
                 "temperature" : this.#temperature, 
-                "num_predict" : this.#numPredict 
+                "num_predict" : this.#num_predict 
         }}
         return JSON.stringify(requestWithOptions)
     }
@@ -315,7 +310,7 @@ export class AIModel{
     }
 
     getContextSize() : number {
-        return this.#contextSize
+        return this.#num_ctx
     }
 
     getModelName() : string {
@@ -323,15 +318,15 @@ export class AIModel{
     }
 
     getNumPredict() : number {
-        return this.#numPredict
+        return this.#num_predict
     }
 
     asString(){
         return JSON.stringify({
             model : this.#modelName,
             systemPrompt : this.#systemPrompt,
-            contextSize : this.#contextSize,
-            numPredict : this.#numPredict,
+            num_ctx : this.#num_ctx,
+            num_predict : this.#num_predict,
             temperature : this.#temperature,
         })
     }
@@ -342,9 +337,9 @@ export interface IAIModelParams{
     stream? : boolean
     systemPrompt? : string
     context? : number[]
-    contextSize? : number
+    num_ctx? : number
     temperature? : number
-    numPredict? : number
+    num_predict? : number
 }
 
 export interface IBaseOllamaRequest{
@@ -354,24 +349,4 @@ export interface IBaseOllamaRequest{
     prompt: string
     context : number[]
     options? : unknown
-}
-
-export type Embedding = number[]
-
-export interface IEmbeddingResponse {
-    embedding : Embedding
-}
-
-export interface ICompletionResponse{
-    model: string
-    created_at: string
-    response: string
-    done: boolean
-    context?: number[]
-    total_duration?: number
-    load_duration?: number
-    prompt_eval_count?: number
-    prompt_eval_duration?: number
-    eval_count?: number
-    eval_duration?: number
 }
