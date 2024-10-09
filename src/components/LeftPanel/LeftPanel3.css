@@ -186,7 +186,7 @@
         height: 34px;
         font-size: 14px;
         background: var(--main-background-color);
-        border: 1px solid #aebae0;
+        border: 1px dashed #aebae0;
         padding: 0 0.5rem 0 0.5rem;
         display: flex;
         border-radius: 4px;

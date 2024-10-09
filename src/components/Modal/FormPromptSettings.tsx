@@ -31,12 +31,12 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         e.preventDefault()
         if(!areFormDatasValid()) return // !!! error message missing
         if(role == "edit") {
-            PromptLibrary.updatePrompt({...formValues, prevName : prompt.name})
-            if(!isAPIOffline) PromptService.update(formValues.name, formValues.prompt)
+            // PromptLibrary.updatePrompt(prompt.name, formValues.name, formValues.prompt)
+            /*if(!isAPIOffline) */PromptService.update(prompt.name, formValues.name, formValues.prompt, "0.0.1")
         }
         if(role == "create") {
-            PromptLibrary.addPrompt({...formValues})
-            if(!isAPIOffline) PromptService.save(formValues.name, formValues.prompt)
+            /*PromptLibrary.addPrompt(formValues.name, formValues.prompt)
+            if(!isAPIOffline) */ PromptService.save(formValues.name, formValues.prompt, "0.0.1")
         }
         if(setForceLeftPanelRefresh) setForceLeftPanelRefresh(prev => prev + 1)
         memoizedSetModalStatus({visibility  : false})
@@ -51,11 +51,11 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
                     <div>Prompt Name</div><div>Version</div>
                 </div>
                 <div className="historyBody">
-                    <div className="historyRow"><div>Prompt Name</div><div>1.0.0</div></div>
-                    <div className="historyRow"><div>Prompt Name</div><div>0.1.4</div></div>
-                    <div className="historyRow"><div>Prompt Name</div><div>0.0.3</div></div>
-                    <div className="historyRow"><div>Prompt Name</div><div>0.0.2</div></div>
-                    <div className="historyRow"><div>Prompt Name</div><div>0.0.1</div></div>
+                    <div className="historyRow"><div>{prompt.name}</div><div>1.0.0</div></div>
+                    <div className="historyRow"><div>{prompt.name}</div><div>0.1.4</div></div>
+                    <div className="historyRow"><div>{prompt.name}</div><div>0.0.3</div></div>
+                    <div className="historyRow"><div>{prompt.name}</div><div>0.0.2</div></div>
+                    <div className="historyRow"><div>{prompt.name}</div><div>0.0.1</div></div>
                 </div>
             </div>
         </div>
