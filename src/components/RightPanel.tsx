@@ -3,15 +3,15 @@ import { useEffect, useRef, useState } from 'react'
 import './RightPanel3.css'
 import { AIAgent } from '../models/AIAgent'
 import IFormStructure from '../interfaces/IAgentFormStructure'
-import { AgentLibrary } from '../services/AgentLibrary'
 import Select, { IOption } from './CustomSelect/Select'
 import { ChatService } from '../services/ChatService'
 import userPicture from '../assets/usericon4-2.png'
 import React from 'react'
-import AgentService from '../services/AgentService'
+import AgentService from '../services/API/AgentService'
 import useFetchModelsList from '../hooks/useFetchModelsList'
+import { AgentLibrary } from '../services/AgentLibrary'
 
-const RightPanel = React.memo(({memoizedSetModalStatus} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, setAIAgentsList} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
@@ -21,7 +21,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus} : IProps) => {
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
     const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
 
-    const currentFormValues : IFormStructure = {
+    const currentAgentValues : IFormStructure = {
         agentName: currentAgent.current.getName(),
         modelName: currentAgent.current.getModelName(),
         systemPrompt: currentAgent.current.getSystemPrompt().replace(/\t/g,''),
@@ -31,35 +31,40 @@ const RightPanel = React.memo(({memoizedSetModalStatus} : IProps) => {
         webSearchEconomy: true,
     }
 
-    const [formValues, setFormValues] = useState<IFormStructure>(currentFormValues)
+    const [formValues, setFormValues] = useState<IFormStructure>(currentAgentValues)
     
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
-
 
     // the multiple renders on save are due to the multiple graphical states of the save button
     function handleSaveAgent(e : React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
 
-        const newAgent = new AIAgent(ChatService.getActiveAgent().getName(), formValues.modelName)
+        const newAgent = new AIAgent({name : ChatService.getActiveAgent().getName(), modelName : formValues.modelName, id : "newA1", type : "user_created", favorite : false})
         .setContextSize(formValues.maxContextLength)
         .setNumPredict(formValues.maxTokensPerReply)
         .setSystemPrompt(formValues.systemPrompt)
         .setTemperature(formValues.temperature)
 
-        // update the offline library
-        AgentLibrary.updateAgent(newAgent)
-        // update the backend db !!! isAPIoffline?
-        AgentService.update(newAgent)
+        // update chat service active agent
+        // update agent in db
+        // reload agent list setAIAgentsList
+
+        // AgentLibrary.updateAgent(newAgent)
+        // AgentService.update(newAgent)
         // make sure that the chat active agent is now the updated agent
-        ChatService.setActiveAgent(newAgent.getName())
+        ChatService.setActiveAgent(newAgent)
 
         setShowSavingSuccessfulBtn(true)
     }
 
     // switch active agent
     function handleSwitchAgent(option : IOption){
-        ChatService.setActiveAgent(option.value)
+        console.log(option.value)
+        const targetAgent = AgentLibrary.getAgent(option.value)
+        if(targetAgent == null) return
+        currentAgent.current = targetAgent
+        ChatService.setActiveAgent(targetAgent)
         const agent = ChatService.getActiveAgent()
         const newFormValues : IFormStructure = {
             agentName: agent.getName(),
@@ -114,7 +119,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus} : IProps) => {
                 <label id="label-agentName">Agent Powering the Chat</label>
                 <Select 
                     width="100%"
-                    options={/* !!!! retrieve from db */ AgentLibrary.getAgentsNameList().map((agentName) => ({ label: agentName, value: agentName }))} 
+                    options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [System]` : ''), value: agent.getName() }))} 
                     defaultOption={formValues.agentName}
                     labelledBy="label-agentName" 
                     id="settingsSelectAgent"
@@ -219,6 +224,8 @@ export default RightPanel
 interface IProps{
     // currentAgent : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
+    AIAgentsList: AIAgent[]
+    setAIAgentsList: React.Dispatch<React.SetStateAction<AIAgent[]>>
     /*modelsList : string[]*/
     // setCurrentAgent : React.Dispatch<React.SetStateAction<AIAgent>>
 }
