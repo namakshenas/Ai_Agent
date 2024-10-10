@@ -1,12 +1,15 @@
-import IPromptResponse from "../interfaces/IPromptResponse"
-import PromptLibrary from "./PromptLibrary"
+import IPromptResponse from "../../interfaces/responses/IPromptResponse"
 
 export default class PromptService{
 
     static async save(name : string, prompt : string, version : string){
         try{
-            this.localSave(name, prompt, version)
-            this.DBSave(name, prompt, version)
+            const reponse = await fetch('http://localhost:3000/prompt', {
+                method : 'POST',
+                body : JSON.stringify({name, prompt, version}),
+                headers:{ 'Content-Type' : 'application/json' }
+            })
+            if(!reponse.ok) throw new Error('Error saving agent')
         }catch(e){
             console.error(e)
         }
@@ -14,8 +17,12 @@ export default class PromptService{
 
     static async update(prevName : string, name : string, prompt : string, version : string){
         try{
-            this.localUpdate(prevName, name, prompt, version)
-            this.DBUpdate(prevName, name, prompt, version)
+            const reponse = await fetch('http://localhost:3000/prompt/' + prevName, {
+                method : 'PUT',
+                body : JSON.stringify({name, prompt, version}),
+                headers:{ 'Content-Type' : 'application/json' }
+            })
+            if(!reponse.ok) throw new Error('Error saving agent')
         }catch(e){
             console.error(e)
         }
@@ -57,31 +64,5 @@ export default class PromptService{
             console.error("Error fetching prompts list : ", error)
             return undefined
         }
-    }
-
-    static async DBSave(name : string, prompt : string, version : string){
-        const reponse = await fetch('http://localhost:3000/prompt', {
-            method : 'POST',
-            body : JSON.stringify({name, prompt, version}),
-            headers:{ 'Content-Type' : 'application/json' }
-        })
-        if(!reponse.ok) throw new Error('Error saving agent')
-    }
-
-    static localSave(name : string, prompt : string, version : string){
-        PromptLibrary.addPrompt(name, prompt, version)
-    }
-
-    static async DBUpdate(prevName : string, name : string, prompt : string, version : string){
-        const reponse = await fetch('http://localhost:3000/prompt/' + prevName, {
-            method : 'PUT',
-            body : JSON.stringify({name, prompt, version}),
-            headers:{ 'Content-Type' : 'application/json' }
-        })
-        if(!reponse.ok) throw new Error('Error saving agent')
-    }
-
-    static localUpdate(prevName : string, name : string, prompt : string, version : string){
-        PromptLibrary.updatePrompt(prevName, name, prompt, version)
     }
 }

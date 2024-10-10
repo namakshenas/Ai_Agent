@@ -1,4 +1,4 @@
-import { IRAGDocumentResponse } from "../interfaces/IRAGDocumentResponse"
+import { IRAGDocumentResponse } from "../../interfaces/responses/IRAGDocumentResponse"
 
 export default class DocService{
 
