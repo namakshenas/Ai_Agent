@@ -1,4 +1,4 @@
-import { IModelDetails } from "./IModelDetails";
+import { IModelDetails } from "../IModelDetails";
 
 export interface IListModelResponse {
         models : IModelInfos[]

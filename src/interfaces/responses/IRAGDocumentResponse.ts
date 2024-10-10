@@ -1,5 +1,5 @@
 import { ILokiBaseInterface } from "./ILokiBaseInterface"
-import { IRAGDocument } from "./IRAGDocument"
+import { IRAGDocument } from "../IRAGDocument"
 
 export interface IRAGDocumentResponse extends IRAGDocument, ILokiBaseInterface{
     id : number
