@@ -1,31 +1,70 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-private-class-members */
+import { IAIModelParams } from "../interfaces/params/IAIModelParams.js"
 import { AIModel } from "./AIModel.js"
 
 export class AIAgent extends AIModel {
 
-    #name: string
+    #id : string
+    #name : string
+    #type : string
+    #favorite : boolean
+    #webSearchEconomy: boolean = false
     #processFn : (request : any) => any = (request : string) => request
     protected nextAgent: AIAgent | null = null
 
-    models = [
-        "mistral-nemo:latest", 
-        "phi3.5", 
-        "llama3", 
-        "llama3.1:8b", 
-        "dolphin-llama3:8b-256k", 
-        "phi3:3.8-mini-128k-instruct-q4_K_M", 
-        "qwen2", 
-        "qwen2:1.5b", 
-        "qwen2:0.5b", 
-        "gemma2:9b"
-    ]
-
-    defaultModel = "llama3.1:8b"
-
-    constructor(name : string, model : string = "llama3.1:8b"){
-        super({modelName : model})
+    constructor({
+        id,
+        name, 
+        modelName = "llama3.1:8b", 
+        systemPrompt = "You are an helpful assistant.", 
+        temperature = 0.8, 
+        mirostat = 0, 
+        mirostat_eta = 0.1, 
+        mirostat_tau = 5.0, 
+        num_ctx = 2048,
+        context = [],
+        repeat_last_n = 64, 
+        repeat_penalty = 1.1, 
+        seed = 0,
+        stop = "AI assistant:", 
+        tfs_z = 1, 
+        num_predict = 1024,
+        top_k = 40,
+        top_p = 0.9,
+        type = "user_created",
+        favorite = false,
+        webSearchEconomy = false,
+    } : IAIModelParams & { id : string, name : string, type : "system" | "user_created", favorite : boolean, webSearchEconomy? : boolean })
+    {
+        super({
+            modelName, 
+            systemPrompt, 
+            temperature,
+            mirostat,
+            mirostat_eta,
+            mirostat_tau,
+            context,
+            num_ctx,
+            repeat_last_n,
+            repeat_penalty,
+            seed,
+            stop,
+            tfs_z,
+            num_predict,
+            top_k,
+            top_p,
+        })
+        this.#id = id
         this.#name = name
+        this.#type = type
+        this.#favorite = favorite
+        this.#webSearchEconomy = webSearchEconomy
+        return this
+    }
+
+    getId() : string {
+        return this.#id
     }
 
     setName(name : string) : AIAgent {
@@ -49,6 +88,32 @@ export class AIAgent extends AIModel {
     setProcessFn(fn : (params : unknown) => unknown){
         this.#processFn = fn
     }
+
+    getWebSearchEconomy() : boolean {
+        return this.#webSearchEconomy
+    }
+
+    setWebSearchEconomy(webSearchEconomy: boolean) {
+        this.#webSearchEconomy = webSearchEconomy
+        return this
+    }
+
+    getType() : string {
+        return this.#type
+    }
+
+    setType(type : string) {
+        if(type!== 'system' && type!=='user_created') throw new Error('invalid type')
+        this.#type = type
+    }
+
+    getFavorite() : boolean {
+        return this.#favorite
+    }
+
+    setFavorite(favorite : boolean){
+        this.#favorite = favorite
+    }
     
     async process(request: string): Promise<string>{
         // should contain all the pre and post inference related to this agent
@@ -64,14 +129,27 @@ export class AIAgent extends AIModel {
     }
 
     asString(){
-        return JSON.stringify({
-            name : this.#name,
-            model : this.getModelName(),
-            systemPrompt : this.getSystemPrompt(),
-            num_ctx : this.getContextSize(),
-            num_predict : this.getNumPredict(),
-            temperature : this.getTemperature(),
-        })
+        return JSON.stringify(
+            {
+                name : this.#name,
+                model: this.getModelName(),
+                systemPrompt: this.getSystemPrompt(),
+                num_ctx: this.getContextSize(),
+                temperature: this.getTemperature(),
+                num_predict: this.getNumPredict(),
+                mirostat: this.getMirostat(),
+                mirostat_eta: this.getMirostatEta(),
+                mirostat_tau: this.getMirostatTau(),
+                repeat_last_n: this.getRepeatLastN(),
+                repeat_penalty: this.getRepeatPenalty(),
+                seed: this.getSeed(),
+                stop: this.getStop(),
+                tfs_z: this.getTfsZ(),
+                top_k: this.getTopK(),
+                top_p: this.getTopP(),
+                status: this.getStatus()
+            }
+        )
     }
 
     //setOutputSchema

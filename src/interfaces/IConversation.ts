@@ -1,9 +1,8 @@
 export interface IConversation {
     name : string
     history : IConversationElement[]
-    lastModelUsed : string // useful to determine the context format
+    lastAgentUsed : string // useful to determine the context format
     // should add displayed : yes/no so that intermediate COT steps could be hidden
-    // should have last agent used
     technicalDatas ? : {
         promptEvalDuration : number
         inferenceDuration : number

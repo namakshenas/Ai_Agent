@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-import { ICompletionResponse } from "../interfaces/ICompletionResponse"
-import { IEmbeddingResponse } from "../interfaces/IEmbeddingResponse"
+import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse"
+import { IEmbeddingResponse } from "../interfaces/responses/IEmbeddingResponse"
+import { IAIModelParams } from "../interfaces/params/IAIModelParams"
 
 /**
  * @class AIModel
@@ -22,17 +23,57 @@ export class AIModel{
     #num_predict : number
     #abortController = new AbortController()
     #signal = this.#abortController.signal
+    #mirostat : number
+    #mirostat_eta : number
+    #mirostat_tau : number
+    #repeat_last_n : number
+    #repeat_penalty : number
+    #seed : number
+    #stop : string
+    #tfs_z : number
+    #top_k : number
+    #top_p : number
+    #status : "standard" | "base" | "favorite"
+    
     // add keep alive!!!!!
     // add format : json
 
-    constructor({ modelName = "llama3.1:8b", systemPrompt =  'You are a helpful assistant.', context = [], num_ctx = 2048, temperature = 0.8, num_predict = 1024 } : IAIModelParams){
+    constructor({ 
+        modelName = "llama3.1:8b", 
+        systemPrompt = "You are an helpful assistant.", 
+        temperature = 0.8, 
+        mirostat = 0, 
+        mirostat_eta = 0.1, 
+        mirostat_tau = 5.0, 
+        num_ctx = 2048,
+        context = [],
+        repeat_last_n = 64, 
+        repeat_penalty = 1.1, 
+        seed = 0,
+        stop = "AI assistant:", 
+        tfs_z = 1, 
+        num_predict = 1024,
+        top_k = 40,
+        top_p = 0.9,
+        status = "standard",
+    } : IAIModelParams){
         this.#modelName = modelName
-        // this.#stream = stream
         this.#systemPrompt = systemPrompt
         this.#context = context
         this.#num_ctx = num_ctx
         this.#num_predict = num_predict
         this.#temperature = temperature
+        this.#mirostat = mirostat
+        this.#mirostat_eta = mirostat_eta
+        this.#mirostat_tau = mirostat_tau
+        this.#repeat_last_n = repeat_last_n
+        this.#repeat_penalty = repeat_penalty
+        this.#seed = seed
+        this.#stop = stop
+        this.#tfs_z = tfs_z
+        this.#top_k = top_k
+        this.#top_p = top_p
+        this.#status = status
     }
 
     /**
@@ -240,6 +281,66 @@ export class AIModel{
         this.#temperature = temperature
     }
 
+    setNumCtx(value: number) {
+        this.#num_ctx = value;
+        return this;
+    }
+     
+    setMirostat(value: number) {
+        this.#mirostat = value;
+        return this;
+    }
+    
+    setMirostatEta(value: number) {
+        this.#mirostat_eta = value;
+        return this;
+    }
+    
+    setMirostatTau(value: number) {
+        this.#mirostat_tau = value;
+        return this;
+    }
+    
+    setRepeatLastN(value: number) {
+        this.#repeat_last_n = value;
+        return this;
+    }
+    
+    setRepeatPenalty(value: number) {
+        this.#repeat_penalty = value;
+        return this;
+    }
+    
+    setSeed(value: number) {
+        this.#seed = value;
+        return this;
+    }
+    
+    setStop(value: "AI assistant:") {
+        this.#stop = value;
+        return this;
+    }
+    
+    setTfsZ(value: number) {
+        this.#tfs_z = value;
+        return this;
+    }
+    
+    setTopK(value: number) {
+        this.#top_k = value;
+        return this;
+    }
+    
+    setTopP(value: number) {
+        this.#top_p = value;
+        return this;
+    }
+    
+    setStatus(value: "standard" | "base" | "favorite") {
+        this.#status = value;
+        return this;
+    }    
+
     /**
      * @private
      * @function #buildRequest
@@ -289,6 +390,7 @@ export class AIModel{
         })
     }
 
+    // !!! should instead pass the controller to the conversation?!!! so that model can be easily switched
     abortLastRequest(){
         if(this.#abortController) this.#abortController.abort("Signal aborted.")
         // need to create a new abort controller and a new signal
@@ -320,26 +422,72 @@ export class AIModel{
     getNumPredict() : number {
         return this.#num_predict
     }
+    
+    getMirostat(): number {
+        return this.#mirostat;
+    }
+    
+    getMirostatEta(): number {
+        return this.#mirostat_eta;
+    }
+    
+    getMirostatTau(): number {
+        return this.#mirostat_tau;
+    }
+    
+    getRepeatLastN(): number {
+        return this.#repeat_last_n;
+    }
+    
+    getRepeatPenalty(): number {
+        return this.#repeat_penalty;
+    }
+    
+    getSeed(): number {
+        return this.#seed;
+    }
+    
+    getStop(): string {
+        return this.#stop;
+    }
+    
+    getTfsZ(): number {
+        return this.#tfs_z;
+    }
+    
+    getTopK(): number {
+        return this.#top_k;
+    }
+    
+    getTopP(): number {
+        return this.#top_p;
+    }
+    
+    getStatus(): "standard" | "base" | "favorite" {
+        return this.#status;
+    }    
 
     asString(){
         return JSON.stringify({
-            model : this.#modelName,
-            systemPrompt : this.#systemPrompt,
-            num_ctx : this.#num_ctx,
-            num_predict : this.#num_predict,
-            temperature : this.#temperature,
+            model: this.#modelName,
+            systemPrompt: this.#systemPrompt,
+            context: this.#context,
+            num_ctx: this.#num_ctx,
+            temperature: this.#temperature,
+            num_predict: this.#num_predict,
+            mirostat: this.#mirostat,
+            mirostat_eta: this.#mirostat_eta,
+            mirostat_tau: this.#mirostat_tau,
+            repeat_last_n: this.#repeat_last_n,
+            repeat_penalty: this.#repeat_penalty,
+            seed: this.#seed,
+            stop: this.#stop,
+            tfs_z: this.#tfs_z,
+            top_k: this.#top_k,
+            top_p: this.#top_p,
+            status: this.#status
         })
     }
-}
-
-export interface IAIModelParams{
-    modelName? : string
-    stream? : boolean
-    systemPrompt? : string
-    context? : number[]
-    num_ctx? : number
-    temperature? : number
-    num_predict? : number
 }
 
 export interface IBaseOllamaRequest{

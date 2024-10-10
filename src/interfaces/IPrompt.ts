@@ -1,5 +1,5 @@
 export default interface IPrompt {
-    id : string
+    id? : string
     name : string
     prompt : string
     status : string
