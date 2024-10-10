@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react"
 import './FormPromptSettings.css'
 import useFetchPrompt from "../../hooks/useFetchPrompt"
-import PromptLibrary from "../../services/PromptLibrary"
-import PromptService from "../../services/PromptService"
+import PromptLibrary from "../../deprecated/PromptLibrary"
+import PromptService from "../../services/API/PromptService"
 
-export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRef, isAPIOffline, setForceLeftPanelRefresh, role} : IProps){
+export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRef, setForceLeftPanelRefresh, role} : IProps){
 
-    const { prompt, setPrompt } = useFetchPrompt(selectedPromptNameRef?.current, isAPIOffline)
+    const { prompt, setPrompt } = useFetchPrompt(selectedPromptNameRef?.current)
 
     useEffect(() => {
         setFormValues({name : prompt.name, prompt : prompt.prompt})
@@ -88,7 +88,6 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
 interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     selectedPromptNameRef? : React.MutableRefObject<string>
-    isAPIOffline? : boolean
     setForceLeftPanelRefresh : React.Dispatch<React.SetStateAction<number>>
     role : "edit" | "create"
 }

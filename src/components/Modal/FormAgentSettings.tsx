@@ -8,9 +8,9 @@ import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
 import { AgentLibrary } from "../../services/AgentLibrary";
-import AgentService from "../../services/AgentService";
+import AgentService from "../../services/API/AgentService";
 
-export default function FormAgentSettings({memoizedSetModalStatus, setForceRightPanelRefresh, role, isAPIOffline} : IProps){
+export default function FormAgentSettings({memoizedSetModalStatus, setForceRightPanelRefresh, role} : IProps){
 
     const modelList = useFetchModelsList()
     const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
@@ -62,12 +62,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
         // update the offline agent library
         if(role == "edit") AgentLibrary.removeAgent(currentAgent.current.getName())
         AgentLibrary.addAgent(newAgent)
-
-        // update the backend agent database
-        if(!isAPIOffline){
-            if(role == "edit") AgentService.update(newAgent)
-            if(role == "create") AgentService.save(newAgent)
-        }
 
         ChatService.setActiveAgent(newAgent.getName())
 
@@ -218,7 +212,6 @@ interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     setForceRightPanelRefresh? : React.Dispatch<React.SetStateAction<number>>
     role : "edit" | "create"
-    isAPIOffline? : boolean
 }
 
 
