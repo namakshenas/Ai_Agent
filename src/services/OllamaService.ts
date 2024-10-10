@@ -1,5 +1,5 @@
-import { IListModelResponse } from "../interfaces/IListModelResponse";
-import { IRunningModelsResponse } from "../interfaces/IRunningModelResponse";
+import { IListModelResponse } from "../interfaces/responses/IListModelResponse";
+import { IRunningModelsResponse } from "../interfaces/responses/IRunningModelResponse";
 
 export class OllamaService{
     static async getModelList() : Promise<IListModelResponse | undefined>{

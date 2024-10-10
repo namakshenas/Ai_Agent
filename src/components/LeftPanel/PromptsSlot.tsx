@@ -3,10 +3,10 @@ import { useState } from "react";
 import useFetchPromptsList from "../../hooks/useFetchPromptsList";
 // import PromptLibrary from "../../services/PromptLibrary";
 
-export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef, isAPIOffline} : IProps){
+export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IProps){
     
     const [promptsListPage, setPromptsListPage] = useState(0)
-    const {promptsList, setPromptsList} = useFetchPromptsList(isAPIOffline)
+    const {promptsList, setPromptsList} = useFetchPromptsList()
 
     function handleNextPage() : void{
         setPromptsListPage(page => page + 1 < Math.ceil(promptsList.length/3) ? page+1 : 0)
@@ -59,5 +59,4 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef, isAP
 interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId : string}) => void
     selectedPromptNameRef : React.MutableRefObject<string>
-    isAPIOffline : boolean
 }

@@ -3,13 +3,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { IRAGDocument } from "../../interfaces/IRAGDocument";
 import useFetchDocsList from "../../hooks/useFetchDocsList";
 
-export default function DocumentsSlot({isAPIOffline} : {isAPIOffline : boolean}){
+export default function DocumentsSlot(){
 
     // const RAGDocuments = DocumentsRepository.getDocuments().slice(0,6)
 
     const units = ["B", "KB", "MB", "GB"]
 
-    const { docsList, docsListRef, setDocsList} = useFetchDocsList(isAPIOffline)
+    const { docsList, docsListRef, setDocsList} = useFetchDocsList()
 
     /*const [documents, _setDocuments] = useState<IRAGDocument[]>([...RAGDocuments])
     const documentsRef = useRef<IRAGDocument[]>([...RAGDocuments])

@@ -52,28 +52,27 @@ export class WebSearchService{
     }
 
     // convert the user request into an optimized search query
-    static async #optimizeQuery(query : string) {
-        const optimizedQuery = (await AgentLibrary.library['searchQueryOptimizer'].ask(query)).response
-        // console.log("optimized query : " + optimizedQuery)
-        return optimizedQuery
+    static async #optimizeQuery(query : string) : Promise<string> {
+        const queryOptimizer = AgentLibrary.getAgent('searchQueryOptimizer')
+        if(queryOptimizer == null) return query
+        return (await queryOptimizer.ask(query)).response
     }
 
     // summarizing the scraped datas so it will take less context
     static async #summarizeScrapedPages(scrapedPages : ScrapedPage[], query : string) : Promise<ScrapedPage[]> {
+        const scrapedDatasSummarizer = AgentLibrary.getAgent('scrapedDatasSummarizer')
+        if(scrapedDatasSummarizer == null) return scrapedPages
         const summarizedPages = [...scrapedPages]
         for (const page of summarizedPages) {
             page.setDatas(
-                (await AgentLibrary.library['scrapedDatasSummarizer'].ask(`
+                (await scrapedDatasSummarizer.ask(`
                     <SCRAPEDDATAS>${page.datas}</SCRAPEDDATAS>\n
                     <REQUEST>${query}</REQUEST>\n
                 `)).response
             )
 
-        }
-
-        summarizedPages.map(page => {
             console.log('SUMMARY : ' + page.datas)
-        })
+        }
 
         return summarizedPages
     }

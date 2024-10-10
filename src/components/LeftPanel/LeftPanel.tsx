@@ -9,7 +9,7 @@ import React from 'react'
 import { IConversation } from '../../interfaces/IConversation'
 
 // export default function LeftPanel({activeConversation, setActiveConversation, setModalStatus, selectedPromptRef} : IProps){
-const LeftPanel = React.memo(({activeConversationId, activeConversationStateRef, setActiveConversationId, memoizedSetModalStatus, selectedPromptNameRef, isAPIOffline} : IProps) => {
+const LeftPanel = React.memo(({activeConversationId, activeConversationStateRef, setActiveConversationId, memoizedSetModalStatus, selectedPromptNameRef} : IProps) => {
 
     useEffect(() => {console.log("left panel render")})
 
@@ -17,8 +17,8 @@ const LeftPanel = React.memo(({activeConversationId, activeConversationStateRef,
         <aside className="leftDrawer">
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
             <ConversationsSlot activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId}/>
-            <DocumentsSlot isAPIOffline={isAPIOffline}/>
-            <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus} isAPIOffline={isAPIOffline}/>
+            <DocumentsSlot/>
+            <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
     )
 }, (prevProps, nextProps) => {
@@ -33,5 +33,4 @@ interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId : string}) => void
     selectedPromptNameRef : React.MutableRefObject<string>
     activeConversationStateRef: React.MutableRefObject<IConversation>
-    isAPIOffline : boolean
 }
