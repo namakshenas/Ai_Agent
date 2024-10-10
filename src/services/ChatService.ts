@@ -2,21 +2,21 @@
 import { IConversationElement } from "../interfaces/IConversation";
 import { AIAgent } from "../models/AIAgent";
 import ScrapedPage from "../models/ScrapedPage";
-import { AgentLibrary } from "./AgentLibrary";
 import AnswerFormatingService from "./AnswerFormatingService";
 export class ChatService{
 
-    static #activeAgentName = "helpfulAssistant"
+    // static #activeAgentName = "helpfulAssistant"
+    static activeAgent : AIAgent = new AIAgent({id : "ATemp", name : 'helpfulTemp', modelName : "llama3.2:3b"})
 
     static async askForFollowUpQuestions(question : string, context:number[] = []) : Promise<string>
     {
       try{
-        if(!AgentLibrary.library["helpfulAssistant"]) throw new Error(`Agent helpfulAssistant is not available`)
+        if(this.activeAgent == null) throw new Error(`Agent is not available`)
 
-        AgentLibrary.library["helpfulAssistant"].setContext(context)
-        const answer = await AgentLibrary.library["helpfulAssistant"].ask(question)
+        this.activeAgent.setContext(context)
+        const answer = await this.activeAgent.ask(question)
         return answer.response
-      }catch (error){
+      } catch (error){
         console.error("Failed to generate the follow up questions : " + error)
         throw error
       }
@@ -27,36 +27,36 @@ export class ChatService{
   
     static async askTheActiveAgent(question : string, context:number[] = [], format : boolean = true) : Promise<IConversationElement>
     {
-        if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
+      if(this.activeAgent == null) throw new Error(`Agent is not available`)
+        this.activeAgent.setContext(context)
 
-        AgentLibrary.library[this.#activeAgentName].setContext(context)
-        try{
-          const answer = await AgentLibrary.library[this.#activeAgentName].ask(question)
-          const responseAsHTML = await AnswerFormatingService.format(answer.response)
-          return {context : [...answer.context as number[]], answer : {asMarkdown : answer.response, asHTML : responseAsHTML}, sources : [], question : question}
-        }catch(error){
-          console.error("Failed to query the model : " + error)
-          throw error
-        }
+      try{
+        const answer = await this.activeAgent.ask(question)
+        const responseAsHTML = await AnswerFormatingService.format(answer.response)
+        return {context : [...answer.context as number[]], answer : {asMarkdown : answer.response, asHTML : responseAsHTML}, sources : [], question : question}
+      }catch(error){
+        console.error("Failed to query the model : " + error)
+        throw error
+      }
     }
 
     static async askTheActiveAgentForAStreamedResponse(question : string, showErrorModal: (message : string) => void, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<number[]>
     {
-      if(!AgentLibrary.library[this.#activeAgentName]) throw new Error(`Agent ${this.#activeAgentName} is not available`)
+      if(this.activeAgent == null) throw new Error(`Agent is not available`)
 
       let newContext = []
 
-      AgentLibrary.library[this.#activeAgentName].setContext(context)
+      this.activeAgent.setContext(context)
       // scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
       const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, currentPage)=> acc + '\n\n' + currentPage.datas, "When replying to **MY REQUEST**, always use the following datas as your MAIN source of informations especialy if it superseeds your training dataset : ") : ""
-      const availableContextForWebDatas = AgentLibrary.library[this.#activeAgentName].getContextSize() - AgentLibrary.library[this.#activeAgentName].getNumPredict() - 1000
+      const availableContextForWebDatas = this.activeAgent.getContextSize() - this.activeAgent.getNumPredict() - 1000
       const webDatasSizedForAvailableContext = concatenatedWebDatas.substring(0, availableContextForWebDatas)
       // the agent receive an amount of scraped datas matching the context size available
 
       let content = ""
       let decod = ""
       try{
-          const reader = await AgentLibrary.library[this.#activeAgentName].askForAStreamedResponse(webDatasSizedForAvailableContext + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
+          const reader = await this.activeAgent.askForAStreamedResponse(webDatasSizedForAvailableContext + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
 
           while(true){
               const { value } = await reader.read()
@@ -130,26 +130,25 @@ export class ChatService{
     }
 
     static abortAgentLastRequest(){
-        AgentLibrary.library[this.#activeAgentName].abortLastRequest()
+      if(this.activeAgent != null) this.activeAgent.abortLastRequest()
     }
 
-    static setActiveAgent(name : string){
-        if(!AgentLibrary.library[name]) return
-        this.#activeAgentName = name
+    static setActiveAgent(agent : AIAgent){
+      this.activeAgent = agent
     }
 
     static getActiveAgentName() : string{
-        return this.#activeAgentName
+      return this.activeAgent?.getName() || ""
     }
 
     static getActiveAgent() : AIAgent{
-        return AgentLibrary.library[this.#activeAgentName]
+      return this.activeAgent
     }
 
-    static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
+    /*static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>
     {
         try{
-          if(!AgentLibrary.library['CompletionAgent']) throw new Error(`CompletionAgent is not available`)
+          if(this.activeAgent == null) throw new Error(`Complemention Agent is not available`)
           AgentLibrary.library['CompletionAgent'].setContext(context)
           const answer = (await AgentLibrary.library['CompletionAgent'].ask(promptToComplete))
           return {context : answer.context as number[], response : answer.response}
@@ -157,5 +156,5 @@ export class ChatService{
           console.error("Failed to complete the question : " + error)
           throw error
         }
-    }
+    }*/
 }

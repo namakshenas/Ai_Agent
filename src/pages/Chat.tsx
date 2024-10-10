@@ -20,16 +20,20 @@ import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
 import { IConversation } from "../interfaces/IConversation";
 import ErrorAlert from "../components/Modal/ErrorAlert";
+import useFetchAgentsList from "../hooks/useFetchAgentsList";
 
-function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
+function Chat() {
 
     useEffect(() => console.log("chat render"))
+
+    const {AIAgentsList, setAIAgentsList} = useFetchAgentsList()
+    useEffect(() => {setForceRightPanelRefresh(value => value + 1)} , [AIAgentsList])
     
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
 
     // contains all the logic used to manage the active conversation history and its context
     // -> used when chat history is displayed + for conversation selection
-    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastModelUsed  : ""})
+    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : ""})
 
     // ref used for the autoscroll feature happening during response streaming
     const historyContainerRef = useRef<HTMLDivElement>(null)
@@ -69,7 +73,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
     // & set the scrollbar behavior
     const htmlRef = useRef(document.documentElement)
     useEffect(() => {
-        ConversationsRepository.pushNewConversation(activeConversationStateRef.current.name, activeConversationStateRef.current.history, activeConversationStateRef.current.lastModelUsed)
+        ConversationsRepository.pushNewConversation(activeConversationStateRef.current.name, activeConversationStateRef.current.history, activeConversationStateRef.current.lastAgentUsed)
 
         if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
             htmlRef.current.style.overflow = "-moz-scrollbars-vertical";
@@ -112,7 +116,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
             const currentContext = await convertContextOnModelSwitch(activeConversationStateRef.current)
             setIsStreaming(true)
             // activeConversationState -> create a blank conversation QA pair
-            dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, modelUsed : ChatService.getActiveAgent().getModelName()}})
+            dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, agentUsed : ChatService.getActiveAgent().asString()}})
             let newContext = []
 
             // !!! should move scraping to chatService?
@@ -160,8 +164,8 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
     // !!! will have to convert the conv into token using tokenizer and return only last num_ctx tokens
     async function convertContextOnModelSwitch(conversationState : IConversation) : Promise<number[]>{
-        if (conversationState?.lastModelUsed != "" && conversationState?.lastModelUsed != ChatService.getActiveAgent().getModelName()) {
-            console.log("last used model : " + conversationState?.lastModelUsed)
+        if (conversationState?.lastAgentUsed != "" && conversationState?.lastAgentUsed != ChatService.getActiveAgent().asString()) {
+            console.log("last used model : " + conversationState?.lastAgentUsed)
             console.log("new model : " + ChatService.getActiveAgent().getModelName())
             const activeAgent = ChatService.getActiveAgent()
             console.log("old context : " + JSON.stringify(conversationState.history[conversationState.history.length - 1]?.context || []))
@@ -211,7 +215,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
 
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>
+        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>
         <main>
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
@@ -225,7 +229,7 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
-                    <div title="active the web search" style={isAPIOffline ? {opacity : '0.3', pointerEvents: 'none'} : {opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
+                    <div title="active the web search" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Search the Web</span>
                         <div className='switchContainer'>
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
@@ -250,14 +254,14 @@ function Chat({isAPIOffline} : {isAPIOffline : boolean}) {
                 </div>
             </div>
         </main>
-        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>
+        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} setAIAgentsList={setAIAgentsList}/>
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
                 {{
-                    'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
-                    'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} isAPIOffline={isAPIOffline}/>,
-                    'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef} isAPIOffline={isAPIOffline}/>,
-                    'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} isAPIOffline={isAPIOffline}/>,
+                    'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh}/>,
+                    'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh}/>,
+                    'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>,
+                    'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
                     'error' : <ErrorAlert errorMessage={errorMessageRef.current}/>,
                 } [modalContentId]}
             </Modal>
@@ -307,6 +311,7 @@ export default Chat
 // issue with prompt modal when history is scrolleddown
 // from now one, always reply with a single whitespace
 // detach sticky bottom during streaming
+// agent can't be changed after sending first message in a convo
 
 // readme : prompts optimized for mistral nemo
 // tell me if you face a formatting issue within an answer

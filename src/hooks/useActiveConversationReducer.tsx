@@ -3,9 +3,9 @@ import { useRef, useReducer, useState } from "react"
 import { IConversation, IConversationElement } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
-export function useActiveConversationReducer({name, history, lastModelUsed} : IConversation) {
+export function useActiveConversationReducer({name, history, lastAgentUsed} : IConversation) {
 
-    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastModelUsed  : lastModelUsed})
+    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed})
     const [activeConversationId, setActiveConversationId] = useState<number>(0)
 
     function conversationReducer(state : IConversation, action : TAction){
@@ -18,7 +18,7 @@ export function useActiveConversationReducer({name, history, lastModelUsed} : IC
                         context : [],
                         sources : [],
                 }]}
-                newState.lastModelUsed = action.payload.modelUsed
+                newState.lastAgentUsed = action.payload.agentUsed
                 activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
@@ -85,7 +85,7 @@ export function useActiveConversationReducer({name, history, lastModelUsed} : IC
         }
     }
 
-    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastModelUsed  : lastModelUsed})
+    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed})
 
     return {activeConversationState, dispatch, activeConversationStateRef, activeConversationId, setActiveConversationId}
 }
@@ -103,7 +103,7 @@ export enum ActionType {
 }
 
 type TAction = 
-    | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, modelUsed : string } }
+    | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, agentUsed : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER; payload: { html : string, markdown : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT; payload: number[] }
     | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement /*{ question : string, html : string, markdown : string, context : number[] }*/}
