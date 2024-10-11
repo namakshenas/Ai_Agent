@@ -16,7 +16,7 @@ const LeftPanel = React.memo(({activeConversationId, activeConversationStateRef,
     return(
         <aside className="leftDrawer">
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
-            <ConversationsSlot activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId}/>
+            <ConversationsSlot activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId}/>
             <DocumentsSlot/>
             <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
@@ -29,7 +29,7 @@ export default LeftPanel
 
 interface IProps{
     activeConversationId : number
-    setActiveConversationId : (index : number) => void
+    setActiveConversationId : ({value} : {value : number}) => void
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId : string}) => void
     selectedPromptNameRef : React.MutableRefObject<string>
     activeConversationStateRef: React.MutableRefObject<IConversation>

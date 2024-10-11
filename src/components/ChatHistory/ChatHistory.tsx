@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import AnswerRow from "./ChatHistory/AnswerRow"
-import QuestionRow from "./ChatHistory/QuestionRow"
-import '../style/ChatHistory.css'
+import AnswerRow from "./AnswerRow"
+import QuestionRow from "./QuestionRow"
+import '../../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
-import { IConversationElement } from "../interfaces/IConversation"
+import { IConversationElement } from "../../interfaces/IConversation"
+import { useTTS } from "../../hooks/useTTS"
 
 function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps) {
 
   const historyContainerRef = useRef(null)
   const autoScrollingObsRef = useRef<MutationObserver>()
+
+  const TTS = useTTS()
 
   // setting up an observer that keep scrolling to the bottom of the chat window
   // when some new streamed text is added to the conversation history
@@ -64,8 +67,8 @@ function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps)
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               {(index == (array.length -1)) ? 
-              <AnswerRow key={'answerRow' + index} answer={item.answer} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
-              : <AnswerRow key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>}
+              <AnswerRow TTS={TTS} key={'answerRow' + index} answer={item.answer} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
+              : <AnswerRow TTS={TTS} key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>}
             </article>
           ))
         }

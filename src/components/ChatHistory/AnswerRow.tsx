@@ -4,13 +4,21 @@ import AnswerWaitingAnim from './AnswerWaitingAnim'
 import computerIcon from '../../assets/chaticon9.png';
 import './AnswerRow2.css'
 import { ISource } from '../../interfaces/IConversation';
+import { TTSService } from '../../services/TTSService';
 
-function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard, onRegenerate} : IProps){
+function AnswerRow({index, answer, sources, TTS, onDownload, onCopyToClipboard, onRegenerate} : IProps){
+
+    // const answerDivRef = useRef<HTMLDivElement>(null)
 
     // !!! should sanitize source
     function convertSourcesArrayToHTML(sourcesArray : ISource[]) : string{
         if(sourcesArray.length == 0) return ''
         return sourcesArray.reduce((acc, source) => acc + source.asHTML + '<br>', '<hr style="opacity:0.3; margin:1.15rem 0 0.5rem 0;"><span style="font-size:14px; font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
+    }
+
+    function playTTS(){
+        if(TTS.isPlaying()) return TTS.stop()
+        if(TTS) TTS.speak(answer.asMarkdown)
     }
 
     return(
@@ -33,7 +41,7 @@ function AnswerRow({index, answer, sources, onDownload, onCopyToClipboard, onReg
                             <path fillRule="evenodd" clipRule="evenodd" d="M6 3C6 2.44772 6.44772 2 7 2H15C15.5523 2 16 2.44772 16 3V9C16 10.6569 14.6569 12 13 12H7C6.44772 12 6 11.5523 6 11V3ZM7 0C5.34315 0 4 1.34315 4 3V11C4 12.6569 5.34315 14 7 14H13C15.7614 14 18 11.7614 18 9V3C18 1.34315 16.6569 0 15 0H7ZM0 5V13C0 15.7614 2.23858 18 5 18H11V16H5C3.34315 16 2 14.6569 2 13V5H0ZM10 8H8V6H10V4H12V6H14V8H12V10H10V8Z" fill="#252525"/>
                         </svg>
                     </button>
-                    <button className='iconButton'>
+                    <button className='iconButton' onClick={playTTS}>
                         <svg style={{width:'16px', opacity:1}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                     </button>
                 </div>
@@ -54,4 +62,5 @@ interface IProps{
     onDownload : (text : string) => void
     onCopyToClipboard : (text : string) => Promise<void>
     onRegenerate? : () => void
+    TTS : TTSService
 }
