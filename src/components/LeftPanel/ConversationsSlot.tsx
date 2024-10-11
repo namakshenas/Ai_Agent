@@ -4,8 +4,8 @@ import { IConversation } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
 import { ChatService } from "../../services/ChatService"
 
-export function ConversationsSlot({activeConversationStateRef, activeConversationId, setActiveConversationId} : IProps){
-    // should be replaced by a fn from the reducer
+export function ConversationsSlot({activeConversationId, setActiveConversationId} : IProps){
+    
     const [conversationsListState, setConversationsListState] = useState<IConversation[]>(ConversationsRepository.getConversations()) 
     const [conversationsListPage, setConversationsListPage] = useState<number>(0)
 
@@ -13,8 +13,6 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
     /*useEffect(() => {
         setConversationsListState(ConversationsRepository.getConversations())
     }, [activeConversationStateRef.current])*/
-
-    // ConversationsRepository.getConversations() polling
 
     // conversation list polling every 3s
     useEffect(() => {
@@ -30,30 +28,35 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
         }
     }, [])
 
+    // move to previous page if no conversation left on the current page after deletion
+    function refreshActivePageList(){
+        const nConversations = ConversationsRepository.getConversations().length
+        if(Math.ceil(nConversations / 3) - 1 < conversationsListPage) setConversationsListPage(pageId => pageId - 1)
+    }
+
     function handleNewConversation() : void{
         ConversationsRepository.pushNewConversation("no_name", [], "")
         const nConversations = ConversationsRepository.getConversations().length
         setConversationsListState([...ConversationsRepository.getConversations()])
         setConversationsListPage(Math.ceil(nConversations / 3) - 1)
-        setActiveConversationId(nConversations - 1)
+        setActiveConversationId({value : nConversations - 1})
     }
 
     function handleSetActiveConversation(id : number) : void{
         ChatService.abortAgentLastRequest()
-        setActiveConversationId(id)
+        setActiveConversationId({value : id})
         // no need to set streaming to false or update the conversation 
         // cause handled by an effect reacting active conversation id changing
     }
 
     function handleDeleteConversation(id : number) : void{
-        ConversationsRepository.deleteConversation(id) // issue when deleting first conv, conv still displayed (chat history) 
-        // !!! refresh of chat history happens when active conversation id change
-        // but when i delete convo 0 then convo 1 becomes convo 0 and then active id stays at 0 // should refresh on n_conversations (length) too?
+        console.log("deleting conversation : " + id)
+        // switching id from 0 to 1 and back to 0 helps refreshing the chat history
+        if(id == 0 && ConversationsRepository.getConversations().length > 1) setActiveConversationId({value : 1})
+        ConversationsRepository.deleteConversation(id)
         setConversationsListState([...ConversationsRepository.getConversations()])
-        setActiveConversationId(id > 0 ? id - 1 : 0)
-        const nConversations = ConversationsRepository.getConversations().length
-        if(Math.ceil(nConversations / 3) - 1 < conversationsListPage) setConversationsListPage(pageId => pageId - 1)
-        // move to previous page if no conversation left on the page after deleting a conversation
+        setActiveConversationId({value : id > 0 ? id - 1 : 0})
+        refreshActivePageList()
     }
 
     function handleNextConversationsListPage() : void{
@@ -72,7 +75,7 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
     return(
         <article>
                 <h3>
-                    CONVERSATIONS<span className='nPages'>Page {conversationsListPage+1} on {Math.ceil(conversationsListState.length/3)}</span>
+                    CONVERSATIONS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>Page {conversationsListPage+1} on {Math.ceil(conversationsListState.length/3)}</span>
                 </h3>
                 <ul style={{minHeight : '118px'}}>
                     {conversationsListState.slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => 
@@ -97,7 +100,7 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
                     }
                 </ul>
                 <div className='buttonsContainer'>
-                    <span className="activePage">Page {conversationsListPage+1}&nbsp;<span>/&nbsp;{Math.ceil(conversationsListState.length/3)}</span></span>
+                    {/*<span className="activePage">Page {conversationsListPage+1}&nbsp;<span>/&nbsp;{Math.ceil(conversationsListState.length/3)}</span></span>*/}
                     <button title="previous page" className="white" style={{marginLeft:'auto'}} onClick={handlePreviousConversationsListPage}>
                         <svg height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>
@@ -115,6 +118,5 @@ export function ConversationsSlot({activeConversationStateRef, activeConversatio
 
 interface IProps{
     activeConversationId : number
-    setActiveConversationId : (index : number) => void
-    activeConversationStateRef: React.MutableRefObject<IConversation>
+    setActiveConversationId : ({value} : {value : number}) => void
 }

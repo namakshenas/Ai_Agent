@@ -6,7 +6,11 @@ import ScrapedPage from "../models/ScrapedPage"
 export function useActiveConversationReducer({name, history, lastAgentUsed} : IConversation) {
 
     const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed})
-    const [activeConversationId, setActiveConversationId] = useState<number>(0)
+    // {value : 0} instead of a simple 0 -> replacing a {value : 0} with a {value : 0} 
+    // will trigger all activeConversationId related effects
+    // when replacing a 0 with a 0 won't
+    // consequence : refresh the chat history when the conversation is autoswitched after a deletion
+    const [activeConversationId, setActiveConversationId] = useState<{value : number}>({ value: 0 })
 
     function conversationReducer(state : IConversation, action : TAction){
         switch(action.type){
