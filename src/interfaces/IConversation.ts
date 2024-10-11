@@ -2,12 +2,13 @@ export interface IConversation {
     name : string
     history : IConversationElement[]
     lastAgentUsed : string // useful to determine the context format
-    // should add displayed : yes/no so that intermediate COT steps could be hidden
-    technicalDatas ? : {
+    hidden? : boolean
+    inferenceStats? : {
         promptEvalDuration : number
         inferenceDuration : number
         modelLoadingDuration : number
         wholeProcessDuration  : number
+        tokensGenerated : number
     }
 }
 

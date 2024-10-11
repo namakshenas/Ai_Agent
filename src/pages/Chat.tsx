@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
-import ChatHistory from "../components/ChatHistory";
+import ChatHistory from "../components/ChatHistory/ChatHistory";
 import '../style/Chat.css'
 import { ConversationsRepository } from "../repositories/ConversationsRepository";
 import FollowUpQuestions from "../components/FollowUpQuestions";
@@ -26,7 +26,7 @@ function Chat() {
 
     useEffect(() => console.log("chat render"))
 
-    const {AIAgentsList, setAIAgentsList} = useFetchAgentsList()
+    const {AIAgentsList, triggerAIAgentsListRefresh} = useFetchAgentsList()
     useEffect(() => {setForceRightPanelRefresh(value => value + 1)} , [AIAgentsList])
     
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
@@ -91,7 +91,7 @@ function Chat() {
         if (isStreaming) ChatService.abortAgentLastRequest()
         setIsStreaming(false)
         setTextareaValue("")
-        dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId) })
+        dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId.value) })
     }, [activeConversationId])
 
     const errorMessageRef = useRef("")
@@ -141,7 +141,7 @@ function Chat() {
             // the textarea is emptied only if the user has made no modifications to its content during the streaming process
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // temporary : to simulate persistence
-            ConversationsRepository.replaceConversationHistoryById(activeConversationId, activeConversationStateRef.current.history)
+            ConversationsRepository.replaceConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history)
             setIsStreaming(false)
         }
         catch (error: unknown) {
@@ -208,14 +208,14 @@ function Chat() {
     function regenerateLastAnswer() {
         if(isStreamingRef.current) return
         const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
-        ConversationsRepository.replaceConversationHistoryById(activeConversationId, activeConversationStateRef.current.history.slice(0, -1))
+        ConversationsRepository.replaceConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
         askMainAgent_Streaming(retrievedQuestion)
     }
 
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>
+        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId.value} setActiveConversationId={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>
         <main>
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
@@ -225,7 +225,7 @@ function Chat() {
                 {<CustomTextarea ref={customTextareaRef} 
                     setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
                     currentContext={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || []} 
-                    askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId} />}
+                    askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId.value} />}
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 <div className="sendButtonContainer">
@@ -254,12 +254,12 @@ function Chat() {
                 </div>
             </div>
         </main>
-        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} setAIAgentsList={setAIAgentsList}/>
+        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
                 {{
-                    'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh}/>,
-                    'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh}/>,
+                    'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
+                    'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>,
                     'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
                     'error' : <ErrorAlert errorMessage={errorMessageRef.current}/>,
@@ -271,50 +271,6 @@ function Chat() {
 }
 
 export default Chat
-
-// if closing the only conversation left, then creating a new blank conv
-// deleting conv => ask confirmation
-// when answer generation and switching conversation, QA pair being generated deleted + abort
-// web search (infos)
-
-// !!!!! cancel inference after switching agent issues
-// create new agent or modify new agent give the user the possibility to load an existing prompt
-// copy code
-// main textarea fix limit for height / number of lines so it doesn't go out of screen
-// saved new agent should become the current agent
-// in the top bar, button to see ALL the models running
-// auto calculate context ?
-// when switching model with an existing context, should embed the whole conversation to generate a new compatible context : should tell the user about the conv required
-// fixing issue with a textblock inside a table
-// token/s displayed => conversation
-// favorite documents
-// delete file
-// save load conversations
-// should handle reply with excel "code"
-// when regenerating an asnwer, old context is not flushed
-// prompt versioning
-// when user ask for an answer online, the search query generator should be able to take into account the previous questions to generate a better query
-// !!! fixed? error when canceling a query with websearch : related to sources
-// error aborting before first chunk
-// hover right panel icon tags style
-// context compression when context available < max length per reply
-// fix markdown into textblock not being converted
-// check if ollama can be pinged in the starting window
-// when switching conversations, should restore the last model used & the last agent?
-// fix the abort last request auto executed
-// modale : "checking if the api is online" or simply check at the starting window
-// icon to copy prompts from modale
-// bug switching conv during streaming, but maybe related to the first reply
-// verify when tiping new agent name or prompt that it is not already existing
-// better followup questions formatting control
-// when new agent form : model untouched => wrong model
-// issue with prompt modal when history is scrolleddown
-// from now one, always reply with a single whitespace
-// detach sticky bottom during streaming
-// agent can't be changed after sending first message in a convo
-
-// readme : prompts optimized for mistral nemo
-// tell me if you face a formatting issue within an answer
 
 // add as a sidewindow extension to browser
 

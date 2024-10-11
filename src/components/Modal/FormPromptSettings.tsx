@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import './FormPromptSettings.css'
 import useFetchPrompt from "../../hooks/useFetchPrompt"
-import PromptLibrary from "../../deprecated/PromptLibrary"
 import PromptService from "../../services/API/PromptService"
 
 export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRef, setForceLeftPanelRefresh, role} : IProps){
@@ -31,12 +30,10 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         e.preventDefault()
         if(!areFormDatasValid()) return // !!! error message missing
         if(role == "edit") {
-            // PromptLibrary.updatePrompt(prompt.name, formValues.name, formValues.prompt)
-            /*if(!isAPIOffline) */PromptService.update(prompt.name, formValues.name, formValues.prompt, "0.0.1")
+            PromptService.update(prompt.name, formValues.name, formValues.prompt, "0.0.1")
         }
         if(role == "create") {
-            /*PromptLibrary.addPrompt(formValues.name, formValues.prompt)
-            if(!isAPIOffline) */ PromptService.save(formValues.name, formValues.prompt, "0.0.1")
+            PromptService.save(formValues.name, formValues.prompt, "0.0.1")
         }
         if(setForceLeftPanelRefresh) setForceLeftPanelRefresh(prev => prev + 1)
         memoizedSetModalStatus({visibility  : false})

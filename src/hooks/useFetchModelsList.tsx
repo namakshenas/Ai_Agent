@@ -12,7 +12,7 @@ function useFetchModelsList(){
                 const modelList = await OllamaService.getModelList()
                 if(modelList != null) {
                     const ml = modelList?.models.map((model) => model?.model)
-                    setModelsList(ml.filter((model : string) => !model.includes("embed")))
+                    setModelsList(ml.filter((model : string) => !(model.includes("embed") || model.includes("llava"))))
                 }
             } catch (error) {
                 console.error("Error fetching models list:", error)
