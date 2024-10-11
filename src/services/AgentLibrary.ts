@@ -9,6 +9,11 @@ export class AgentLibrary {
         this.library.push(agent)
     }
 
+    static addAgents(agents: AIAgent[]){
+        this.removeAllAgents()
+        agents.forEach(agent => this.addAgent(agent));
+    }
+
     static getAgentsNameList(): Array<string> {
         return this.library.map((agent) => agent.getName())
     }
@@ -33,8 +38,16 @@ export class AgentLibrary {
     static getAgent(agentName: string){
         return this.library.find((agent) => agentName == agent.getName())
     }
-}
 
-/*interface ILibrary {
-    [key: string]: AIAgent;
-}*/
+    // will be replaced by the backend
+    static generatePlaceholderId(): string {
+        const maxId = Math.max(...(this.library.map(agent => {
+            console.log(agent.getId());
+            return parseInt(agent.getId().slice(1))
+        })))
+        const newID = (maxId + 1).toString()
+        const nZerosNeeded = 10 - newID.length
+        console.log("new : " + "a" + '0'.repeat(nZerosNeeded) + newID)
+        return "a" + '0'.repeat(nZerosNeeded) + newID
+    }
+}

@@ -4,20 +4,21 @@ import { AIAgent } from "../../models/AIAgent";
 
 export default class AgentService{
 
-    static async save(agent : AIAgent){
+    static async save(agent : AIAgent) : Promise<string | void>{
         try{
             const reponse = await fetch('http://localhost:3000/agent', {
                 method : 'POST',
                 body : agent.asString(),
                 headers:{ 'Content-Type' : 'application/json' }
             })
-            if(!reponse.ok) throw new Error('Error saving agent in DB.')
+            if(!reponse.ok) return reponse.text()
+            // throw new Error('Error saving agent in DB.')
         }catch(e){
             console.error(e)
         }
     }
 
-    static async update(agent : AIAgent){
+    static async update(agent : AIAgent) : Promise<string | void>{
         try{
             const agentName = agent.getName()
             const reponse = await fetch('http://localhost:3000/agent/' + agentName, {
@@ -25,7 +26,8 @@ export default class AgentService{
                 body : agent.asString(),
                 headers:{ 'Content-Type' : 'application/json' }
             })
-            if(!reponse.ok) throw new Error('Error updating agent in DB.')
+            // if(!reponse.ok) throw new Error('Error updating agent in DB.')
+            if(!reponse.ok) return reponse.text()
         }catch(e){
             console.error(e)
         }

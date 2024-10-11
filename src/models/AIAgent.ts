@@ -7,7 +7,7 @@ export class AIAgent extends AIModel {
 
     #id : string
     #name : string
-    #type : string
+    #type : 'system' | 'user_created'
     #favorite : boolean
     #webSearchEconomy: boolean = false
     #processFn : (request : any) => any = (request : string) => request
@@ -98,7 +98,7 @@ export class AIAgent extends AIModel {
         return this
     }
 
-    getType() : string {
+    getType() : 'system' | 'user_created' {
         return this.#type
     }
 
@@ -131,8 +131,10 @@ export class AIAgent extends AIModel {
     asString(){
         return JSON.stringify(
             {
+                id : this.getId(),
                 name : this.#name,
                 model: this.getModelName(),
+                modelName: this.getModelName(),
                 systemPrompt: this.getSystemPrompt(),
                 num_ctx: this.getContextSize(),
                 temperature: this.getTemperature(),
@@ -147,7 +149,8 @@ export class AIAgent extends AIModel {
                 tfs_z: this.getTfsZ(),
                 top_k: this.getTopK(),
                 top_p: this.getTopP(),
-                status: this.getStatus()
+                type: this.getType(),
+                favorite: this.getFavorite(),
             }
         )
     }
