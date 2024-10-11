@@ -11,7 +11,7 @@ import AgentService from '../services/API/AgentService'
 import useFetchModelsList from '../hooks/useFetchModelsList'
 import { AgentLibrary } from '../services/AgentLibrary'
 
-const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, setAIAgentsList} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIAgentsListRefresh} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
@@ -37,30 +37,28 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, setAIAgent
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
 
     // the multiple renders on save are due to the multiple graphical states of the save button
-    function handleSaveAgent(e : React.MouseEvent<HTMLButtonElement>){
+    function handleUpdateAgent(e : React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
 
-        const newAgent = new AIAgent({name : ChatService.getActiveAgent().getName(), modelName : formValues.modelName, id : "newA1", type : "user_created", favorite : false})
-        .setContextSize(formValues.maxContextLength)
-        .setNumPredict(formValues.maxTokensPerReply)
-        .setSystemPrompt(formValues.systemPrompt)
-        .setTemperature(formValues.temperature)
+        // retrieve all the parameters of the active agent as a string & update some of them with the form values
+        const newAgent = new AIAgent({...JSON.parse(ChatService.getActiveAgent().asString()),
+            num_ctx : formValues.maxContextLength,
+            num_predict : formValues.maxTokensPerReply,
+            systemPrompt  : formValues.systemPrompt,
+            temperature  : formValues.temperature
+        })
 
-        // update chat service active agent
-        // update agent in db
-        // reload agent list setAIAgentsList
-
-        // AgentLibrary.updateAgent(newAgent)
-        // AgentService.update(newAgent)
-        // make sure that the chat active agent is now the updated agent
+        AgentService.update(newAgent)
         ChatService.setActiveAgent(newAgent)
+        currentAgent.current = newAgent
+        
+        triggerAIAgentsListRefresh()
 
         setShowSavingSuccessfulBtn(true)
     }
 
     // switch active agent
     function handleSwitchAgent(option : IOption){
-        console.log(option.value)
         const targetAgent = AgentLibrary.getAgent(option.value)
         if(targetAgent == null) return
         currentAgent.current = targetAgent
@@ -110,7 +108,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, setAIAgent
                 <span style={{marginLeft:'36px', fontSize:'15px'}}>
                     <a href="https://ollama.com/library?sort=newest" target="_blank">Check the latest Models for Ollama</a>
                 </span>
-                <img src={userPicture}/>
+                <img src={userPicture} onClick={() => console.log(currentAgent.current.getName())}/>
             </div>
             <article className='newAgentContainer'>
                 <button className='purpleShadow' onClick={handleOpenNewAgentFormClick}>+ Create a New Agent</button>
@@ -119,8 +117,8 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, setAIAgent
                 <label id="label-agentName">Agent Powering the Chat</label>
                 <Select 
                     width="100%"
-                    options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [System]` : ''), value: agent.getName() }))} 
-                    defaultOption={formValues.agentName}
+                    options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [System]`: ""), value: agent.getName() }))} 
+                    defaultOption={formValues.agentName || "helpfulAssistant"}
                     labelledBy="label-agentName" 
                     id="settingsSelectAgent"
                     onValueChange={handleSwitchAgent}
@@ -203,7 +201,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, setAIAgent
                 <div className='settingsSaveContainer'>
                     <button className='more purpleShadow' onClick={handleOpenEditAgentFormClick}>More Settings</button>
                     {
-                        !showSavingSuccessfulBtn ? <button className='save purpleShadow' onClick={handleSaveAgent}>Save</button>
+                        !showSavingSuccessfulBtn ? <button className='save purpleShadow' onClick={handleUpdateAgent}>Save</button>
                         :<button className='save purpleShadow'>
                             <svg className='checkmarkSVG' viewBox='0 0 100 100'>
                                 <path className='checkmarkIcon' d='M 25 50 L 43 68 L 75 32'/>
@@ -225,7 +223,8 @@ interface IProps{
     // currentAgent : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
-    setAIAgentsList: React.Dispatch<React.SetStateAction<AIAgent[]>>
+    // setAIAgentsList: React.Dispatch<React.SetStateAction<AIAgent[]>>
+    triggerAIAgentsListRefresh : () => void
     /*modelsList : string[]*/
     // setCurrentAgent : React.Dispatch<React.SetStateAction<AIAgent>>
 }

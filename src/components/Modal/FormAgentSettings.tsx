@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AIAgent } from "../../models/AIAgent";
 import Select, { IOption } from "../CustomSelect/Select";
 import './FormAgentSettings.css'
@@ -10,24 +10,31 @@ import { ChatService } from "../../services/ChatService";
 import { AgentLibrary } from "../../services/AgentLibrary";
 import AgentService from "../../services/API/AgentService";
 
-export default function FormAgentSettings({memoizedSetModalStatus, setForceRightPanelRefresh, role} : IProps){
+export default function FormAgentSettings({memoizedSetModalStatus, setForceRightPanelRefresh, role, triggerAIAgentsListRefresh} : IProps){
 
     const modelList = useFetchModelsList()
     const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
+    const [error, setError] = useState("")
 
     const baseForm : IFormStructure = {
         agentName: role == "edit" ? currentAgent.current.getName() : "",
-        modelName: role == "edit" ? currentAgent.current.getModelName() : modelList[0],
+        modelName: role == "edit" ? currentAgent.current.getModelName() : (modelList[0] != null ? modelList[0] :  ""),
         systemPrompt: role == "edit" ? currentAgent.current.getSystemPrompt().replace(/\t/g,'') : "",
         temperature: role == "edit" ? currentAgent.current.getTemperature() : 0.8,
         maxContextLength: role == "edit" ? currentAgent.current.getContextSize() : 2048,
-        maxTokensPerReply: role == "edit" ? currentAgent.current.getNumPredict() : 128,
+        maxTokensPerReply: role == "edit" ? currentAgent.current.getNumPredict() : 1024,
         webSearchEconomy: false,
     }
 
     const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
+
+    useEffect(() => {
+        if (role == "create") {
+            setFormValues(prevValues => ({...prevValues, modelName : modelList[0]}))
+        }
+    }, [modelList])
 
     function handleSwitchModel(option : IOption){
         setFormValues(currentFormValues => ({...currentFormValues, modelName: option.value}))
@@ -48,23 +55,32 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
         return true
     }
 
-    function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
+    async function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
         if(!areFormDatasValid()) return // !!! error message missing
-        const newAgent = new AIAgent(ChatService.getActiveAgent().getName(), formValues.modelName)
-        .setModel(formValues.modelName)
+        console.log("modelName : " + formValues.modelName)
+        const newAgent = new AIAgent({
+            id : role == "edit" ? currentAgent.current.getId() : AgentLibrary.generatePlaceholderId(), 
+            modelName: formValues.modelName, 
+            name : formValues.agentName, 
+            type : role == "edit" ? ChatService.getActiveAgent().getType() : "user_created", 
+            favorite : false
+        })
         .setContextSize(formValues.maxContextLength)
         .setNumPredict(formValues.maxTokensPerReply)
         .setSystemPrompt(formValues.systemPrompt)
         .setTemperature(formValues.temperature)
-        .setName(formValues.agentName)
 
-        // update the offline agent library
-        if(role == "edit") AgentLibrary.removeAgent(currentAgent.current.getName())
-        AgentLibrary.addAgent(newAgent)
-
-        ChatService.setActiveAgent(newAgent.getName())
-
+        let response
+        if(role == "create") response = await AgentService.save(newAgent)
+        if(role == "edit") response = await  AgentService.update(newAgent)
+        
+        // if any error saving or updating the model -> the modal stays open & the active agent is not updated
+        if(response != null) return setError(response)
+        
+        ChatService.setActiveAgent(newAgent)
+        
+        triggerAIAgentsListRefresh()
         if(setForceRightPanelRefresh) setForceRightPanelRefresh(prev => prev + 1)
             
         memoizedSetModalStatus({visibility : false})
@@ -124,12 +140,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                 <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                     <div className="sliderbarContainer">
                         <div className="sliderTrack">
-                            <div className="slider">
+                            <div className="slider" style={{marginLeft:'180px'}}>
                                 <img src={picots} alt="picots" className="sliderPicots"/>
                             </div>
                         </div>
                         <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                            <span>Temperature</span><span>0.1</span>
+                            <span>Temperature</span><span>0.8</span>
                         </div>
                     </div>
                 </div>
@@ -147,7 +163,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                 <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                     <div className="sliderbarContainer">
                         <div className="sliderTrack">
-                            <div className="slider" style={{marginLeft:'92px'}}>
+                            <div className="slider" style={{marginLeft:'110px'}}>
                                 <img src={picots} alt="picots" className="sliderPicots"/>
                             </div>
                         </div>
@@ -175,12 +191,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                 <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
                     <div className="sliderbarContainer">
                         <div className="sliderTrack">
-                            <div className="slider" style={{marginLeft:'140px'}}>
+                            <div className="slider" style={{marginLeft:'50px'}}>
                                 <img src={picots} alt="picots" className="sliderPicots"/>
                             </div>
                         </div>
                         <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                            <span>Context Length</span><span>8192</span>
+                            <span>Context Length</span><span>2048</span>
                         </div>
                     </div>
                 </div>
@@ -203,6 +219,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                 <button onClick={handleCancelClick} className="cancel-button purpleShadow">Cancel</button>
                 <button onClick={handleSaveClick} className="save-button purpleShadow">Save</button>
             </div>
+
+            <div>{error}</div>
         </form>
     )
 }
@@ -211,6 +229,7 @@ interface IProps{
     // currentAgent? : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     setForceRightPanelRefresh? : React.Dispatch<React.SetStateAction<number>>
+    triggerAIAgentsListRefresh : () => void
     role : "edit" | "create"
 }
 
