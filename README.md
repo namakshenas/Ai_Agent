@@ -1,3 +1,5 @@
+- NOT FUNCTIONAL YET -
+
 # OSSPITA : Run your local AI assistant to experience enhanced privacy and zero cost.
 
 OSSPITA is a lightweight, fully local, open-source AI-powered research and conversational interface that enables users to interact in real time with various Open-Source models. Leveraging the Ollama API, OSSPITA provides a seamless experience for engaging with cutting-edge AI technology.
