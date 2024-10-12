@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react"
 import { IConversationElement } from "../../interfaces/IConversation"
 import { useTTS } from "../../hooks/useTTS"
 
-function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps) {
+function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) {
 
   const historyContainerRef = useRef(null)
   const autoScrollingObsRef = useRef<MutationObserver>()
@@ -17,8 +17,10 @@ function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps)
   // when some new streamed text is added to the conversation history
   // !!! obs should be active only when isStreaming is true
   useEffect(() => {
+    if(isStreaming == false) return
     if(historyContainerRef.current == null) return
-    const observer = new MutationObserver((mutations) => {
+    if(autoScrollingObsRef.current) autoScrollingObsRef.current.disconnect()
+    autoScrollingObsRef.current = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if(historyContainerRef.current != null && (mutation.type === 'childList' || mutation.type === 'attributes')) 
           window.scrollTo({
@@ -27,13 +29,27 @@ function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps)
           })
       })
     })
-    autoScrollingObsRef.current = observer
-    observer.observe(historyContainerRef.current, { attributes : true, childList: true, subtree: true })
+    // autoScrollingObsRef.current = observer
+    autoScrollingObsRef.current.observe(historyContainerRef.current, { attributes : true, childList: true, subtree: true })
 
     return () => {
-      observer.disconnect()
+      if(autoScrollingObsRef.current) autoScrollingObsRef.current.disconnect()
+      autoScrollingObsRef.current = undefined
     }
-  }, [])
+  }, [isStreaming])
+
+  // disconnect observer if mouse wheel or scrollbar used
+  /*useEffect(() => {
+    function disconnectObserver() {
+      if(autoScrollingObsRef.current) autoScrollingObsRef.current.disconnect()
+      autoScrollingObsRef.current = undefined
+    }
+    document.addEventListener('wheel', disconnectObserver)
+
+    return () => {
+      document.removeEventListener('wheel', disconnectObserver)
+    }
+  }, [autoScrollingObsRef])*/
 
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})
@@ -62,6 +78,7 @@ function ChatHistory({history, setTextareaValue, regenerateLastAnswer} : IProps)
 
   return (
     <section ref={historyContainerRef} className="chatHistorySection">
+        {history.length == 0 && <div style={{padding: '3rem 0', background:'#f7f9fd'}}>Warning : Due to some Ollama limitations, you won't be able to switch model during a conversation.</div>}
         {
           history.map((item, index, array) => (
             <article key={'historyItem'+index}>
@@ -82,4 +99,5 @@ interface IProps{
   history : IConversationElement[]
   setTextareaValue : (text : string) => void
   regenerateLastAnswer : () => void
+  isStreaming : boolean
 }
