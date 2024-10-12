@@ -3,8 +3,9 @@ import { useEffect, useState } from "react"
 import { IConversation } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
 import { ChatService } from "../../services/ChatService"
+import { ActionType, TAction } from "../../hooks/useActiveConversationReducer"
 
-export function ConversationsSlot({activeConversationId, setActiveConversationId} : IProps){
+export function ConversationsSlot({activeConversationId, setActiveConversationId, dispatch} : IProps){
     
     const [conversationsListState, setConversationsListState] = useState<IConversation[]>(ConversationsRepository.getConversations()) 
     const [conversationsListPage, setConversationsListPage] = useState<number>(0)
@@ -46,12 +47,19 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         ChatService.abortAgentLastRequest()
         setActiveConversationId({value : id})
         // no need to set streaming to false or update the conversation 
-        // cause handled by an effect reacting active conversation id changing
+        // cause handled by an effect reacting to the active conversation id changing
     }
 
     function handleDeleteConversation(id : number) : void{
-        console.log("deleting conversation : " + id)
+        // deleting the first one and only conversation
+        if(id == 0 && ConversationsRepository.getConversations().length < 2){
+            dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "no_name", history : [], lastAgentUsed  : ""}})
+            ConversationsRepository.replaceConversation(0, {name  : "no_name", history  : [], lastAgentUsed   : ""})
+            refreshActivePageList()
+            return
+        }
         // switching id from 0 to 1 and back to 0 helps refreshing the chat history
+        // when deleting the very first conversation and the next one is taking its spot
         if(id == 0 && ConversationsRepository.getConversations().length > 1) setActiveConversationId({value : 1})
         ConversationsRepository.deleteConversation(id)
         setConversationsListState([...ConversationsRepository.getConversations()])
@@ -119,4 +127,5 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
 interface IProps{
     activeConversationId : number
     setActiveConversationId : ({value} : {value : number}) => void
+    dispatch : React.Dispatch<TAction>
 }
