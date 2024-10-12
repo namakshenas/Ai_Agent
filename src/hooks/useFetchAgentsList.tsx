@@ -13,9 +13,8 @@ function useFetchAgentsList(){
         async function fetchAgentsList () {
             const retrievedAgentsList = await AgentService.getAll()
             if(retrievedAgentsList == null) return setAIAgentsList([])
-            const AIAgents = retrievedAgentsList.map((agent) => new AIAgent({...agent, modelName : agent.model})) // !!! should be put into the library?
+            const AIAgents = retrievedAgentsList.map((agent) => new AIAgent({...agent, modelName : agent.model}))
             setAIAgentsList(AIAgents)
-            // AIAgents.forEach(agent => AgentLibrary.addAgent(agent))
             AgentLibrary.addAgents(AIAgents)
             // set the first agent in DB as the active agent only if the agent currently active is the default one
             if(ChatService.getActiveAgent().getId() == "a0000000001") ChatService.setActiveAgent(AIAgents[0])

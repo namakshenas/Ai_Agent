@@ -18,10 +18,23 @@ export default class AgentService{
         }
     }
 
-    static async update(agent : AIAgent) : Promise<string | void>{
+    static async updateByName(agentName : string, agent : AIAgent) : Promise<string | void>{
         try{
-            const agentName = agent.getName()
-            const reponse = await fetch('http://localhost:3000/agent/' + agentName, {
+            const reponse = await fetch('http://localhost:3000/agent/byName/' + agentName, {
+                method : 'PUT',
+                body : agent.asString(),
+                headers:{ 'Content-Type' : 'application/json' }
+            })
+            // if(!reponse.ok) throw new Error('Error updating agent in DB.')
+            if(!reponse.ok) return reponse.text()
+        }catch(e){
+            console.error(e)
+        }
+    }
+
+    static async updateById(agent : AIAgent) : Promise<string | void>{
+        try{
+            const reponse = await fetch('http://localhost:3000/agent/byId/' + agent.getId(), {
                 method : 'PUT',
                 body : agent.asString(),
                 headers:{ 'Content-Type' : 'application/json' }

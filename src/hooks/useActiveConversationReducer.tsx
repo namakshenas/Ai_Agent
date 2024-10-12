@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useReducer, useState } from "react"
-import { IConversation, IConversationElement } from "../interfaces/IConversation"
+import { IConversation, IConversationElement, IInferenceStats } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
 export function useActiveConversationReducer({name, history, lastAgentUsed} : IConversation) {
@@ -43,6 +43,17 @@ export function useActiveConversationReducer({name, history, lastAgentUsed} : IC
                 }
                 const historyId = newState.history.length -1
                 newState.history[historyId].context = [...action.payload]
+                activeConversationStateRef.current = {...newState}
+                return {...newState}
+            }
+
+            case ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS : {
+                const newState = {...state, 
+                    history : [...state.history]
+                }
+                const historyId = newState.history.length -1
+                newState.history[historyId].context = [...action.payload.newContext]
+                newState.inferenceStats = {...action.payload.inferenceStats}
                 activeConversationStateRef.current = {...newState}
                 return {...newState}
             }
@@ -102,14 +113,16 @@ export enum ActionType {
     PUSH_NEW_HISTORY_ELEMENT = "PUSHNEWHISTORYELEMENT",
     SET_CONVERSATION = "SET_CONVERSATION",
     UPDATE_LAST_HISTORY_ELEMENT_CONTEXT = "UPDATE_LAST_HISTORY_CONTEXT",
+    UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS = "UPDATE_LAST_HISTORY_CONTEXT_NSTATS",
     DELETE_LAST_HISTORY_ELEMENT = "DELETE_LAST_HISTORY_ELEMENT",
     ADD_SOURCES_TO_LAST_ANSWER = "ADD_SOURCES_TO_LAST_ANSWER",
 }
 
-type TAction = 
+export type TAction = 
     | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, agentUsed : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER; payload: { html : string, markdown : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT; payload: number[] }
+    | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS; payload: { newContext : number[], inferenceStats : IInferenceStats} }
     | { type: ActionType.PUSH_NEW_HISTORY_ELEMENT; payload: IConversationElement /*{ question : string, html : string, markdown : string, context : number[] }*/}
     | { type: ActionType.SET_CONVERSATION; payload: IConversation }
     | { type: ActionType.DELETE_LAST_HISTORY_ELEMENT }

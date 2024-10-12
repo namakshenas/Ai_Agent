@@ -48,13 +48,13 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIA
             temperature  : formValues.temperature
         })
 
-        AgentService.update(newAgent)
+        AgentService.updateById(newAgent)
+        AgentLibrary.updateAgent(newAgent)
         ChatService.setActiveAgent(newAgent)
         currentAgent.current = newAgent
-        
-        triggerAIAgentsListRefresh()
 
         setShowSavingSuccessfulBtn(true)
+
     }
 
     // switch active agent
@@ -108,7 +108,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIA
                 <span style={{marginLeft:'36px', fontSize:'15px'}}>
                     <a href="https://ollama.com/library?sort=newest" target="_blank">Check the latest Models for Ollama</a>
                 </span>
-                <img src={userPicture} onClick={() => console.log(currentAgent.current.getName())}/>
+                <img src={userPicture}/>
             </div>
             <article className='newAgentContainer'>
                 <button className='purpleShadow' onClick={handleOpenNewAgentFormClick}>+ Create a New Agent</button>
@@ -117,7 +117,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIA
                 <label id="label-agentName">Agent Powering the Chat</label>
                 <Select 
                     width="100%"
-                    options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [System]`: ""), value: agent.getName() }))} 
+                    options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [Core]`: ""), value: agent.getName() }))} 
                     defaultOption={formValues.agentName || "helpfulAssistant"}
                     labelledBy="label-agentName" 
                     id="settingsSelectAgent"
@@ -212,19 +212,15 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIA
             </article>
         </aside>
     )
-}/*, (prevProps, nextProps) => {
+}, (prevProps, nextProps) => {
     // refresh only when modelsList state change
-    return prevProps.modelsList === nextProps.modelsList
-}*/)
+    return JSON.stringify(prevProps.AIAgentsList) === JSON.stringify(nextProps.AIAgentsList)
+})
 
 export default RightPanel
 
 interface IProps{
-    // currentAgent : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
-    // setAIAgentsList: React.Dispatch<React.SetStateAction<AIAgent[]>>
     triggerAIAgentsListRefresh : () => void
-    /*modelsList : string[]*/
-    // setCurrentAgent : React.Dispatch<React.SetStateAction<AIAgent>>
 }

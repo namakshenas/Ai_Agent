@@ -1,3 +1,4 @@
+import IPrompt from "../../interfaces/IPrompt"
 import IPromptResponse from "../../interfaces/responses/IPromptResponse"
 
 export default class PromptService{
@@ -15,11 +16,24 @@ export default class PromptService{
         }
     }
 
-    static async update(prevName : string, name : string, prompt : string, version : string) : Promise<void>{
+    static async updateByName(prevName : string, prompt : IPrompt) : Promise<void>{
         try{
-            const reponse = await fetch('http://localhost:3000/prompt/' + prevName, {
+            const reponse = await fetch('http://localhost:3000/prompt/byName/' + prevName, {
                 method : 'PUT',
-                body : JSON.stringify({name, prompt, version}),
+                body : JSON.stringify({name : prompt.name, prompt : prompt.prompt, version : prompt.version}),
+                headers:{ 'Content-Type' : 'application/json' }
+            })
+            if(!reponse.ok) throw new Error('Error saving agent')
+        }catch(e){
+            console.error(e)
+        }
+    }
+
+    static async updateById(id : string, prompt : IPrompt) : Promise<void>{
+        try{
+            const reponse = await fetch('http://localhost:3000/prompt/byId/' + id, {
+                method : 'PUT',
+                body : JSON.stringify({name : prompt.name, prompt : prompt.prompt, version : prompt.version}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
             if(!reponse.ok) throw new Error('Error saving agent')

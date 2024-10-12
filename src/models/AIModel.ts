@@ -102,15 +102,14 @@ export class AIModel{
             return await response.json()
             
         } catch (error) {
-            // in case of manual request abortion
             if (error instanceof Error) {
+                // in case of manual request abortion
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
                 }
                 this.abortLastRequest()
                 throw new Error(`Failed to fetch: ${error.message}`);
             }
-            this.abortLastRequest()
             throw new Error("An unknown error occurred.");
         }
     }
@@ -138,16 +137,15 @@ export class AIModel{
             return reader
 
         } catch (error) {
-            // in case of manual request abortion
             if (error instanceof Error) {
+                // in case of manual request abortion
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
                 }
                 this.abortLastRequest()
                 throw new Error(`Failed to fetch: ${error.message}`);
             }
-            this.abortLastRequest()
-            throw new Error("An error occurred during streaming.");
+            throw new Error("An unknown error occurred.");
         }
     }
 
@@ -180,8 +178,9 @@ export class AIModel{
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
+                } else {
+                    throw new Error(`Failed to create embeddings : ${error.message}`);
                 }
-                throw new Error(`Failed to create embeddings : ${error.message}`);
             }
             throw new Error("An unknown error occurred.");
         }
@@ -207,8 +206,9 @@ export class AIModel{
             if (error instanceof Error) {
                 if (error.name === 'AbortError') {
                     throw new Error("Request was aborted.");
+                } else {
+                    throw new Error(`Failed to tokenize : ${error.message}`);
                 }
-                throw new Error(`Failed to tokenize : ${error.message}`);
             }
             throw new Error("An unknown error occurred.");
         }

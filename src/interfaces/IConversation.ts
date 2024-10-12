@@ -3,13 +3,16 @@ export interface IConversation {
     history : IConversationElement[]
     lastAgentUsed : string // useful to determine the context format
     hidden? : boolean
-    inferenceStats? : {
-        promptEvalDuration : number
-        inferenceDuration : number
-        modelLoadingDuration : number
-        wholeProcessDuration  : number
-        tokensGenerated : number
-    }
+    inferenceStats? : IInferenceStats
+}
+
+export interface IInferenceStats {
+    promptEvalDuration : number
+    promptTokensEval : number
+    inferenceDuration : number
+    modelLoadingDuration : number
+    wholeProcessDuration  : number
+    tokensGenerated : number
 }
 
 export interface IConversationElement{
