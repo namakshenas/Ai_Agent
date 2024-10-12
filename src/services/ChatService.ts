@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IConversationElement } from "../interfaces/IConversation";
+import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
 import { AIAgent } from "../models/AIAgent";
 import ScrapedPage from "../models/ScrapedPage";
 import AnswerFormatingService from "./AnswerFormatingService";
 export class ChatService{
 
-    // static #activeAgentName = "helpfulAssistant"
     static activeAgent : AIAgent = new AIAgent({id : 'a0000000001',
       name: "baseAssistant",
       modelName : "mistral-nemo:latest",
@@ -26,6 +25,8 @@ export class ChatService{
       type : "system",
       favorite : false
     })
+
+    static currentlyUsedAgent = this.activeAgent
 
     static async askForFollowUpQuestions(question : string, context:number[] = []) : Promise<string>
     {
@@ -59,11 +60,20 @@ export class ChatService{
       }
     }
 
-    static async askTheActiveAgentForAStreamedResponse(question : string, showErrorModal: (message : string) => void, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<number[]>
+    static async askTheActiveAgentForAStreamedResponse(question : string, showErrorModal: (message : string) => void, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
     {
       if(this.activeAgent == null) throw new Error(`Agent is not available`)
+      this.setCurrentlyUsedAgent(this.activeAgent)
 
       let newContext = []
+      const inferenceStats : IInferenceStats = {
+        promptEvalDuration : 0,
+        inferenceDuration : 0,
+        modelLoadingDuration : 0,
+        wholeProcessDuration : 0,
+        tokensGenerated : 0,
+        promptTokensEval : 0,
+      }
 
       this.activeAgent.setContext(context)
       // scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
@@ -90,6 +100,12 @@ export class ChatService{
 
               if(json.done) {
                 newContext = json.context || []
+                inferenceStats.promptEvalDuration = json.prompt_eval_duration
+                inferenceStats.promptTokensEval = json.prompt_eval_duration
+                inferenceStats.inferenceDuration = json.eval_duration
+                inferenceStats.modelLoadingDuration = json.load_duration
+                inferenceStats.wholeProcessDuration = json.total_duration
+                inferenceStats.tokensGenerated = json.eval_count
                 content += json.response
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
                 break
@@ -106,26 +122,25 @@ export class ChatService{
           if (error instanceof Error && error.name === 'AbortError') {
             console.log('Stream aborted.')
           } else {
+            this.abortAgentLastRequest()
             showErrorModal("Stream failed : " + error)
             console.error('Stream failed : ', error)
             console.error(decod)
-            this.abortAgentLastRequest()
           }
           throw error
       }
 
-      return newContext // !!!! add datas
+      return { newContext, inferenceStats } // !!!! add datas
     }
 
     // write three functions in javascript for a tetris game
     // split one malformed block into multiple ones if needed
     static #reconstructMalformedValues(value : string | null) : string{
       try{
-        console.log("untouchedValue : " + value)
+        // console.log("untouchedValue : " + value)
         if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
         const splitValues = value.split("}\n{")
         if(splitValues.length == 1) return value.trim()
-         // !!! should be true?
         const bracedValues = splitValues.map(value => {
           let trimmedValue = value.trim()
           if(!trimmedValue.startsWith("{")) trimmedValue = "{" + trimmedValue
@@ -139,7 +154,7 @@ export class ChatService{
         const aggregatedChunk = {...JSON.parse(bracedValues[bracedValues.length-1])}
         aggregatedChunk.response = reconstructedValue
         aggregatedChunk.done = isDone
-        console.log("reformed : " + JSON.stringify(aggregatedChunk))
+        console.log("rebuilt : " + JSON.stringify(aggregatedChunk))
         return JSON.stringify(aggregatedChunk)
       } catch (error) {
         this.abortAgentLastRequest()
@@ -149,11 +164,16 @@ export class ChatService{
     }
 
     static abortAgentLastRequest(){
+      if(this.currentlyUsedAgent != null) this.currentlyUsedAgent.abortLastRequest() 
       if(this.activeAgent != null) this.activeAgent.abortLastRequest()
     }
 
     static setActiveAgent(agent : AIAgent){
       this.activeAgent = agent
+    }
+
+    static setCurrentlyUsedAgent(agent : AIAgent){
+      if(agent != null) this.currentlyUsedAgent = agent
     }
 
     static getActiveAgentName() : string{

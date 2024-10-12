@@ -18,7 +18,7 @@ import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
-import { IConversation } from "../interfaces/IConversation";
+import { IConversation, IInferenceStats } from "../interfaces/IConversation";
 import ErrorAlert from "../components/Modal/ErrorAlert";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
 
@@ -118,6 +118,7 @@ function Chat() {
             // activeConversationState -> create a blank conversation QA pair
             dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, agentUsed : ChatService.getActiveAgent().asString()}})
             let newContext = []
+            let inferenceStats : IInferenceStats
 
             // !!! should move scraping to chatService?
             // two branches : webscrapping / internal knowledge
@@ -127,17 +128,21 @@ function Chat() {
                 console.log("**LLM Loading**")
                 // format MM/DD/YYYY
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + new Date().getMonth() + "/" + new Date().getUTCDate() + ". "
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
+                newContext = finalDatas.newContext
+                inferenceStats = finalDatas.inferenceStats
                 if(isStreamingRef.current == false) return
                 dispatch({ type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, payload: scrapedPages })
             } else {
                 console.log("**LLM Loading**")
-                newContext = await ChatService.askTheActiveAgentForAStreamedResponse(message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext)
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext)
+                newContext = finalDatas.newContext
+                inferenceStats = finalDatas.inferenceStats
             }
 
             // if the stream has been aborted, the following block of code isn't executed
             if(isStreamingRef.current == false) return
-            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT, payload: newContext || [] })
+            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, payload: {newContext : newContext || [], inferenceStats} })
             // the textarea is emptied only if the user has made no modifications to its content during the streaming process
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // temporary : to simulate persistence
@@ -213,21 +218,34 @@ function Chat() {
         askMainAgent_Streaming(retrievedQuestion)
     }
 
+    function nanosecondsToSeconds(nanoseconds : number) {
+        return nanoseconds / 1e9;
+    }
+
     return (
     <div id="globalContainer" className="globalContainer">
-        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId.value} setActiveConversationId={setActiveConversationId} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>
+
+        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId.value} setActiveConversationId={setActiveConversationId} dispatch={dispatch} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>
+        
         <main>
+
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
+
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
-                {<ChatHistory history={activeConversationState.history || []} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
+                
+                {<ChatHistory history={activeConversationState.history || []} isStreaming={isStreaming} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
+            
             </div>
             <div className="stickyBottomContainer">
+
                 {<CustomTextarea ref={customTextareaRef} 
                     setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
                     currentContext={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || []} 
                     askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId.value} />}
+
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
+                
                 <div className="sendButtonContainer">
                     <div title="active the web search" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Search the Web</span>
@@ -236,9 +254,10 @@ function Chat() {
                         </div>
                     </div>
                     <div className="infosBottomContainer">
-                        Available Context : {
-                            activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context.length === 0 ? "N/A" : ChatService.getActiveAgent().getContextSize() - (activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context.length || 0)
-                        }
+                        Model Loading : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.modelLoadingDuration || 0)).toFixed(2) }s |
+                        Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration || 1)))).toFixed(2) } tk/s |
+                        Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration || 1))).toFixed(2) } tk/s |
+                        Total : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.wholeProcessDuration || 0)).toFixed(2) }s
                     </div>
                     <button title="top of the page" className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>
                         <svg style={{transform:'translateY(1px)'}} height="20" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -252,9 +271,12 @@ function Chat() {
                         <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button>
                     }
                 </div>
+
             </div>
         </main>
+
         <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>
+        
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
                 {{
@@ -266,14 +288,12 @@ function Chat() {
                 } [modalContentId]}
             </Modal>
         }
+
     </div>
     )
 }
 
 export default Chat
-
-// add as a sidewindow extension to browser
-
 
 /*
 Valid Parameters and Values
