@@ -30,7 +30,7 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         e.preventDefault()
         if(!areFormDatasValid()) return // !!! error message missing
         if(role == "edit") {
-            PromptService.update(prompt.name, formValues.name, formValues.prompt, "0.0.1")
+            PromptService.updateByName(prompt.name, {name : formValues.name, prompt : formValues.prompt, version : "0.0.1"})
         }
         if(role == "create") {
             PromptService.save(formValues.name, formValues.prompt, "0.0.1")

@@ -29,6 +29,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
     }
 
     const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
+    const startAgentName = useRef<string>(role == "edit" ? currentAgent.current.getName() : "")
 
     useEffect(() => {
         if (role == "create") {
@@ -45,20 +46,35 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
         memoizedSetModalStatus({visibility : false})
     }
 
-    function areFormDatasValid(){
-        if(formValues.agentName == "") return false
-        if(formValues.modelName == "") return false
-        if(formValues.systemPrompt == "") return false
-        if(formValues.temperature < 0 || formValues.temperature > 1) return false
-        if(formValues.maxContextLength < 1024 || formValues.maxContextLength > 8388608) return false
-        if(formValues.maxTokensPerReply < 1 || formValues.maxTokensPerReply > 128000) return false
+    function isFormValid(){
+        setError("")
+        if(formValues.agentName == "") { 
+            setError("Agent name is required.")
+            return false
+        }
+        if(formValues.modelName == "") return
+        if(formValues.systemPrompt == "") { 
+            setError("System prompt is missing.")
+            return false
+        }
+        if(formValues.temperature < 0 || formValues.temperature > 1) { 
+            setError("Temperature must be > 0 and <= 1.")
+            return false
+        }
+        if(formValues.maxContextLength < 1024 || formValues.maxContextLength > 8388608) { 
+            setError("Context length must be >= 1024 and < 8388609.")
+            return false
+        }
+        if(formValues.maxTokensPerReply < 1 || formValues.maxTokensPerReply > 128000) { 
+            setError("Max tokens must be >= 1 and < 128000.")
+            return false
+        }
         return true
     }
 
     async function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
-        if(!areFormDatasValid()) return // !!! error message missing
-        console.log("modelName : " + formValues.modelName)
+        if(!isFormValid()) return
         const newAgent = new AIAgent({
             id : role == "edit" ? currentAgent.current.getId() : AgentLibrary.generatePlaceholderId(), 
             modelName: formValues.modelName, 
@@ -73,7 +89,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
 
         let response
         if(role == "create") response = await AgentService.save(newAgent)
-        if(role == "edit") response = await  AgentService.update(newAgent)
+        if(role == "edit") response = await  AgentService.updateById(newAgent)
         
         // if any error saving or updating the model -> the modal stays open & the active agent is not updated
         if(response != null) return setError(response)
@@ -87,16 +103,16 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
     }
 
     return (
-        <form className="agent-form">
+        <form className="agentForm">
 
-            <label id="label-agentName" style={{marginTop:0}} className="form-label">Agent Name</label>
+            <div className="labelErrorContainer"><label id="label-agentName" style={{marginTop:0}} className="formLabel">Agent Name</label>{(error != "" && error.includes("Agent name")) && <span className="errorMessage">{error}</span>}</div>
             <div/>
-            <label id="label-modelName" style={{marginTop:0}} className="form-label">Model</label>
+            <label id="label-modelName" style={{marginTop:0}} className="formLabel">Model</label>
 
             <input
                 aria-labelledby="label-agentName"
                 type="text"
-                className="form-input" 
+                className="formInput" 
                 spellCheck="false"
                 value={formValues.agentName}
                 onChange={(e) => setFormValues(formValues => ({...formValues, agentName : e.target?.value}))}
@@ -111,29 +127,29 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                 onValueChange={handleSwitchModel}
             />
 
-            <label id="label-systemPrompt" style={{gridArea:'e'}} className="form-label">System Prompt</label>
+            <div style={{gridArea:'e'}} className="labelErrorContainer"><label id="label-systemPrompt" className="formLabel">System Prompt</label>{(error != "" && error.includes("System prompt")) && <span style={{marginTop:'1.5rem'}} className="errorMessage">System Prompt is missing</span>}</div>
 
             <textarea
                 aria-labelledby="label-systemPrompt"
                 style={{gridArea:'f'}}
                 spellCheck="false"
-                className="form-textarea" 
+                className="formTextarea" 
                 rows={12} 
                 value={formValues.systemPrompt}
                 onChange={(e) => setFormValues(formValues => ({...formValues, systemPrompt : e.target?.value}))}
             />
 
-            <label id="label-temperature" className="form-label">Temperature</label>
+            <label id="label-temperature" className="formLabel">Temperature</label>
             <div/>
-            <label id="label-maxTokensPerReply" className="form-label">Max Tokens Per Reply</label>
+            <label id="label-maxTokensPerReply" className="formLabel">Max Tokens Per Reply</label>
 
             <div className="inputNSliderContainer">
                 <input
                 aria-labelledby="label-temperature"
-                className="form-input"
+                className="formInput"
                 spellCheck="false"
                 type="number"
-                step="0.01" min="0" max="1" 
+                step="0.01" min="0.01" max="1" 
                 value={formValues.temperature}
                 onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                 />
@@ -156,7 +172,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                     aria-labelledby="label-maxTokensPerReply"
                     spellCheck="false"
                     type="number"
-                    className="form-input"
+                    className="formInput"
                     value={formValues.maxTokensPerReply}
                     onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                 />
@@ -174,9 +190,9 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                 </div>
             </div>
 
-            <label id="label-maxContextLength" className="form-label">Max Context Length</label>
+            <label id="label-maxContextLength" className="formLabel">Max Context Length</label>
             <div/>
-            <label id="label-webSearch" className="form-label">Web Search</label>
+            <label id="label-webSearch" className="formLabel">Web Search</label>
 
             <div className="inputNSliderContainer">
                 <input
@@ -184,7 +200,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
                     spellCheck="false" 
                     type="number"
                     step="1" min="0" max="1000000" 
-                    className="form-input"
+                    className="formInput"
                     value={formValues.maxContextLength}
                     onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
                 />
@@ -216,11 +232,9 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
             </div>
 
             <div style={{gridArea:'p', display:'flex', columnGap:'12px', marginTop:'24px'}}>
-                <button onClick={handleCancelClick} className="cancel-button purpleShadow">Cancel</button>
-                <button onClick={handleSaveClick} className="save-button purpleShadow">Save</button>
+                <button onClick={handleCancelClick} className="cancelButton purpleShadow">Cancel</button>
+                <button onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>
             </div>
-
-            <div>{error}</div>
         </form>
     )
 }

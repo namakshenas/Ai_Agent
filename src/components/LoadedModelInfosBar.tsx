@@ -5,7 +5,7 @@ import { OllamaService } from '../services/OllamaService'
 import React from 'react'
 
 // function LoadedModelInfosBar() {
-const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : {hasStreamingEnded : boolean}) => {
+const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : IProps) => {
 
     useEffect(() => {console.log("infos bar render")})
 
@@ -75,6 +75,10 @@ interface IRunningModelInfos{
     percentageInVRAM : number
     parameter_size : string
     quantization : string
+}
+
+interface IProps{
+  hasStreamingEnded : boolean
 }
 
 /*
