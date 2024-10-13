@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import './LoadedModelInfosBar.css'
 import { OllamaService } from '../services/OllamaService'
 import React from 'react'
+import { ChatService } from '../services/ChatService'
 
 // function LoadedModelInfosBar() {
 const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : IProps) => {
@@ -18,20 +19,29 @@ const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : IProps) => {
       effect()
     }, [hasStreamingEnded])
 
-    async function refreshRunningModelInfos(){
+    async function refreshRunningModelInfos() : Promise<void> {
       const runningModelsInfos = await OllamaService.getRunningModelInfos()
-      if(runningModelsInfos?.models[0]?.name != null) {
-          setRunningModelsInfos({
-              name : runningModelsInfos.models[0].name,
-              size : runningModelsInfos.models[0].size,
-              percentageInVRAM : runningModelsInfos.models[0].size_vram / runningModelsInfos.models[0].size * 100,
-              parameter_size : runningModelsInfos.models[0].details.parameter_size,
-              quantization : runningModelsInfos.models[0].details.quantization_level,
-          })
+      const activeModel = runningModelsInfos?.models.find(model => model.name == ChatService.getActiveAgent().getModelName())
+      if(!activeModel) {
+        setRunningModelsInfos({
+          name : "N/A",
+          size : 0,
+          percentageInVRAM : 0,
+          parameter_size : "N/A",
+          quantization : "N/A",
+        })
+        return 
       }
+      setRunningModelsInfos({
+          name : activeModel.name,
+          size : activeModel.size,
+          percentageInVRAM : activeModel.size_vram / activeModel.size * 100,
+          parameter_size : activeModel.details.parameter_size,
+          quantization : activeModel.details.quantization_level,
+      })
     }
 
-    async function handleRefreshClick(){
+    async function handleRefreshClick() : Promise<void> {
       await refreshRunningModelInfos()
     }
 
