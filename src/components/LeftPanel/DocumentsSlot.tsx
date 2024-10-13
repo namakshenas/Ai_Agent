@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { IRAGDocument } from "../../interfaces/IRAGDocument";
 import useFetchDocsList from "../../hooks/useFetchDocsList";
 
-export default function DocumentsSlot(){
+export default function DocumentsSlot({memoizedSetModalStatus} : IProps){
 
     // const RAGDocuments = DocumentsRepository.getDocuments().slice(0,6)
 
@@ -77,6 +77,10 @@ export default function DocumentsSlot(){
         setDocumentsListPage(currentPage => currentPage - 1 < 0 ? Math.ceil(getFilteredDocs().length/5) - 1 : currentPage - 1)
     }
 
+    function handleOpenUploadFileFormClick() : void {
+        memoizedSetModalStatus({visibility : true, contentId : "formUploadFile"})
+    }
+
     function getFilteredDocs() : IRAGDocument[]{
         return docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase()))
     }
@@ -133,10 +137,14 @@ export default function DocumentsSlot(){
                     <button title="next page" onClick={handleNextPage} className="white">
                         <svg style={{transform:'rotate(180deg)'}} height="16" width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     </button>
-                    <button title="upload a new doc" className="purple purpleShadow">
+                    <button title="upload a new doc" onClick={handleOpenUploadFileFormClick} className="purple purpleShadow">
                         <svg width="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#fff" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
                     </button>
                 </div>
             </article>
     )
+}
+
+interface IProps{
+    memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId : string}) => void
 }
