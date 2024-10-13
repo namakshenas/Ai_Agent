@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import useFetchPromptsList from "../../hooks/useFetchPromptsList";
-// import PromptLibrary from "../../services/PromptLibrary";
 
 export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IProps){
     

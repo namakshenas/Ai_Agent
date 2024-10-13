@@ -18,7 +18,7 @@ const LeftPanel = React.memo(({activeConversationId, activeConversationStateRef,
         <aside className="leftDrawer">
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
             <ConversationsSlot activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} dispatch={dispatch}/>
-            <DocumentsSlot/>
+            <DocumentsSlot memoizedSetModalStatus={memoizedSetModalStatus}/>
             <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
     )

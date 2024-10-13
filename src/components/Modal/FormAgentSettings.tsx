@@ -7,7 +7,6 @@ import useFetchModelsList from "../../hooks/useFetchModelsList";
 import IFormStructure from "../../interfaces/IAgentFormStructure";
 import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
-import { AgentLibrary } from "../../services/AgentLibrary";
 import AgentService from "../../services/API/AgentService";
 
 export default function FormAgentSettings({memoizedSetModalStatus, setForceRightPanelRefresh, role, triggerAIAgentsListRefresh} : IProps){
@@ -76,7 +75,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
         e.preventDefault()
         if(!isFormValid()) return
         const newAgent = new AIAgent({
-            id : role == "edit" ? currentAgent.current.getId() : AgentLibrary.generatePlaceholderId(), 
+            id : role == "edit" ? currentAgent.current.getId() : "", 
             modelName: formValues.modelName, 
             name : formValues.agentName, 
             type : role == "edit" ? ChatService.getActiveAgent().getType() : "user_created", 

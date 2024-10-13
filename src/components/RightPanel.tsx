@@ -9,7 +9,6 @@ import userPicture from '../assets/usericon4-2.png'
 import React from 'react'
 import AgentService from '../services/API/AgentService'
 import useFetchModelsList from '../hooks/useFetchModelsList'
-import { AgentLibrary } from '../services/AgentLibrary'
 
 const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIAgentsListRefresh} : IProps) => {
 
@@ -49,7 +48,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIA
         })
 
         AgentService.updateById(newAgent)
-        AgentLibrary.updateAgent(newAgent)
+        // AgentLibrary.updateAgent(newAgent)
         ChatService.setActiveAgent(newAgent)
         currentAgent.current = newAgent
 
@@ -58,11 +57,13 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIA
     }
 
     // switch active agent
-    function handleSwitchAgent(option : IOption){
-        const targetAgent = AgentLibrary.getAgent(option.value)
+    async function handleSwitchAgent(option : IOption){
+        // const targetAgent = AgentLibrary.getAgent(option.value)
+        const targetAgent = await AgentService.getAgentByName(option.value)
         if(targetAgent == null) return
-        currentAgent.current = targetAgent
-        ChatService.setActiveAgent(targetAgent)
+        const newAIAgent = new AIAgent({...targetAgent, modelName : targetAgent.model})
+        currentAgent.current = newAIAgent
+        ChatService.setActiveAgent(newAIAgent)
         const agent = ChatService.getActiveAgent()
         const newFormValues : IFormStructure = {
             agentName: agent.getName(),
