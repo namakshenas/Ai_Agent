@@ -21,6 +21,7 @@ import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
 import { IConversation, IInferenceStats } from "../interfaces/IConversation";
 import ErrorAlert from "../components/Modal/ErrorAlert";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
+import { FormUploadFile } from "../components/Modal/FormUploadFile";
 
 function Chat() {
 
@@ -31,23 +32,28 @@ function Chat() {
     
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
 
-    // contains all the logic used to manage the active conversation history and its context
-    // -> used when chat history is displayed + for conversation selection
+    // Active Conversation Management
+    // Manages the state and context of the current active conversation
+    // Used for displaying chat history and handling conversation selection
     const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : ""})
 
-    // ref used for the autoscroll feature happening during response streaming
+    // Auto-scroll Reference
+    // Ref used to enable auto-scrolling feature during response streaming
     const historyContainerRef = useRef<HTMLDivElement>(null)
 
-    // refresh the right panel when the active agent changes
+    // Panel Refresh Triggers
+    // State variables to force re-renders of right and left panels when active agent changes
     const [forceRightPanelRefresh, setForceRightPanelRefresh] = useState(0);
     const [forceLeftPanelRefresh, setForceLeftPanelRefresh] = useState(0);
 
-    // keep textarea value at this level for the moment being
+    // Textarea Value Management
+    // Maintains the current value of the textarea at the component level
     const [textareaValue, _setTextareaValue] = useState("")
     const textareaValueRef = useRef<string>("")
 
-    // forwarded to the textarea to retrieve its focus method
-    // -> used when clicking on one of the three suggestions
+    // Textarea Focus Control
+    // Ref forwarded to the textarea to access its focus method
+    // Utilized when a user selects one of the three suggestions
     const customTextareaRef = useRef<ImperativeHandle>(null)
 
     function setTextareaValue(value: string) {
@@ -55,26 +61,31 @@ function Chat() {
         _setTextareaValue(value)
     }
 
-    // dealing with the modal visibility & switching it's content
+    // Modal management
+    // Handles modal visibility and content switching
     const {modalVisibility, modalContentId, setModalVisibility, setModalContentId} = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
+    
+    // Memoized function to update modal status
+    // Prevents unnecessary re-renders
     const memoizedSetModalStatus = useCallback(({visibility, contentId} : {visibility : boolean, contentId? : string}) => {
         setModalVisibility(visibility)
         if(contentId) setModalContentId(contentId)
     }, [])
 
-    // used to memorize which prompt has been clicked in the left panel
-    // -> used by the modal
+    // Ref to store the name of the selected prompt in the left panel
+    // Used by the modal to populate the prompt form
     const selectedPromptNameRef = useRef("")
 
     const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
 
-    // init the conversations repository with an empty conversation 
-    // & set the scrollbar behavior
+    // Effect hook for initial setup
+    // Initializes conversation repository and sets scrollbar behavior
     const htmlRef = useRef(document.documentElement)
     useEffect(() => {
+        // Initialize conversation repository with an empty conversation
         ConversationsRepository.pushNewConversation(activeConversationStateRef.current.name, activeConversationStateRef.current.history, activeConversationStateRef.current.lastAgentUsed)
-
+        // Set scrollbar behavior for better UX
         if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
             htmlRef.current.style.overflow = "-moz-scrollbars-vertical";
             htmlRef.current.style.overflowY = "scroll";
@@ -85,15 +96,19 @@ function Chat() {
         }
     }, [])
 
-    // when switching between conversations
-    // -> streaming aborted + displaying the history of the select conversation
+    // Effect hook for handling conversation switches
+    // Aborts ongoing streaming, resets UI state, and loads the selected conversation
     useEffect(() => {
+        // Abort any ongoing streaming when switching conversations
         if (isStreaming) ChatService.abortAgentLastRequest()
+        // Reset UI state
         setIsStreaming(false)
         setTextareaValue("")
+        // Load and set the selected conversation
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId.value) })
     }, [activeConversationId])
 
+    // show an error modal with errorMessageRef as a message
     const errorMessageRef = useRef("")
     function showErrorModal(errorMessage : string){
         errorMessageRef.current = errorMessage
@@ -107,51 +122,66 @@ function Chat() {
     //
     ***/
 
-    // request a streamed response from the active chatService agent
+    /**
+     * Request a streamed response from the active chatService agent
+     * @param message The user's input message
+     * @returns A Promise that resolves when the streaming is complete
+     */
     async function askMainAgent_Streaming(message: string): Promise<void> {
         try {
+            // Prevent empty messages or multiple concurrent streams
             if (message == "" || isStreamingRef.current) return
-            // if the model has been switched between two questions 
-            // -> convert the last conversationState context
+            // Convert context if the model has changed since the last question (temporarly disabled)
             const currentContext = await convertContextOnModelSwitch(activeConversationStateRef.current)
             setIsStreaming(true)
-            // activeConversationState -> create a blank conversation QA pair
+            // Create a new blank conversation Q&A pair in the active conversation state
             dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, agentUsed : ChatService.getActiveAgent().asString()}})
+            scrollToBottom()
             let newContext = []
             let inferenceStats : IInferenceStats
 
-            // !!! should move scraping to chatService?
-            // two branches : webscrapping / internal knowledge
+            // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current) {
+                // Perform web scraping and process the results
                 const scrapedPages = await WebSearchService.scrapeRelatedDatas(message, 3, false)
-                if(scrapedPages == null) return // !!! should display an error to the user
+                if(scrapedPages == null) return
                 console.log("**LLM Loading**")
                 // format MM/DD/YYYY
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + new Date().getMonth() + "/" + new Date().getUTCDate() + ". "
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
                 if(isStreamingRef.current == false) return
                 dispatch({ type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, payload: scrapedPages })
             } else {
+                // Use internal knowledge without web search
                 console.log("**LLM Loading**")
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(message, showErrorModal, pushStreamedChunkToHistory_Callback, currentContext)
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext)
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
             }
 
-            // if the stream has been aborted, the following block of code isn't executed
+            // If streaming was aborted, exit early
             if(isStreamingRef.current == false) return
+            // Update the conversation history with new context and inference stats
             dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, payload: {newContext : newContext || [], inferenceStats} })
-            // the textarea is emptied only if the user has made no modifications to its content during the streaming process
+            // Clear textarea if user hasn't modified it during streaming
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
-            // temporary : to simulate persistence
+            // TODO: Implement proper persistence instead of this temporary solution
             ConversationsRepository.replaceConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history)
             setIsStreaming(false)
         }
-        catch (error: unknown) {
+        catch (error : unknown) {
+            setIsStreaming(false)
+            WebSearchService.abortLastRequest()
             ChatService.abortAgentLastRequest()
             console.error(error)
+            console.log(JSON.stringify(error))
+
+            // Ignore aborted requests
+            if((JSON.stringify(error)).includes("abort")) return
+            if(error instanceof Error && (error.name === "AbortError" || error.name.includes("abort") || error.message.includes("Signal"))) return
+            showErrorModal("Stream failed : " + error)
         }
     }
 
@@ -169,7 +199,8 @@ function Chat() {
 
     // !!! will have to convert the conv into token using tokenizer and return only last num_ctx tokens
     async function convertContextOnModelSwitch(conversationState : IConversation) : Promise<number[]>{
-        if (conversationState?.lastAgentUsed != "" && conversationState?.lastAgentUsed != ChatService.getActiveAgent().asString()) {
+        return conversationState.history[conversationState.history.length - 1]?.context
+        /*if (conversationState?.lastAgentUsed != "" && conversationState?.lastAgentUsed != ChatService.getActiveAgent().asString()) {
             console.log("last used model : " + conversationState?.lastAgentUsed)
             console.log("new model : " + ChatService.getActiveAgent().getModelName())
             const activeAgent = ChatService.getActiveAgent()
@@ -181,7 +212,7 @@ function Chat() {
             console.log("new context : " + JSON.stringify(newContext))
             return newContext
         }
-        return conversationState.history[conversationState.history.length - 1]?.context || []
+        return conversationState.history[conversationState.history.length - 1]?.context || []*/
     }
 
 
@@ -192,6 +223,7 @@ function Chat() {
     ***/
 
     function handleAbortStreamingClick() {
+        WebSearchService.abortLastRequest()
         ChatService.abortAgentLastRequest()
         setIsStreaming(false)
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
@@ -208,6 +240,10 @@ function Chat() {
 
     function handleScrollToTopClick(){
         document.getElementById("globalContainer")?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    function scrollToBottom() {
+        window.scrollTo(0, document.body.scrollHeight);
     }
 
     function regenerateLastAnswer() {
@@ -247,8 +283,8 @@ function Chat() {
                     setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
                 
                 <div className="sendButtonContainer">
-                    <div title="active the web search" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
-                        <span className="label">Search the Web</span>
+                    <div title="active the web search / context length of 10000 recommended" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
+                        <span className="label">Web Search</span>
                         <div className='switchContainer'>
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
                         </div>
@@ -284,6 +320,7 @@ function Chat() {
                     'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>,
                     'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
+                    'formUploadFile' : <FormUploadFile setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
                     'error' : <ErrorAlert errorMessage={errorMessageRef.current}/>,
                 } [modalContentId]}
             </Modal>
