@@ -1,9 +1,16 @@
+/* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import IScrapedPage from "../interfaces/IScrapedPage";
+import { AIAgent } from "../models/AIAgent";
 import ScrapedPage from "../models/ScrapedPage";
-import { AgentLibrary } from "./AgentLibrary";
+import AgentService from "./API/AgentService";
 
 export class WebSearchService{
+
+    static #abortController : AbortController = new AbortController()
+    static #signal = this.#abortController.signal
+    static #queryOptimizer : AIAgent
+    static #scrapedDatasSummarizer : AIAgent
 
     static async scrapeRelatedDatas(query : string, maxPages : number = 3, summarize = false) : Promise<ScrapedPage[] | undefined>{
         try{
@@ -16,9 +23,11 @@ export class WebSearchService{
             return summarizedScrapedPages
         }catch(error){
             console.error('Error while trying to scrape the needed datas :', error)
+            throw error
         }
     }
 
+    // !!! should be able to abort
     static async #callExternalScraper(query : string, maxPages : number = 3) : Promise<ScrapedPage[]>{ // !!! make use of maxPages
         try {
             const response = await fetch('http://127.0.0.1:3000/scrape', {
@@ -28,6 +37,7 @@ export class WebSearchService{
                     'Accept': 'application/json',
                 },
                 body: JSON.stringify({ query : query }),
+                signal : this.#signal,
             })
     
             // Check if the response is OK (status in the range 200-299)
@@ -53,31 +63,59 @@ export class WebSearchService{
 
     // convert the user request into an optimized search query
     static async #optimizeQuery(query : string) : Promise<string> {
-        const queryOptimizer = AgentLibrary.getAgent('searchQueryOptimizer')
-        if(queryOptimizer == null) return query
-        return (await queryOptimizer.ask(query)).response
+        try{
+            console.log("**Optimizing your query**")
+            const dbAgent = await AgentService.getAgentByName('searchQueryOptimizer')
+            if(dbAgent == null) throw new Error('No searchQueryOptimizer agent found')
+            this.#queryOptimizer = new AIAgent({...dbAgent, modelName : dbAgent.model})
+            return (await this.#queryOptimizer.ask(query)).response
+        } catch (error) {
+            console.error("Error calling the query optimizer : " + error)
+            throw error
+        }
     }
 
     // summarizing the scraped datas so it will take less context
     static async #summarizeScrapedPages(scrapedPages : ScrapedPage[], query : string) : Promise<ScrapedPage[]> {
-        const scrapedDatasSummarizer = AgentLibrary.getAgent('scrapedDatasSummarizer')
-        if(scrapedDatasSummarizer == null) return scrapedPages
-        const summarizedPages = [...scrapedPages]
-        for (const page of summarizedPages) {
-            page.setDatas(
-                (await scrapedDatasSummarizer.ask(`
-                    <SCRAPEDDATAS>${page.datas}</SCRAPEDDATAS>\n
-                    <REQUEST>${query}</REQUEST>\n
-                `)).response
-            )
+        try{
+            console.log("**Summarizing**")
+            const dbAgent = await AgentService.getAgentByName('scrapedDatasSummarizer')
+            if(dbAgent == null) return scrapedPages
+            const summarizedPages = [...scrapedPages]
+            this.#scrapedDatasSummarizer = new AIAgent({...dbAgent, modelName : dbAgent.model})
+            for (const page of summarizedPages) {
+                page.setDatas(
+                    (await this.#scrapedDatasSummarizer.ask(`
+                        <SCRAPEDDATAS>${page.datas}</SCRAPEDDATAS>\n
+                        <REQUEST>${query}</REQUEST>\n
+                    `)).response
+                )
 
-            console.log('SUMMARY : ' + page.datas)
+                console.log('SUMMARY : ' + page.datas)
+            }
+
+            return summarizedPages
+        } catch (error) {
+            console.error("Error calling the summarizer : " + error)
+            throw error
         }
-
-        return summarizedPages
     }
 
     static #trimQuotes(str : string) {
         return str.replace(/^['"]|['"]$/g, '').replace('"', " ").replace("'", " ")
+    }
+
+    static abortLastRequest(){
+        if(this.#abortController) this.#abortController.abort("Signal aborted.")
+        if(this.#scrapedDatasSummarizer) this.#scrapedDatasSummarizer.abortLastRequest()
+        if(this.#queryOptimizer) this.#queryOptimizer.abortLastRequest()
+        // need to create a new abort controller and a new signal
+        // or subsequent request will be aborted from the get go
+        this.generateNewAbortControllerAndSignal()
+    }
+
+   static generateNewAbortControllerAndSignal(){
+        this.#abortController = new AbortController()
+        this.#signal = this.#abortController.signal
     }
 }

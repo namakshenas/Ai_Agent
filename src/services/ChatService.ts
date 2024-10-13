@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
+import IScrapedPage from "../interfaces/IScrapedPage";
 import { AIAgent } from "../models/AIAgent";
 import ScrapedPage from "../models/ScrapedPage";
 import AnswerFormatingService from "./AnswerFormatingService";
@@ -26,7 +27,7 @@ export class ChatService{
       favorite : false
     })
 
-    static currentlyUsedAgent = this.activeAgent
+    static stillInUseAgent = this.activeAgent
 
     static async askForFollowUpQuestions(question : string, context:number[] = []) : Promise<string>
     {
@@ -60,7 +61,7 @@ export class ChatService{
       }
     }
 
-    static async askTheActiveAgentForAStreamedResponse(question : string, showErrorModal: (message : string) => void, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
+    static async askTheActiveAgentForAStreamedResponse(question : string, /*showErrorModal: (message : string) => void, */chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
     {
       if(this.activeAgent == null) throw new Error(`Agent is not available`)
       this.setCurrentlyUsedAgent(this.activeAgent)
@@ -76,7 +77,7 @@ export class ChatService{
       }
 
       this.activeAgent.setContext(context)
-      // scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
+      // logScrapedDatas(scrapedPages)
       const concatenatedWebDatas = scrapedPages ? scrapedPages.reduce((acc, currentPage)=> acc + '\n\n' + currentPage.datas, "When replying to **MY REQUEST**, always use the following datas as your MAIN source of informations especialy if it superseeds your training dataset : ") : ""
       const availableContextForWebDatas = this.activeAgent.getContextSize() - this.activeAgent.getNumPredict() - 1000
       const webDatasSizedForAvailableContext = concatenatedWebDatas.substring(0, availableContextForWebDatas)
@@ -93,9 +94,13 @@ export class ChatService{
               const decodedValue = new TextDecoder().decode(value)
               decod = decodedValue
               // check if the decoded value isn't malformed -> fix it if it is
-              const reconstructedValue = this.#reconstructMalformedValues(decodedValue)
+              let reconstructedValue = this.#reconstructMalformedValues(decodedValue)
               /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
               console.log(reconstructedValue)
+
+              // deal with the very last datas chunk being unexpectedly split into two chunks
+              if(reconstructedValue.includes('"done":true') && !reconstructedValue.endsWith("}")) reconstructedValue += (await reader.read()).value
+
               const json = JSON.parse(reconstructedValue)
 
               if(json.done) {
@@ -120,17 +125,15 @@ export class ChatService{
           this.abortAgentLastRequest()
       } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') {
-            console.log('Stream aborted.')
+            console.error('Stream aborted.')
           } else {
-            this.abortAgentLastRequest()
-            showErrorModal("Stream failed : " + error)
             console.error('Stream failed : ', error)
             console.error(decod)
           }
           throw error
       }
 
-      return { newContext, inferenceStats } // !!!! add datas
+      return { newContext : scrapedPages ? [] : newContext, inferenceStats }
     }
 
     // write three functions in javascript for a tetris game
@@ -157,15 +160,15 @@ export class ChatService{
         console.log("rebuilt : " + JSON.stringify(aggregatedChunk))
         return JSON.stringify(aggregatedChunk)
       } catch (error) {
-        this.abortAgentLastRequest()
+        // this.abortAgentLastRequest()
         console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
         throw error
       }
     }
 
     static abortAgentLastRequest(){
-      if(this.currentlyUsedAgent != null) this.currentlyUsedAgent.abortLastRequest() 
       if(this.activeAgent != null) this.activeAgent.abortLastRequest()
+      if(this.stillInUseAgent != null) this.stillInUseAgent.abortLastRequest() 
     }
 
     static setActiveAgent(agent : AIAgent){
@@ -173,7 +176,7 @@ export class ChatService{
     }
 
     static setCurrentlyUsedAgent(agent : AIAgent){
-      if(agent != null) this.currentlyUsedAgent = agent
+      if(agent != null) this.stillInUseAgent = agent
     }
 
     static getActiveAgentName() : string{
@@ -182,6 +185,10 @@ export class ChatService{
 
     static getActiveAgent() : AIAgent{
       return this.activeAgent
+    }
+
+    static logScrapedDatas(scrapedPages : IScrapedPage[]){
+      scrapedPages?.forEach(page => console.log("scrapedPageData :" + page.datas))
     }
 
     /*static async askTheActiveAgentForAutoComplete(promptToComplete : string, context:number[] = []) : Promise<{context : number[], response : string}>

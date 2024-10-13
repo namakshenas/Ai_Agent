@@ -97,20 +97,23 @@ export class AIModel{
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
 
             return await response.json()
             
         } catch (error) {
             if (error instanceof Error) {
                 // in case of manual request abortion
-                if (error.name === 'AbortError') {
-                    throw new Error("Request was aborted.");
+                if (error.name === "AbortError") {
+                    console.error(error.message)
+                    throw error
                 }
                 this.abortLastRequest()
-                throw new Error(`Failed to fetch: ${error.message}`);
+                console.error(error.message)
+                throw error
             }
-            throw new Error("An unknown error occurred.");
+            this.abortLastRequest()
+            console.error(error)
+            throw error
         }
     }
 
@@ -139,13 +142,17 @@ export class AIModel{
         } catch (error) {
             if (error instanceof Error) {
                 // in case of manual request abortion
-                if (error.name === 'AbortError') {
-                    throw new Error("Request was aborted.");
+                if (error.name === "AbortError") {
+                    console.error(error.message)
+                    throw error
                 }
                 this.abortLastRequest()
-                throw new Error(`Failed to fetch: ${error.message}`);
+                console.error(error.message)
+                throw error
             }
-            throw new Error("An unknown error occurred.");
+            this.abortLastRequest()
+            console.error(error)
+            throw error
         }
     }
 
@@ -375,7 +382,7 @@ export class AIModel{
     #buildEmbeddingRequest (sequence : unknown) : string {
         console.log(this.#modelName)
         return JSON.stringify({
-            "model": /*"mxbai-embed-large"*/ "nomic-embed-text" /*this.#modelName*/,
+            "model": /*"nomic-embed-text" "mxbai-embed-large"*/ this.#modelName,
             "prompt": sequence,
             /*"stream": false,*/
         })

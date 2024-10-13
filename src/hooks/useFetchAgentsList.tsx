@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import AgentService from "../services/API/AgentService";
 import { AIAgent } from "../models/AIAgent";
 import { ChatService } from "../services/ChatService";
-import { AgentLibrary } from "../services/AgentLibrary";
 
 function useFetchAgentsList(){
     const [AIAgentsList, setAIAgentsList] = useState<AIAgent[]>([])
@@ -15,7 +14,7 @@ function useFetchAgentsList(){
             if(retrievedAgentsList == null) return setAIAgentsList([])
             const AIAgents = retrievedAgentsList.map((agent) => new AIAgent({...agent, modelName : agent.model}))
             setAIAgentsList(AIAgents)
-            AgentLibrary.addAgents(AIAgents)
+            // AgentLibrary.addAgents(AIAgents)
             // set the first agent in DB as the active agent only if the agent currently active is the default one
             if(ChatService.getActiveAgent().getId() == "a0000000001") ChatService.setActiveAgent(AIAgents[0])
         }

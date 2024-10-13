@@ -64,4 +64,28 @@ export default class AgentService{
             return undefined
         }
     }
+
+    static async getAgentsNameList() : Promise<string[]> {
+        const allAgents = await this.getAll()
+        return allAgents?.map(agent => agent.name) || []        
+    }
+
+    static async getAgentByName(name : string): Promise<IAgentResponse | undefined>{
+        try {
+            const response = await fetch("http://127.0.0.1:3000/agent/byName/" + name, {
+                method: "GET",
+                headers: { "Content-Type": "application/json", }
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            return await response.json()
+            
+        } catch (error) {
+            console.error("Error fetching agents list : ", error)
+            return undefined
+        }
+    }
 }
