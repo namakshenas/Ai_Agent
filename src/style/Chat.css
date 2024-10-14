@@ -134,11 +134,26 @@
     height: 100%;
     background: var(--base-container-background-color);
     outline: 1px solid var(--base-container-border-color);
-    padding: 0 1rem;
+    padding: 0;
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: row;
+    border-radius: 4px;
+
+    div {
+      display: flex;
+      height: 100%;
+      flex: 1 1 fit-content;
+      font-size: 14px;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      &:not(:last-child) {
+        border-right: 1px dashed var(--base-container-border-color);
+      }
+    }
   }
 }
 
