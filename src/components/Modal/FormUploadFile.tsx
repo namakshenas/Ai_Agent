@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import DocService from '../../services/API/DocService'
 import DocProcessorService from '../../services/DocProcessorService'
-import DocProcessor from '../../services/DocProcessorService'
 import './FormUploadFile.css'
 
 export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh} : IProps){
@@ -19,6 +19,12 @@ export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh
         // console.log('processFile', filename, content, filesize)
         const chunkEmbeddings = await DocProcessorService.processTextFile(content)
         console.log('chunkEmbeddings : ', JSON.stringify(chunkEmbeddings))
+        console.log('filename : ' + filename)
+        console.log('filesize : ' + filesize)
+        DocService.saveDocWithEmbeddings(chunkEmbeddings.map((chunkEmbedding) => (
+            {...chunkEmbedding, metadatas : {filename, filesize}}
+        )))
+        setForceLeftPanelRefresh(prevValue => prevValue + 1)
     }
 
     function handleEvent(event: ProgressEvent<FileReader>, filename: string) {

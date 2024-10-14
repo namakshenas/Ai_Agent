@@ -80,10 +80,14 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         return conversationsListPage*3+3 - conversationsListState.length
     }
 
+    function getPagination() : string{
+        return `Page ${conversationsListPage+1} on ${Math.ceil(conversationsListState.length/3) || 1}`
+    }
+
     return(
         <article>
                 <h3>
-                    CONVERSATIONS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>Page {conversationsListPage+1} on {Math.ceil(conversationsListState.length/3)}</span>
+                    CONVERSATIONS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>{getPagination()}</span>
                 </h3>
                 <ul style={{minHeight : '118px'}}>
                     {conversationsListState.slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => 

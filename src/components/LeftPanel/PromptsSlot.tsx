@@ -29,10 +29,14 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
         memoizedSetModalStatus({visibility : true, contentId : "formNewPrompt"})
     }
 
+    function getPagination() : string{
+        return `Page ${promptsListPage+1} on ${Math.ceil(promptsList.length/3) || 1}`
+    }
+
     return(
     <article style={{marginTop:'0.75rem'}}>
         <h3>
-            PROMPTS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>Page {promptsListPage+1} on {Math.ceil(promptsList.length/3)}</span>
+            PROMPTS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>{getPagination()}</span>
         </h3>
         <ul>
             {promptsList.slice(promptsListPage * 3, promptsListPage * 3 + 3).map((prompt, index) => (<li key={"prompt" + index + promptsListPage * 3} onClick={() => handleOpenEditPromptFormClick(prompt.name)}>{prompt.name}</li>))}

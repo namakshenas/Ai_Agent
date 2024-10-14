@@ -10,7 +10,7 @@ import React from 'react'
 import AgentService from '../services/API/AgentService'
 import useFetchModelsList from '../hooks/useFetchModelsList'
 
-const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, triggerAIAgentsListRefresh} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList/*, triggerAIAgentsListRefresh*/} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
@@ -223,5 +223,5 @@ export default RightPanel
 interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
-    triggerAIAgentsListRefresh : () => void
+    // triggerAIAgentsListRefresh : () => void
 }

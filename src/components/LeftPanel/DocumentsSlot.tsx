@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IRAGDocument } from "../../interfaces/IRAGDocument";
 import useFetchDocsList from "../../hooks/useFetchDocsList";
+import { ChatService } from "../../services/ChatService";
 
 export default function DocumentsSlot({memoizedSetModalStatus} : IProps){
 
@@ -28,10 +29,10 @@ export default function DocumentsSlot({memoizedSetModalStatus} : IProps){
     const searchInputRef = useRef<HTMLInputElement>(null)
 
 
-    function reduceFileSize(fileSize : number, round : number = 0) : string | undefined{
-        const newFileSize = fileSize / 1000
-        if(newFileSize < 1) return fileSize.toFixed(1) + " " + units[round]
-        return reduceFileSize(Math.round((fileSize / 1000) * 100) / 100, round + 1)
+    function reduceFileSize(filesize : number, round : number = 0) : string | undefined{
+        const newFileSize = filesize / 1000
+        if(newFileSize < 1) return filesize.toFixed(1) + " " + units[round]
+        return reduceFileSize(Math.round((filesize / 1000) * 100) / 100, round + 1)
     }
 
     function handleSearchContainerClick(e : React.MouseEvent): void {
@@ -62,15 +63,25 @@ export default function DocumentsSlot({memoizedSetModalStatus} : IProps){
         setDocumentsSearchTerm("")
     }
 
-    function handleFileClick(fileId : number) : void {
+    /*function handleFileClick(fileId : number) : void {
         const newDocs = [...docsListRef.current]
         const targetFileIndex = newDocs.findIndex(doc => doc.id === fileId)
         newDocs[targetFileIndex].selected = !newDocs[targetFileIndex].selected
         setDocsList(newDocs)
+    }*/
+
+    function handleFileClick(filename : string) : void {
+        const newDocs = [...docsListRef.current]
+        const targetFileIndex = newDocs.findIndex(doc => doc.filename === filename)
+        const doc = newDocs[targetFileIndex]
+        doc.selected = !doc.selected
+        if(doc.selected) { ChatService.setDocAsARAGTarget(doc.filename) } 
+        else { ChatService.removeDocFromRAGTargets(doc.filename) }
+        setDocsList(newDocs)
     }
 
     function handleNextPage() : void{
-        setDocumentsListPage(currentPage => currentPage + 1 < Math.ceil(getFilteredDocs().length/5) ? currentPage+1 : 0)
+        setDocumentsListPage(currentPage => currentPage + 1 < Math.ceil(getFilteredDocs().length/5) ? currentPage + 1 : 0)
     }
 
     function handlePrevPage() : void{
@@ -90,10 +101,14 @@ export default function DocumentsSlot({memoizedSetModalStatus} : IProps){
         return documentsListPage*5+5 - docsListRef.current.length
     }
 
+    function getPagination() : string{
+        return `Page ${documentsListPage + 1} on ${Math.ceil(getFilteredDocs().length / 5) || 1}`
+    }
+
     return(
         <article style={{marginTop:'0.75rem'}}>
                 <h3>
-                    DOCUMENTS<span className='nPages'>{/*Page {documentsListPage + 1} on {Math.ceil(getFilteredDocs().length / 5)}*/}(Coming Soon)</span>
+                    DOCUMENTS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>{getPagination()}</span>
                 </h3>
                 <div className="searchFilterContainer">
                     <div title="search" className={documentsActiveTool == "search" ? "searchContainer active" : "searchContainer"} onClick={handleSearchContainerClick}>
@@ -117,7 +132,7 @@ export default function DocumentsSlot({memoizedSetModalStatus} : IProps){
                 <ul style={{marginTop:'0.5rem'}}>
                     {
                         docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase())).slice(documentsListPage * 5, documentsListPage * 5 + 5).map((document, id) => (
-                            <li title="Click to target with RAG" className={document.selected ? "activeDocument" : ""} onClick={() => handleFileClick(document.id)} key={"documentLi"+id}>
+                            <li title="Click to target with RAG" className={document.selected ? "activeDocument" : ""} onClick={() => handleFileClick(document.filename)} key={"documentLi"+id}>
                                 {document.selected && <div style={{height:'100%', width:'6px', background:'#6d48c1'}}></div>}
                                 {/*document.selected && <svg className="star" width="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg>*/}
                                 {document.filename}
