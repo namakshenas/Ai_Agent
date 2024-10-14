@@ -22,8 +22,12 @@ import { IConversation, IInferenceStats } from "../interfaces/IConversation";
 import ErrorAlert from "../components/Modal/ErrorAlert";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
 import { FormUploadFile } from "../components/Modal/FormUploadFile";
+import DocService from "../services/API/DocService";
+// import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
 function Chat() {
+
+    // const speechRecognition = useRef<SpeechRecognitionService>(new SpeechRecognitionService())
 
     useEffect(() => console.log("chat render"))
 
@@ -141,7 +145,7 @@ function Chat() {
             let inferenceStats : IInferenceStats
 
             // Handle web search if activated, otherwise use internal knowledge
-            if (isWebSearchActivatedRef.current) {
+            if (isWebSearchActivatedRef.current == true) {
                 // Perform web scraping and process the results
                 const scrapedPages = await WebSearchService.scrapeRelatedDatas(message, 3, false)
                 if(scrapedPages == null) return
@@ -156,7 +160,11 @@ function Chat() {
             } else {
                 // Use internal knowledge without web search
                 console.log("**LLM Loading**")
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext)
+                
+                // If any document is selected, extract the relevant datas for RAG
+                const ragContext = await retrieveRAGContext(message)
+
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext)
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
             }
@@ -185,16 +193,17 @@ function Chat() {
         }
     }
 
-    /*
-    // sends an unary request to the active agent
-    async function askMainAgent(message: string, context : number[] = []){
-        if (message == "" || isStreamingRef.current) return
-        return await ChatService.askTheActiveAgent(message, context)
-    }*/
-
     // callback passed to the chatService so it can display the streamed answer
     function pushStreamedChunkToHistory_Callback({markdown , html} : {markdown : string, html : string}): void {
         dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload: { html, markdown } })
+    }
+
+    async function retrieveRAGContext(message : string) : Promise<string> {
+        if(ChatService.getRAGTargetsFilenames().length < 1) return ""
+        const ragDatas = await DocService.getRelevantTextChunks(message, ChatService.getRAGTargetsFilenames())
+        if(ragDatas == null) return ""
+        return `Here is the data you have to use in priority to answer my query : 
+        ${ragDatas.join(". ")}`
     }
 
     // !!! will have to convert the conv into token using tokenizer and return only last num_ctx tokens
@@ -290,10 +299,10 @@ function Chat() {
                         </div>
                     </div>
                     <div className="infosBottomContainer">
-                        Model Loading : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.modelLoadingDuration || 0)).toFixed(2) }s |
-                        Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration || 1)))).toFixed(2) } tk/s |
-                        Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration || 1))).toFixed(2) } tk/s |
-                        Total : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.wholeProcessDuration || 0)).toFixed(2) }s
+                        <div>Model Loading : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.modelLoadingDuration || 0)).toFixed(2) } s</div>
+                        <div>Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration || 1)))).toFixed(2) } tk/s</div>
+                        <div>Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration || 1))).toFixed(2) } tk/s</div>
+                        <div>Full Process : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.wholeProcessDuration || 0)).toFixed(2) } s</div>
                     </div>
                     <button title="top of the page" className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>
                         <svg style={{transform:'translateY(1px)'}} height="20" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -311,7 +320,7 @@ function Chat() {
             </div>
         </main>
 
-        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>
+        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList}/> {/* triggerAIAgentsListRefresh={triggerAIAgentsListRefresh} */}
         
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>

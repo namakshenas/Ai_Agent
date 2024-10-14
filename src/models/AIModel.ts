@@ -163,7 +163,7 @@ export class AIModel{
      * @returns {Promise<IEmbeddingResponse>} The embeddings for the given sequence.
      * @description Sends a request to generate embeddings for the given sequence and returns the embeddings.
      */
-    async embeddings(sequence : string) : Promise<IEmbeddingResponse> {
+    async askEmbeddingsFor(sequence : string) : Promise<IEmbeddingResponse> {
         try {
             const response = await fetch("http://127.0.0.1:11434/api/embeddings", {
                 method: "POST",

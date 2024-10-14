@@ -1,6 +1,6 @@
 export interface IRAGDocument{
-    id : number
+    id? : number
     filename : string
     size : number
-    selected : boolean
+    selected? : boolean
 }
