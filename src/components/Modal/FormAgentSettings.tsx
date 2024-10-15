@@ -9,26 +9,45 @@ import picots from '../../assets/sliderpicots.png'
 import { ChatService } from "../../services/ChatService";
 import AgentService from "../../services/API/AgentService";
 
-export default function FormAgentSettings({memoizedSetModalStatus, setForceRightPanelRefresh, role, triggerAIAgentsListRefresh} : IProps){
+export default function FormAgentSettings({memoizedSetModalStatus, role, triggerAIAgentsListRefresh} : IProps){
 
     const modelList = useFetchModelsList()
-    const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
+    const currentAgent = useRef<AIAgent | null>(null)
 
     const [webSearchEconomy, setWebSearchEconomy] = useState(true)
     const [error, setError] = useState("")
 
-    const baseForm : IFormStructure = {
-        agentName: role == "edit" ? currentAgent.current.getName() : "",
-        modelName: role == "edit" ? currentAgent.current.getModelName() : (modelList[0] != null ? modelList[0] :  ""),
-        systemPrompt: role == "edit" ? currentAgent.current.getSystemPrompt().replace(/\t/g,'') : "",
-        temperature: role == "edit" ? currentAgent.current.getTemperature() : 0.8,
-        maxContextLength: role == "edit" ? currentAgent.current.getContextSize() : 2048,
-        maxTokensPerReply: role == "edit" ? currentAgent.current.getNumPredict() : 1024,
-        webSearchEconomy: false,
-    }
+    useEffect(() => {
+        async function retrieveAgent(agentName : string) {
+            const agentDatas = await AgentService.getAgentByName(agentName)
+            if(agentDatas) currentAgent.current = new AIAgent({...agentDatas, modelName : agentDatas.model})
+            const baseForm : IFormStructure = {
+                agentName: role == "edit" && currentAgent.current ? currentAgent.current.getName() : "",
+                modelName: role == "edit" && currentAgent.current ? currentAgent.current.getModelName() : (modelList[0] != null ? modelList[0] :  ""),
+                systemPrompt: role == "edit" && currentAgent.current ? currentAgent.current.getSystemPrompt().replace(/\t/g,'') : "",
+                temperature: role == "edit" && currentAgent.current ? currentAgent.current.getTemperature() : 0.8,
+                maxContextLength: role == "edit" && currentAgent.current ? currentAgent.current.getContextSize() : 2048,
+                maxTokensPerReply: role == "edit" && currentAgent.current ? currentAgent.current.getNumPredict() : 1024,
+                webSearchEconomy: false,
+            }
+            setFormValues({...baseForm})
+            
+        }
 
-    const [formValues, setFormValues] = useState<IFormStructure>(baseForm)
-    const startAgentName = useRef<string>(role == "edit" ? currentAgent.current.getName() : "")
+        retrieveAgent(ChatService.getActiveAgent().getName())
+    }, [])
+
+    const [formValues, setFormValues] = useState<IFormStructure>({
+        agentName : "",
+        modelName : "",
+        systemPrompt : "",
+        temperature : 0.8,
+        maxContextLength : 2048,
+        maxTokensPerReply : 1024,
+        webSearchEconomy : false,
+    })
+
+    // const startAgentName = useRef<string>(role == "edit" && currentAgent.current ? currentAgent.current.getName() : "")
 
     useEffect(() => {
         if (role == "create") {
@@ -75,7 +94,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
         e.preventDefault()
         if(!isFormValid()) return
         const newAgent = new AIAgent({
-            id : role == "edit" ? currentAgent.current.getId() : "", 
+            id : role == "edit" && currentAgent.current ? currentAgent.current.getId() : "", 
             modelName: formValues.modelName, 
             name : formValues.agentName, 
             type : role == "edit" ? ChatService.getActiveAgent().getType() : "user_created", 
@@ -88,15 +107,15 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
 
         let response
         if(role == "create") response = await AgentService.save(newAgent)
-        if(role == "edit") response = await  AgentService.updateById(newAgent)
+        if(role == "edit") response = await AgentService.updateById(newAgent)
         
         // if any error saving or updating the model -> the modal stays open & the active agent is not updated
         if(response != null) return setError(response)
         
-        ChatService.setActiveAgent(newAgent)
-        
         triggerAIAgentsListRefresh()
-        if(setForceRightPanelRefresh) setForceRightPanelRefresh(prev => prev + 1)
+        ChatService.setActiveAgent(newAgent)
+    
+        // if(setForceRightPanelRefresh) setForceRightPanelRefresh(prev => prev + 1)
             
         memoizedSetModalStatus({visibility : false})
     }
@@ -241,7 +260,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, setForceRight
 interface IProps{
     // currentAgent? : AIAgent
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
-    setForceRightPanelRefresh? : React.Dispatch<React.SetStateAction<number>>
     triggerAIAgentsListRefresh : () => void
     role : "edit" | "create"
 }
