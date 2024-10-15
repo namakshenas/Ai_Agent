@@ -14,7 +14,8 @@ const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : IProps) => {
 
     useEffect(() => {
       async function effect(){
-        if(hasStreamingEnded) await refreshRunningModelInfos()
+        console.log("LoadedModelInfosBar : RefreshRunningModels")
+        if(hasStreamingEnded == true) await refreshRunningModelInfos()
       }
       effect()
     }, [hasStreamingEnded])
