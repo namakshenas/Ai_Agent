@@ -32,7 +32,6 @@ function Chat() {
     useEffect(() => console.log("chat render"))
 
     const {AIAgentsList, triggerAIAgentsListRefresh} = useFetchAgentsList()
-    useEffect(() => {setForceRightPanelRefresh(value => value + 1)} , [AIAgentsList])
     
     const {isStreaming, isStreamingRef, setIsStreaming} = useStreamingState()
 
@@ -46,9 +45,9 @@ function Chat() {
     const historyContainerRef = useRef<HTMLDivElement>(null)
 
     // Panel Refresh Triggers
-    // State variables to force re-renders of right and left panels when active agent changes
-    const [forceRightPanelRefresh, setForceRightPanelRefresh] = useState(0);
+    // State variables to force re-renders left panels
     const [forceLeftPanelRefresh, setForceLeftPanelRefresh] = useState(0);
+    // const [forceRightPanelRefresh, setForceRightPanelRefresh] = useState(0);
 
     // Textarea Value Management
     // Maintains the current value of the textarea at the component level
@@ -320,13 +319,13 @@ function Chat() {
             </div>
         </main>
 
-        <RightPanel key={"rp-" + forceRightPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList}/> {/* triggerAIAgentsListRefresh={triggerAIAgentsListRefresh} */}
+        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList}/>
         
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
                 {{
-                    'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
-                    'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} setForceRightPanelRefresh={setForceRightPanelRefresh} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
+                    'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
+                    'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>,
                     'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
                     'formUploadFile' : <FormUploadFile setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
