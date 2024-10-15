@@ -93,15 +93,16 @@ export class ChatService{
           while(true){
               const { value } = await reader.read()
 
-              const decodedValue = new TextDecoder().decode(value)
+              let decodedValue = new TextDecoder().decode(value)
               decod = decodedValue
+
+              // deal with the very last datas chunk being unexpectedly split into two partial chunks
+              if(decodedValue.includes('"done":true') && !decodedValue.endsWith("}")) decodedValue += (await reader.read()).value || ""
+
               // check if the decoded value isn't malformed -> fix it if it is
-              let reconstructedValue = this.#reconstructMalformedValues(decodedValue)
+              const reconstructedValue = this.#reconstructMalformedValues(decodedValue)
               /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
               console.log(reconstructedValue)
-
-              // deal with the very last datas chunk being unexpectedly split into two chunks
-              if(reconstructedValue.includes('"done":true') && !reconstructedValue.endsWith("}")) reconstructedValue += (await reader.read()).value
 
               const json = JSON.parse(reconstructedValue)
 
