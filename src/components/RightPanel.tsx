@@ -47,6 +47,8 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) 
     function handleUpdateAgent(e : React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
 
+        if(!isFormValid()) return // !!! should show error modal
+
         // retrieve all the parameters of the active agent as a string & update some of them with the form values
         const newAgent = new AIAgent({...JSON.parse(ChatService.getActiveAgent().asString()),
             modelName : formValues.modelName,
@@ -114,6 +116,16 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) 
         }     
     }, [showSavingSuccessfulBtn])
 
+    function isFormValid(){
+        const {modelName, systemPrompt, temperature, maxContextLength, maxTokensPerReply } = formValues
+        if(!modelName || !modelsList.includes(modelName)) return false
+        if(!systemPrompt) return false
+        if(!temperature || temperature  <  0 || temperature >  2.0 ) return false
+        if(!maxContextLength  || maxContextLength <  0) return false
+        if(!maxTokensPerReply  || maxTokensPerReply <  1) return false
+        return true
+    }
+
     return(
         <aside className="rightDrawer">
             <div className='userSettingsContainer'>
@@ -163,11 +175,11 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) 
                     <input 
                         spellCheck="false" 
                         type="number"
-                        step="0.01" min="0" max="1" 
+                        step="0.01" min="0" max="2" 
                         value={formValues.temperature}
                         onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
                     />
-                    <figure title="0 : Predictable <-> 1 : Creative" data-tooltip="Predictable <-> Creative">
+                    <figure title="0 : Predictable <-> 2 : Creative" data-tooltip="Predictable <-> Creative">
                         <svg style={{transform:'translateX(0.5px) translateY(0.5px)'}} width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fillRule="evenodd" clipRule="evenodd" d="M9.40629 1.71324H24V3.42702H10.1991C10.2567 3.70901 10.2857 3.99609 10.2857 4.2839V13.8039C11.1126 14.6476 11.6719 15.7165 11.8935 16.8767C12.1151 18.0368 11.9892 19.2366 11.5315 20.3255C11.0738 21.4143 10.3047 22.3439 9.32069 22.9976C8.33665 23.6513 7.18148 24 6 24C4.81853 24 3.66335 23.6513 2.67932 22.9976C1.69529 22.3439 0.926207 21.4143 0.468513 20.3255C0.0108194 19.2366 -0.115114 18.0368 0.106505 16.8767C0.328123 15.7165 0.887429 14.6476 1.71429 13.8039V4.2839C1.71134 3.38597 1.99162 2.50997 2.51529 1.78044C3.03897 1.0509 3.77937 0.504982 4.63123 0.22029C5.4831 -0.0644014 6.40306 -0.0733719 7.26031 0.194654C8.11757 0.462681 8.86848 0.994061 9.40629 1.71324ZM3.56976 21.5261C4.28481 22.0174 5.13235 22.2798 6 22.2785C6.86765 22.2798 7.71519 22.0174 8.43024 21.5261C9.1453 21.0348 9.69408 20.3378 10.0038 19.5275C10.3136 18.7173 10.3697 17.8321 10.1647 16.9893C9.95972 16.1464 9.50331 15.3858 8.856 14.8082L8.57143 14.552V4.2839C8.57143 3.60212 8.30051 2.94826 7.81828 2.46617C7.33604 1.98408 6.68199 1.71324 6 1.71324C5.31802 1.71324 4.66396 1.98408 4.18173 2.46617C3.69949 2.94826 3.42857 3.60212 3.42857 4.2839V14.552L3.144 14.8082C2.4967 15.3858 2.04029 16.1464 1.83529 16.9893C1.6303 17.8321 1.6864 18.7173 1.99616 19.5275C2.30592 20.3378 2.85471 21.0348 3.56976 21.5261ZM21.4288 6.85456H15.4288V8.56834H21.4288V6.85456ZM24.0002 11.9959H15.4288V13.7097H24.0002V11.9959ZM21.4288 17.1372H15.4288V18.851H21.4288V17.1372ZM6.85738 4.2839V15.5811C7.42927 15.7832 7.91128 16.181 8.2182 16.704C8.52513 17.2271 8.63721 17.8418 8.53463 18.4394C8.43205 19.0371 8.12143 19.5793 7.65766 19.9702C7.19388 20.361 6.60682 20.5754 6.00023 20.5754C5.39364 20.5754 4.80658 20.361 4.34281 19.9702C3.87904 19.5793 3.56841 19.0371 3.46584 18.4394C3.36326 17.8418 3.47534 17.2271 3.78226 16.704C4.08919 16.181 4.57119 15.7832 5.14309 15.5811V4.2839H6.85738Z" fill="black"/>
                         </svg>

@@ -380,7 +380,6 @@ export class AIModel{
      * @description Builds the request body for generating embeddings for the given sequence.
      */
     #buildEmbeddingRequest (sequence : unknown) : string {
-        console.log(this.#modelName)
         return JSON.stringify({
             "model": /*"nomic-embed-text" "mxbai-embed-large"*/ this.#modelName,
             "prompt": sequence,

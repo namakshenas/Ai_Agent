@@ -23,6 +23,7 @@ import ErrorAlert from "../components/Modal/ErrorAlert";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
 import { FormUploadFile } from "../components/Modal/FormUploadFile";
 import DocService from "../services/API/DocService";
+import DocProcessorService from "../services/DocProcessorService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
 function Chat() {
@@ -161,7 +162,7 @@ function Chat() {
                 console.log("**LLM Loading**")
                 
                 // If any document is selected, extract the relevant datas for RAG
-                const ragContext = await retrieveRAGContext(message)
+                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await retrieveRAGContext(message) : ""
 
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext)
                 newContext = finalDatas.newContext
@@ -197,12 +198,11 @@ function Chat() {
         dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload: { html, markdown } })
     }
 
+    // retrieve the ragDatas to pour into the context
     async function retrieveRAGContext(message : string) : Promise<string> {
-        if(ChatService.getRAGTargetsFilenames().length < 1) return ""
-        const ragDatas = await DocService.getRelevantTextChunks(message, ChatService.getRAGTargetsFilenames())
-        if(ragDatas == null) return ""
-        return `Here is the data you have to use in priority to answer my query : 
-        ${ragDatas.join(". ")}`
+        const RAGChunks = await DocService.getRelevantTextChunks(message, ChatService.getRAGTargetsFilenames())
+        if(RAGChunks.length == 0) return ""
+        return DocProcessorService.formatRAGDatas(RAGChunks)
     }
 
     // !!! will have to convert the conv into token using tokenizer and return only last num_ctx tokens
@@ -322,7 +322,7 @@ function Chat() {
         <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList}/>
         
         {modalVisibility && 
-            <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus}>
+            <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "540px"}>
                 {{
                     'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
