@@ -22,10 +22,11 @@ export default class DocService{
         }
     }
 
-    static async delete(docLokiId : number){
+    // deletion by name possible since duplicates aren't allowed
+    static async deleteByName(filename : string){
         try{
-            const response = await fetch("http://127.0.0.1:3000/doc/" + docLokiId, {
-                method: "POST",
+            const response = await fetch("http://127.0.0.1:3000/doc/name/" + filename, {
+                method: "DELETE",
                 headers: { "Content-Type": "application/json", }
             })
 
@@ -37,7 +38,7 @@ export default class DocService{
         }
     }
 
-    static async getAll() : Promise<IRAGDocument[] | undefined>{
+    static async getAll() : Promise<IRAGDocument[]>{
         try {
             const response = await fetch("http://127.0.0.1:3000/docs", {
                 method: "GET",
@@ -52,18 +53,22 @@ export default class DocService{
             
         } catch (error) {
             console.error("Error fetching docs list : ", error)
-            return undefined
+            return []
         }
     }
 
-    static async getRelevantTextChunks(query : string, targetFilesNames : string[]) : Promise<string[] | undefined>{
+    static async getRelevantTextChunks(query : string, targetFilesNames : string[]) : Promise<string[]>{
         try {
-            console.log("getrelevant")
+            console.log("***Get RAG Datas***")
             const queryEmbeddings = (await this.embeddingModel.askEmbeddingsFor(query)).embedding
+            const translatedQueryEmbeddings = queryEmbeddings.map(number => {
+                if(number == 0) return 0
+                return number < 0 ? number - 10 : number + 10
+            })
             const response = await fetch("http://127.0.0.1:3000/docs/bySimilarity", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", },
-                body : JSON.stringify({ query,  embeddings : queryEmbeddings, targetFilesNames })
+                body : JSON.stringify({ query,  embeddings : translatedQueryEmbeddings, targetFilesNames })
             })
 
             if (!response.ok) {
@@ -74,7 +79,7 @@ export default class DocService{
             
         } catch (error) {
             console.error("Error fetching related docs : ", error)
-            return undefined
+            return []
         }
     }
 }
