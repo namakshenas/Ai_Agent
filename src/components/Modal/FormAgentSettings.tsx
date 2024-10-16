@@ -65,25 +65,29 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
     }
 
     function isFormValid(){
+        const {agentName, modelName, systemPrompt, temperature, maxContextLength, maxTokensPerReply } = formValues
         setError("")
-        if(formValues.agentName == "") { 
+        if(!agentName || agentName == "") { 
             setError("Agent name is required.")
             return false
         }
-        if(formValues.modelName == "") return
-        if(formValues.systemPrompt == "") { 
+        if(!modelName || modelName == "" || !modelList.includes(modelName)) {
+            setError("The selected model doesn't exists.")
+            return false
+        }
+        if(!systemPrompt || systemPrompt == "") { 
             setError("System prompt is missing.")
             return false
         }
-        if(formValues.temperature < 0 || formValues.temperature > 1) { 
-            setError("Temperature must be > 0 and <= 1.")
+        if(!temperature || temperature < 0 || temperature > 2) { 
+            setError("Temperature must be > 0 and <= 2.")
             return false
         }
-        if(formValues.maxContextLength < 1024 || formValues.maxContextLength > 8388608) { 
+        if(!maxContextLength || maxContextLength < 1024 || maxContextLength > 8388608) { 
             setError("Context length must be >= 1024 and < 8388609.")
             return false
         }
-        if(formValues.maxTokensPerReply < 1 || formValues.maxTokensPerReply > 128000) { 
+        if(!maxTokensPerReply || maxTokensPerReply < 1 || maxTokensPerReply > 128000) { 
             setError("Max tokens must be >= 1 and < 128000.")
             return false
         }

@@ -6,21 +6,23 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 
 ## I - Features
 
-- **Real-time interaction** with most Open-Source AI models.
+- **Real-time interactions** with most Open-Source AI models.
 - Lightweight and **fully local** operations.
 - **User-friendly** conversational UI.
-- Web search functionality for the integration of **uptodate informations**.
+- R.A.G. so you can feed the LLM your own documents while **preserving your privacy**.
+- Web Search functionality for the integration of **up-to-date informations**.
 
 ## II - Coming Soon
 
-- **Settings persistence** between sessions.
-- R.A.G. to feed your LLM your own documents while **preserving your privacy**.
 - **Agents chaining** to tackle complex tasks.
 - Prompt versioning.
 - **Dark mode** theme.
 - Advanced Models settings : Top-K, Repeat, Mirostat, etc..
 - **Responsive** design.
-- Improved web search algorithm.
+- Improved Web Search algorithm.
+- Improved RAG algorithm.
+- Graph generation.
+- Multimodal operations.
 
 ## III - Screenshots
 
@@ -32,6 +34,10 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 - Vite
 - Marked 14.1.1
 - Ollama API
+- ExpressJS
+- LokiJS
+- Duck-duck-scrape
+- Cherio
 
 ## V - Getting Started
 
