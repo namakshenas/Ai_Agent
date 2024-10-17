@@ -22,7 +22,7 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 - Improved Web Search algorithm.
 - Improved RAG algorithm.
 - Graph generation.
-- Multimodal operations.
+- **Multimodal** operations.
 
 ## III - Screenshots
 
@@ -70,6 +70,22 @@ Navigate to the project directory:
 
 > cd OsspitaUI
 
+#### Backend
+
+> cd back
+
+Install dependencies:
+
+> npm install
+
+Start the development server:
+
+> ./run
+
+#### Frontend
+
+> cd front
+
 Install dependencies:
 
 > npm install
@@ -88,8 +104,8 @@ I'm not looking of any contributor until the v1.0.0 release. Thanks a lot for yo
 
 ## VIII - Acknowledgments
 
-- Georgi Gerganov for llama.cpp.
-- The Ollama team for providing its API.
+- Georgi Gerganov and all related contributors for llama.cpp.
+- The Ollama team for providing the inference API.
 - React and Vite communities for their excellent tools.
 - All contributors and supporters of the project.
 - All the people producing GGUF models.
