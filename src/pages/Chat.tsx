@@ -24,6 +24,7 @@ import useFetchAgentsList from "../hooks/useFetchAgentsList";
 import { FormUploadFile } from "../components/Modal/FormUploadFile";
 import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
+import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
 function Chat() {
@@ -120,6 +121,8 @@ function Chat() {
         setModalVisibility(true)
     }
 
+    const lastRAGResultsRef = useRef<IRAGChunkResponse[] | null>(null)
+
     /***
     //
     // LLM Requests
@@ -162,7 +165,7 @@ function Chat() {
                 console.log("**LLM Loading**")
                 
                 // If any document is selected, extract the relevant datas for RAG
-                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await retrieveRAGContext(message) : ""
+                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(message) : ""
 
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext)
                 newContext = finalDatas.newContext
@@ -177,19 +180,19 @@ function Chat() {
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // TODO: Implement proper persistence instead of this temporary solution
             ConversationsRepository.replaceConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history)
-            setIsStreaming(false)
         }
         catch (error : unknown) {
-            setIsStreaming(false)
-            WebSearchService.abortLastRequest()
-            ChatService.abortAgentLastRequest()
+            if(isWebSearchActivatedRef.current) WebSearchService.abortLastRequest()
             console.error(error)
-            console.log(JSON.stringify(error))
 
-            // Ignore aborted requests
+            // Abort requests shouldn't display any error modale
             if((JSON.stringify(error)).includes("abort")) return
             if(error instanceof Error && (error.name === "AbortError" || error.name.includes("abort") || error.message.includes("Signal"))) return
+
+            ChatService.abortAgentLastRequest()
             showErrorModal("Stream failed : " + error)
+        }finally{
+            setIsStreaming(false)
         }
     }
 
@@ -199,8 +202,9 @@ function Chat() {
     }
 
     // retrieve the ragDatas to pour into the context
-    async function retrieveRAGContext(message : string) : Promise<string> {
-        const RAGChunks = await DocService.getRelevantTextChunks(message, ChatService.getRAGTargetsFilenames())
+    async function buildRAGContext(message : string) : Promise<string> {
+        const RAGChunks = await DocService.getRAGResults(message, ChatService.getRAGTargetsFilenames())
+        lastRAGResultsRef.current = RAGChunks
         if(RAGChunks.length == 0) return ""
         return DocProcessorService.formatRAGDatas(RAGChunks)
     }
@@ -297,7 +301,7 @@ function Chat() {
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
                         </div>
                     </div>
-                    <div className="infosBottomContainer">
+                    <div className="infosBottomContainer" onClick={() => console.log(JSON.stringify(lastRAGResultsRef.current))}>
                         <div>Model Loading : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.modelLoadingDuration || 0)).toFixed(2) } s</div>
                         <div>Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration || 1)))).toFixed(2) } tk/s</div>
                         <div>Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration || 1))).toFixed(2) } tk/s</div>
@@ -322,7 +326,7 @@ function Chat() {
         <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList}/>
         
         {modalVisibility && 
-            <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "540px"}>
+            <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "560px"}>
                 {{
                     'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,

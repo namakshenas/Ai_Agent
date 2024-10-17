@@ -142,7 +142,7 @@ export class ChatService{
             console.error('Stream aborted.')
           } else {
             console.error('Stream failed : ', error)
-            console.error(decod)
+            if(decod) console.error(decod)
           }
           throw error
       }

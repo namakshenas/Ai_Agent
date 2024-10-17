@@ -6,4 +6,5 @@ export interface IRAGDocumentResponse extends IRAGDocument, ILokiBaseInterface{
     filename : string
     size : number
     selected : boolean
+    similarity : number
 }

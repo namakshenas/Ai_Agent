@@ -1,5 +1,6 @@
 import IEmbedChunkedDoc from "../../interfaces/IEmbedChunk"
 import { IRAGDocument } from "../../interfaces/IRAGDocument"
+import IRAGChunkResponse from "../../interfaces/responses/IRAGChunkResponse"
 import { AIModel } from "../../models/AIModel"
 
 export default class DocService{
@@ -57,7 +58,7 @@ export default class DocService{
         }
     }
 
-    static async getRelevantTextChunks(query : string, targetFilesNames : string[]) : Promise<string[]>{
+    static async getRAGResults(query : string, targetFilesNames : string[]) : Promise<IRAGChunkResponse[]>{
         try {
             console.log("***Get RAG Datas***")
             const queryEmbeddings = (await this.embeddingModel.askEmbeddingsFor(query)).embedding
