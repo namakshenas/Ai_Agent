@@ -10,11 +10,12 @@ dialog {
   animation-name: modalAppears;
   animation-duration: 0.2s;
   animation-timing-function: ease-out;
-  position: absolute;
+  /*position: absolute;
   top: 0;
-  left: 0;
+  left: 0;*/
   width: 100%;
   max-width: 1200px;
+  transform: translateY(-40px);
 }
 
 @keyframes modalAppears {
@@ -22,7 +23,7 @@ dialog {
     transform: translateY(100px);
   }
   100% {
-    transform: translateY(0);
+    transform: translateY(-40px);
   }
 }
 

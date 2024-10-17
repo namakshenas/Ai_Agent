@@ -141,7 +141,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) 
                 <label id="label-agentName">Agent Powering the Chat</label>
                 <Select 
                     width="100%"
-                    options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [Core]`: ""), value: agent.getName() }))} 
+                    options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [ Core ]`: ""), value: agent.getName() }))} 
                     defaultOption={formValues.agentName || "helpfulAssistant"}
                     labelledBy="label-agentName" 
                     id="settingsSelectAgent"
