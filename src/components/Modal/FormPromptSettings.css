@@ -24,12 +24,40 @@
       height: 40px;
     }
 
+    .nameNOptionsWrapper {
+      width: 100%;
+      display: flex;
+      padding: 0;
+
+      button {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px dashed #a7afdd;
+        background: var(--input-background-color);
+        color: #373737;
+
+        &:hover {
+          border-color: var(--purple-button-color);
+          color: var(--purple-button-color);
+          background-color: var(--light-purple-background-color);
+
+          svg {
+            path {
+              fill: var(--purple-button-color);
+            }
+          }
+        }
+      }
+    }
+
     textarea {
       width: 100%;
       background-color: var(--input-background-color);
       border-color: var(--input-border-color);
       scrollbar-width: thin;
       scrollbar-color: hsla(238, 30%, 72%, 1) hsla(238, 27%, 55%, 0.8);
+      margin-bottom: 0;
     }
 
     button {
