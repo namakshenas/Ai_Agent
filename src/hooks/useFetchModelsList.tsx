@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { OllamaService } from "../services/OllamaService";
 
-function useFetchModelsList(){
+function useFetchModelsList(includes ?: "includes-embedding-models"){
     const [modelsList, setModelsList] = useState<string[]>([])
 
     useEffect(() => {
@@ -12,6 +12,7 @@ function useFetchModelsList(){
                 const modelList = await OllamaService.getModelList()
                 if(modelList != null) {
                     const ml = modelList?.models.map((model) => model?.model)
+                    if(includes == "includes-embedding-models") return setModelsList(ml)
                     setModelsList(ml.filter((model : string) => !(model.includes("embed") || model.includes("llava"))))
                 }
             } catch (error) {
