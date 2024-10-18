@@ -6,6 +6,7 @@ import './AnswerRow2.css'
 import { ISource } from '../../interfaces/IConversation';
 import { TTSService } from '../../services/TTSService';
 
+
 function AnswerRow({index, answer, sources, TTS, onDownload, onCopyToClipboard, onRegenerate} : IProps){
 
     // const answerDivRef = useRef<HTMLDivElement>(null)
@@ -16,9 +17,10 @@ function AnswerRow({index, answer, sources, TTS, onDownload, onCopyToClipboard, 
         return sourcesArray.reduce((acc, source) => acc + source.asHTML + '<br>', '<hr style="opacity:0.3; margin:1.15rem 0 0.5rem 0;"><span style="font-size:14px; font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
     }
 
-    function playTTS(){
+    async function playTTS(){
         if(TTS.isPlaying()) return TTS.stop()
         if(TTS) TTS.speak(answer.asMarkdown)
+        // TTSAPI.call(answer.asMarkdown)
     }
 
     return(
