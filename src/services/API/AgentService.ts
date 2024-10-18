@@ -88,4 +88,19 @@ export default class AgentService{
             return undefined
         }
     }
+
+    static async deleteAgent(name : string): Promise<void>{
+        try{
+            const response = await fetch("http://127.0.0.1:3000/agent/name/" + name, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json", }
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+        }catch(e){
+            console.error(e)
+        }
+    }
 }

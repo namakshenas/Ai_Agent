@@ -15,6 +15,29 @@
     "o o o"
     ". . p";
 
+  .deleteAgentButton {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--purple-button-color);
+    color: #fff;
+
+    &:hover {
+      background: var(--purple-button-hover-background-color);
+      border: 1px solid var(--purple-button-hover-border-color);
+      box-shadow: 0 2px 0px #fff;
+    }
+  }
+
+  .agentInputNDeleteContainer {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.75rem;
+  }
+
   input {
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
