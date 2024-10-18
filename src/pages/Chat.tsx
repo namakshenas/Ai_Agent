@@ -25,6 +25,8 @@ import { FormUploadFile } from "../components/Modal/FormUploadFile";
 import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
+import { AIAgent } from "../models/AIAgent";
+// import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
 function Chat() {
@@ -111,6 +113,9 @@ function Chat() {
         setTextareaValue("")
         // Load and set the selected conversation
         dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId.value) })
+        // restore the agent used by the selected conversation
+        if(activeConversationStateRef.current.lastAgentUsed != "") ChatService.setActiveAgent(new AIAgent(JSON.parse(activeConversationStateRef.current.lastAgentUsed)))
+        // !!! should refresh the right panel to display the active agent
     }, [activeConversationId])
 
     // show an error modal with errorMessageRef as a message
@@ -155,7 +160,7 @@ function Chat() {
                 console.log("**LLM Loading**")
                 // format MM/DD/YYYY
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + new Date().getMonth() + "/" + new Date().getUTCDate() + ". "
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, onStreamedChunkReceived_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
                 if(isStreamingRef.current == false) return
@@ -167,7 +172,7 @@ function Chat() {
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(message) : ""
 
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + message, /*showErrorModal, */pushStreamedChunkToHistory_Callback, currentContext)
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + message, onStreamedChunkReceived_Callback, currentContext)
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
             }
@@ -197,7 +202,7 @@ function Chat() {
     }
 
     // callback passed to the chatService so it can display the streamed answer
-    function pushStreamedChunkToHistory_Callback({markdown , html} : {markdown : string, html : string}): void {
+    function onStreamedChunkReceived_Callback({markdown , html} : {markdown : string, html : string}): void {
         dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload: { html, markdown } })
     }
 

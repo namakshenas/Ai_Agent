@@ -20,7 +20,7 @@ class AnswerFormatingService{
             } 
             return `<div class="codeBlock">
                         <div class="title">Code<span style="margin-left:auto; padding-right:0.5rem">${language}</span></div>
-                        <div class="body">${codeContent}</div>
+                        <div class="body" onClick="((event) => {if(event.currentTarget) navigator.clipboard.writeText(event.currentTarget.innerText)})(event)">${codeContent}</div>
                     </div>`
         })
         return formatedText

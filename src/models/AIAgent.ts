@@ -150,7 +150,7 @@ export class AIAgent extends AIModel {
                 top_k: this.getTopK(),
                 top_p: this.getTopP(),
                 type: this.getType(),
-                favorite: this.getFavorite(),
+                favorite: this.getFavorite()
             }
         )
     }
