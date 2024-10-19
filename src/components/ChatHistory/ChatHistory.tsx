@@ -15,7 +15,6 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
 
   // setting up an observer that keep scrolling to the bottom of the chat window
   // when some new streamed text is added to the conversation history
-  // !!! obs should be active only when isStreaming is true
   useEffect(() => {
     if(isStreaming == false) return
     if(historyContainerRef.current == null) return

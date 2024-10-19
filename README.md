@@ -38,6 +38,7 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 - LokiJS
 - Duck-duck-scrape
 - Cherio
+- React-pdftotext
 
 ## V - Getting Started
 
