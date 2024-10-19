@@ -156,7 +156,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) 
                     id="settingsSelectModel"
                     onValueChange={handleSwitchModel}
                 />
-                <label>SystemPrompt</label>
+                <label>System Prompt</label>
                 <div className='systemPromptContainer'>
                     <input 
                         spellCheck="false"

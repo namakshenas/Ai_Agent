@@ -5,6 +5,7 @@ import DocService from '../../services/API/DocService'
 import DocProcessorService from '../../services/DocProcessorService'
 import './FormUploadFile.css'
 import upload from '../../assets/uploadbutton3.png'
+import pdfToText from "react-pdftotext";
 
 export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh} : IProps){
 
@@ -38,39 +39,50 @@ export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh
     }
 
     function handleEvent(event: ProgressEvent<FileReader>, filename: string, filesize : number) {    
-        if (event.type === "load") {
-            const result = event.target?.result;
+        if (event.type === "loadend") {
+            const result = event.target?.result
             if (typeof result === "string") {
-                processFile({ filename: filename, content: result, filesize : filesize });
+                processFile({ filename: filename, content: result, filesize : filesize })
             }
         }
     }
 
     function addFileReaderListeners(reader : FileReader, filename : string, filesize : number) : void {
-        reader.addEventListener("loadstart", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize));
-        reader.addEventListener("load", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize));
-        reader.addEventListener("loadend", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize));
-        reader.addEventListener("progress", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize));
-        reader.addEventListener("error", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize));
-        reader.addEventListener("abort", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize));
+        reader.addEventListener("loadstart", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize))
+        reader.addEventListener("load", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize))
+        reader.addEventListener("loadend", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize))
+        reader.addEventListener("progress", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize))
+        reader.addEventListener("error", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize))
+        reader.addEventListener("abort", (e) => handleEvent(e as ProgressEvent<FileReader>, filename, filesize))
     }
 
     // !!! add check file format
     async function handleFileSelect(e : React.ChangeEvent<HTMLInputElement>){
         if (!e.target.files || e.target.files.length === 0) return
         const file = e.target.files[0]
-        // if (!await DocProcessorService.isTextFile(file)) return // !!! should display error message
+
+        const allowTypes = ["text/plain", "text/markdown", "application/pdf"]
+        if (!allowTypes.includes(file.type)) return // !!! should display error message
+
         setProcessedFile({name : file.name, size : file.size })
-        const reader = new FileReader()
 
-        addFileReaderListeners(reader, file.name, file.size)
-        
-        reader.readAsText(file) // Or use readAsArrayBuffer(file) for binary files
+        if(file.type == "application/pdf"){
+            pdfToText(file)
+            .then(async (pdfAsText) => await processFile({ filename: file.name, content:pdfAsText, filesize : file.size }))
+            .catch((error) => console.error("Failed to extract text from pdf"))
+        }
 
-        const events = ["loadstart", "load", "loadend", "progress", "error", "abort"]
-        events.forEach(eventType => {
-            reader.removeEventListener(eventType, (e) => handleEvent(e as ProgressEvent<FileReader>, file.name, file.size))
-        })
+        if(file.type == "text/plain" || file.type == "text/markdown"){
+            const reader = new FileReader()
+            addFileReaderListeners(reader, file.name, file.size)
+            reader.readAsText(file) // Or use readAsArrayBuffer(file) for binary files
+            const events = ["loadstart", "load", "loadend", "progress", "error", "abort"]
+            events.forEach(eventType => {
+                reader.removeEventListener(eventType, (e) => handleEvent(e as ProgressEvent<FileReader>, file.name, file.size))
+            })
+        }
+
+        // setProcessedFile(null)
     }
 
     function handleImageClick(e : React.MouseEvent){
