@@ -16,14 +16,18 @@
     ". . p";
 
   .deleteAgentButton {
-    width: 40px;
     height: 40px;
     flex-shrink: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0 1rem;
     background: var(--purple-button-color);
     color: #fff;
+    width: fit-content;
+    padding: 0 0.85rem;
+    column-gap: 0.75rem;
+    border: 1px solid var(--purple-button-color);
 
     &:hover {
       background: var(--purple-button-hover-background-color);
