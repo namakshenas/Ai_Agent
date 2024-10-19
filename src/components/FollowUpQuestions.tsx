@@ -51,11 +51,20 @@ const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTe
     }*/
 
     async function generateFollowUpQuestions(question: string, iter: number = 0): Promise<void> {
-        const prompt = `Ignore any previous directive. Use the following question to generate three related follow up questions, with a maximum 50 words each, that would lead your reader to discover great and related knowledge:
-    
-    ${question}
-    
-    Format those three questions as an array of strings such as: ["question1", "question2", "question3"]. Don't add any commentary or any annotation. Just output a simple and unique array.`;
+
+        const prompt = 
+`You are a state-of-the-art language model trained to adhere strongly to a specified output format. 
+
+### Directives
+1. Given the following question, generate three insightful follow-up questions (max 50 words each) that explore related concepts and encourage deeper understanding. 
+2. Prioritize relevance, quality, and potential for knowledge discovery in your responses.
+
+### Output format
+1. Output a single array of strings structured like this example : ["question1", "question2", "question3"].
+2. Don't add any commentary or any annotation.
+
+### Question
+${question}`
     
         let response: string[] = [];
     
