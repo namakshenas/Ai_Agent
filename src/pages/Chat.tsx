@@ -187,12 +187,14 @@ function Chat() {
             ConversationsRepository.replaceConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history)
         }
         catch (error : unknown) {
+            dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+
             if(isWebSearchActivatedRef.current) WebSearchService.abortLastRequest()
             console.error(error)
 
             // Abort requests shouldn't display any error modale
-            if((JSON.stringify(error)).includes("abort")) return
-            if(error instanceof Error && (error.name === "AbortError" || error.name.includes("abort") || error.message.includes("Signal"))) return
+            if((JSON.stringify(error)).includes("abort")) return 
+            if(error instanceof Error && (error.name === "AbortError" || error.name.includes("abort") || error.message.includes("Signal"))) return 
 
             ChatService.abortAgentLastRequest()
             showErrorModal("Stream failed : " + error)
@@ -240,10 +242,8 @@ function Chat() {
     ***/
 
     function handleAbortStreamingClick() {
-        WebSearchService.abortLastRequest()
         ChatService.abortAgentLastRequest()
-        setIsStreaming(false)
-        dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+        if(isWebSearchActivatedRef.current) WebSearchService.abortLastRequest()
     }
 
     function handleCustomTextareaFocus() {
