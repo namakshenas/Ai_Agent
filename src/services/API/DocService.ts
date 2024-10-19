@@ -26,7 +26,7 @@ export default class DocService{
     // deletion by name possible since duplicates aren't allowed
     static async deleteByName(filename : string){
         try{
-            const response = await fetch("http://127.0.0.1:3000/doc/name/" + filename, {
+            const response = await fetch("http://127.0.0.1:3000/doc/byName/" + filename, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json", }
             })

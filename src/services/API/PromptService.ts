@@ -44,7 +44,7 @@ export default class PromptService{
 
     static async getByName(name : string) : Promise<IPromptResponse | undefined>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/prompt/name/" + name, {
+            const response = await fetch("http://127.0.0.1:3000/prompt/byName/" + name, {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -80,9 +80,9 @@ export default class PromptService{
         }
     }
 
-    static async delete(promptId : string) : Promise<void>{
+    static async deleteById(promptId : string) : Promise<void>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/prompt/" + promptId, {
+            const response = await fetch("http://127.0.0.1:3000/prompt/byId/" + promptId, {
                 method:"DELETE"
             })
 
@@ -91,7 +91,23 @@ export default class PromptService{
             }
 
         } catch (error) {
-            console.error("Error fetching prompts list : ", error)
+            console.error("Error deleting the target prompt : ", error)
+            return undefined
+        }
+    }
+
+    static async deleteByName(promptName : string) : Promise<void>{
+        try {
+            const response = await fetch("http://127.0.0.1:3000/prompt/byName/" + promptName, {
+                method:"DELETE"
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+        } catch (error) {
+            console.error("Error deleting the target prompt : ", error)
             return undefined
         }
     }
