@@ -14,7 +14,7 @@ function AnswerRow({index, answer, sources, TTS, onDownload, onCopyToClipboard, 
     // !!! should sanitize source
     function convertSourcesArrayToHTML(sourcesArray : ISource[]) : string{
         if(sourcesArray.length == 0) return ''
-        return sourcesArray.reduce((acc, source) => acc + source.asHTML + '<br>', '<hr style="opacity:0.3; margin:1.15rem 0 0.5rem 0;"><span style="font-size:14px; font-weight:600; text-decoration:underline;">Sources :</span><br>').slice(0, -4)
+        return sourcesArray.reduce((acc, source) => acc + source.asHTML, '<hr style="opacity:0.3; margin:1.15rem 0 0.5rem 0;"><span style="font-size:14px; font-weight:600; text-decoration:underline; margin-bottom:0.25rem;">Sources :</span>').slice(0, -4)
     }
 
     async function playTTS(){
