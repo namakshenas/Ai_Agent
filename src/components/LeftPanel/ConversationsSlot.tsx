@@ -4,6 +4,7 @@ import { IConversation } from "../../interfaces/IConversation"
 import { ConversationsRepository } from "../../repositories/ConversationsRepository"
 import { ChatService } from "../../services/ChatService"
 import { ActionType, TAction } from "../../hooks/useActiveConversationReducer"
+import { WebSearchService } from "../../services/WebSearchService"
 
 export function ConversationsSlot({activeConversationId, setActiveConversationId, dispatch} : IProps){
     
@@ -51,6 +52,11 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     }
 
     function handleDeleteConversation(id : number) : void{
+        // if the conversation is the active one, abort the streaming process in case it is currently active
+        if(id == activeConversationId) {
+            ChatService.abortAgentLastRequest()
+            WebSearchService.abortLastRequest()
+        }
         // deleting the first one and only conversation
         if(id == 0 && ConversationsRepository.getConversations().length < 2){
             dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "no_name", history : [], lastAgentUsed  : ""}})
