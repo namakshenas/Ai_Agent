@@ -86,8 +86,8 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               {(index == (array.length -1)) ? 
-              <AnswerRow TTS={TTS} key={'answerRow' + index} answer={item.answer} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
-              : <AnswerRow TTS={TTS} key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>}
+              <AnswerRow isStreaming={isStreaming} TTS={TTS} key={'answerRow' + index} answer={item.answer} onRegenerate={regenerateLastAnswer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>
+              : <AnswerRow isStreaming={isStreaming} TTS={TTS} key={'answerRow' + index} answer={item.answer} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index} sources={item.sources}/>}
             </article>
           ))
         }

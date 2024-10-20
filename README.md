@@ -32,13 +32,14 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 
 - React 18.3.1
 - Vite
-- Marked 14.1.1
 - Ollama API
 - ExpressJS
 - LokiJS
 - Duck-duck-scrape
-- Cherio
+- Cheerio
 - React-pdftotext
+- Marked 14.1.1
+- Turndown
 
 ## V - Getting Started
 
