@@ -18,18 +18,19 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
   useEffect(() => {
     if(isStreaming == false) return
     if(historyContainerRef.current == null) return
-    if(autoScrollingObsRef.current) autoScrollingObsRef.current.disconnect()
-    autoScrollingObsRef.current = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if(historyContainerRef.current != null && (mutation.type === 'childList' || mutation.type === 'attributes')) 
-          window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth'
-          })
+    if(!autoScrollingObsRef.current) 
+    {
+        autoScrollingObsRef.current = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if(historyContainerRef.current != null && (mutation.type === 'childList' || mutation.type === 'attributes')) 
+            window.scrollTo({
+              top: document.body.scrollHeight,
+              behavior: 'smooth'
+            })
+        })
       })
-    })
-    // autoScrollingObsRef.current = observer
-    autoScrollingObsRef.current.observe(historyContainerRef.current, { attributes : true, childList: true, subtree: true })
+      autoScrollingObsRef.current.observe(historyContainerRef.current, { attributes : true, childList: true, subtree: true })
+    }
 
     return () => {
       if(autoScrollingObsRef.current) autoScrollingObsRef.current.disconnect()
@@ -37,18 +38,20 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
     }
   }, [isStreaming])
 
-  // disconnect observer if mouse wheel or scrollbar used
-  /*useEffect(() => {
-    function disconnectObserver() {
-      if(autoScrollingObsRef.current) autoScrollingObsRef.current.disconnect()
-      autoScrollingObsRef.current = undefined
+  // interrupts the autoscrolling if the mousewheel is used
+  useEffect(() => {
+    function disconnectObserver(e: WheelEvent) {
+      if(autoScrollingObsRef.current/* && e.deltaY < 0*/) {
+        autoScrollingObsRef.current.disconnect()
+        autoScrollingObsRef.current = undefined
+      }
     }
     document.addEventListener('wheel', disconnectObserver)
 
     return () => {
       document.removeEventListener('wheel', disconnectObserver)
     }
-  }, [autoScrollingObsRef])*/
+  }, [autoScrollingObsRef])
 
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})

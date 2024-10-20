@@ -10,7 +10,7 @@ import React from 'react'
 import AgentService from '../services/API/AgentService'
 import useFetchModelsList from '../hooks/useFetchModelsList'
 
-const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
@@ -139,23 +139,23 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) 
             </article>
             <article className='settingsFormContainer'>
                 <label id="label-agentName">Agent Powering the Chat</label>
-                <Select 
+                {!isStreaming ? <Select 
                     width="100%"
                     options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [ Core ]`: ""), value: agent.getName() }))} 
                     defaultOption={formValues.agentName || "helpfulAssistant"}
                     labelledBy="label-agentName" 
                     id="settingsSelectAgent"
                     onValueChange={handleSwitchAgent}
-                />
+                /> : <div style={{textAlign:'left', width:'100%'}}>Currenly used by the Chat</div>}
                 <label id="label-modelName">Model</label>
-                <Select 
+                {!isStreaming ? <Select 
                     width="100%"
                     options={modelsList.map((model) => ({ label: model, value: model }))} 
                     defaultOption={formValues.modelName}
                     labelledBy="label-modelName" 
                     id="settingsSelectModel"
                     onValueChange={handleSwitchModel}
-                />
+                /> : <div style={{textAlign:'left', width:'100%'}}>Currenly used by the Chat</div>}
                 <label>System Prompt</label>
                 <div className='systemPromptContainer'>
                     <input 
@@ -238,7 +238,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList} : IProps) 
     )
 }, (prevProps, nextProps) => {
     // refresh only when modelsList state change
-    return JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString()))
+    return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.isStreaming === nextProps.isStreaming )
 })
 
 export default RightPanel
@@ -246,4 +246,5 @@ export default RightPanel
 interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
+    isStreaming : boolean
 }
