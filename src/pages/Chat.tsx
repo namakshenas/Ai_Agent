@@ -51,7 +51,6 @@ function Chat() {
     // Panel Refresh Triggers
     // State variables to force re-renders left panels
     const [forceLeftPanelRefresh, setForceLeftPanelRefresh] = useState(0);
-    // const [forceRightPanelRefresh, setForceRightPanelRefresh] = useState(0);
 
     // Textarea Value Management
     // Maintains the current value of the textarea at the component level
@@ -144,7 +143,8 @@ function Chat() {
             // Prevent empty messages or multiple concurrent streams
             if (message == "" || isStreamingRef.current) return
             // Convert context if the model has changed since the last question (temporarly disabled)
-            const currentContext = await convertContextOnModelSwitch(activeConversationStateRef.current)
+            // const currentContext = await convertContextOnModelSwitch(activeConversationStateRef.current)
+            const currentContext = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context
             setIsStreaming(true)
             // Create a new blank conversation Q&A pair in the active conversation state
             dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, agentUsed : ChatService.getActiveAgent().asString()}})
@@ -155,7 +155,7 @@ function Chat() {
             // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current == true) {
                 // Perform web scraping and process the results
-                const scrapedPages = await WebSearchService.scrapeRelatedDatas(message, 3, false)
+                const scrapedPages = await WebSearchService.scrapeRelatedDatas(message, 3, true)
                 if(scrapedPages == null) return
                 console.log("**LLM Loading**")
                 // format MM/DD/YYYY
@@ -286,7 +286,7 @@ function Chat() {
 
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
                 
-                {<ChatHistory history={activeConversationState.history || []} isStreaming={isStreaming} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
+                {<ChatHistory history={[...activeConversationState.history]} isStreaming={isStreaming} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
             
             </div>
             <div className="stickyBottomContainer">
@@ -328,7 +328,7 @@ function Chat() {
             </div>
         </main>
 
-        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList}/>
+        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming}/>
         
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "560px"}>

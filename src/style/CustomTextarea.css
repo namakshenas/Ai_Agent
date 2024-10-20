@@ -21,6 +21,7 @@
     transition: outline 0.1s ease-in, background 0.2s ease-in;
     /*outline: 1px solid #25252588;*/
     font-weight: 400;
+    max-height: 40vh;
 
     &:focus {
       border: none;
