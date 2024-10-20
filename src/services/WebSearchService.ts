@@ -83,15 +83,16 @@ export class WebSearchService{
             if(dbAgent == null) return scrapedPages
             const summarizedPages = [...scrapedPages]
             this.#scrapedDatasSummarizer = new AIAgent({...dbAgent, modelName : dbAgent.model})
+            console.log(this.#scrapedDatasSummarizer.getSystemPrompt())
             for (const page of summarizedPages) {
+                // console.log('INITIAL DATA : ' + page.datas)
                 page.setDatas(
-                    (await this.#scrapedDatasSummarizer.ask(`
+                    (await this.#scrapedDatasSummarizer.ask(`Produce a summary with the following context :\n
                         <SCRAPEDDATAS>${page.datas}</SCRAPEDDATAS>\n
                         <REQUEST>${query}</REQUEST>\n
                     `)).response
                 )
-
-                console.log('SUMMARY : ' + page.datas)
+                // console.log('SUMMARY : ' + page.datas)
             }
 
             return summarizedPages

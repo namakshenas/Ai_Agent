@@ -64,6 +64,7 @@ export default class DocService{
             const queryEmbeddings = (await this.embeddingModel.askEmbeddingsFor(query)).embedding
             const translatedQueryEmbeddings = queryEmbeddings.map(number => {
                 if(number == 0) return 0
+                return number
                 return number < 0 ? number - 10 : number + 10
             })
             const response = await fetch("http://127.0.0.1:3000/docs/bySimilarity", {

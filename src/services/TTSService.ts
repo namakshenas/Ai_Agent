@@ -31,11 +31,11 @@ export class TTSService{
             const utterThis = new SpeechSynthesisUtterance(text);
         
             utterThis.onend = function (event) {
-            console.log("SpeechSynthesisUtterance.onend : " + event);
+                console.log("SpeechSynthesisUtterance.onend : " + event);
             };
         
             utterThis.onerror = function (event) {
-            console.error("SpeechSynthesisUtterance.onerror" + event);
+                console.error("SpeechSynthesisUtterance.onerror" + event);
             };
         
             this.voices.forEach((voice) => {
