@@ -2,6 +2,7 @@ import IEmbedChunkedDoc from "../../interfaces/IEmbedChunk"
 import { IRAGDocument } from "../../interfaces/IRAGDocument"
 import IRAGChunkResponse from "../../interfaces/responses/IRAGChunkResponse"
 import { AIModel } from "../../models/AIModel"
+import DocProcessorService from "../DocProcessorService"
 
 export default class DocService{
 
@@ -62,15 +63,10 @@ export default class DocService{
         try {
             console.log("***Get RAG Datas***")
             const queryEmbeddings = (await this.embeddingModel.askEmbeddingsFor(query)).embedding
-            const translatedQueryEmbeddings = queryEmbeddings.map(number => {
-                if(number == 0) return 0
-                return number
-                return number < 0 ? number - 10 : number + 10
-            })
             const response = await fetch("http://127.0.0.1:3000/docs/bySimilarity", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", },
-                body : JSON.stringify({ query,  embeddings : translatedQueryEmbeddings, targetFilesNames })
+                body : JSON.stringify({ query,  embeddings : DocProcessorService.normalizeVector(queryEmbeddings), targetFilesNames })
             })
 
             if (!response.ok) {
