@@ -3,9 +3,10 @@ import { useRef, useReducer, useState } from "react"
 import { IConversation, IConversationElement, IInferenceStats } from "../interfaces/IConversation"
 import ScrapedPage from "../models/ScrapedPage"
 
-export function useActiveConversationReducer({name, history, lastAgentUsed} : IConversation) {
+export function useActiveConversationReducer({name, history, lastAgentUsed, lastModelUsed} : IConversation) {
 
-    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed})
+    // !!! needs last model used in case the agent model was switched after the last request
+    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed}) 
     // {value : 0} instead of a simple 0 -> replacing a {value : 0} with a {value : 0} 
     // will trigger all activeConversationId related effects
     // when replacing a 0 with a 0 won't
@@ -100,7 +101,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed} : IC
         }
     }
 
-    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed})
+    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed})
 
     return {activeConversationState, dispatch, activeConversationStateRef, activeConversationId, setActiveConversationId}
 }
@@ -119,7 +120,7 @@ export enum ActionType {
 }
 
 export type TAction = 
-    | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, agentUsed : string } }
+    | { type: ActionType.NEW_BLANK_HISTORY_ELEMENT; payload: {message : string, agentUsed : string, modelUsed : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER; payload: { html : string, markdown : string } }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT; payload: number[] }
     | { type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS; payload: { newContext : number[], inferenceStats : IInferenceStats} }

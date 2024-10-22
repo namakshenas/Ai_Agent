@@ -53,6 +53,24 @@
     border: 1px solid #ffffffaa;
     box-shadow: 0 6px 12px -2px #42396b30;
 
+    .beingUsed {
+      display: flex;
+      text-align: left;
+      width: 100%;
+      border-radius: 4px;
+      padding: 0 0.3rem 0 0.5rem;
+      background-color: var(--input-background-color);
+      border: 1px solid var(--input-border-color);
+      height: 40px;
+      font-size: 1rem;
+      box-shadow: 0 1px 0 #f2f2fa;
+      align-items: center;
+      justify-content: space-between;
+      column-gap: 0.45rem;
+      color: var(--input-text-color-darkbg);
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
+
     label {
       width: 100%;
       text-align: left;
@@ -325,5 +343,15 @@
   }
   100% {
     stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeInOut {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
   }
 }

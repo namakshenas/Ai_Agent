@@ -1,7 +1,8 @@
 export interface IConversation {
     name : string
     history : IConversationElement[]
-    lastAgentUsed : string // useful to determine the context format
+    lastAgentUsed : string 
+    lastModelUsed : string // useful to determine the context format
     hidden? : boolean
     inferenceStats? : IInferenceStats
 }
