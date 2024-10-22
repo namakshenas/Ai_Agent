@@ -103,4 +103,17 @@ export default class AgentService{
             console.error(e)
         }
     }
+
+    static async updateAgentsConfig({advancedModel, basicModel, embeddingModel} : {advancedModel : string, basicModel : string, embeddingModel : string}) : Promise<void>{
+        try{
+            const reponse = await fetch('http://localhost:3000/agents/config', {
+                method : 'PUT',
+                body : JSON.stringify({advancedModel, basicModel, embeddingModel}),
+                headers:{ 'Content-Type' : 'application/json' }
+            })
+            if(!reponse.ok) throw new Error('Error updating agents in DB.')
+        }catch(e){
+            console.error(e)
+        }
+    }
 }

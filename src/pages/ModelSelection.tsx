@@ -15,10 +15,14 @@ export default function ModelSelection(){
 
     const navigate = useNavigate()
 
-    const [selectedModels, setSelectedModels] = useState({complex : "", trivial : ""})
+    const [selectedModels, setSelectedModels] = useState({complex : "", trivial : "", embedding : ""})
     useEffect(() => {
-        setSelectedModels({complex : modelsList[0], trivial : modelsList[0]})
-    }, [])
+        setSelectedModels({
+            complex : AIAgentsList.find(agent => agent.getName() == "baseAssistant")?.getModelName() || modelsList[0], 
+            trivial : AIAgentsList.find(agent => agent.getName() == "searchQueryOptimizer")?.getModelName() || modelsList[0], 
+            embedding : modelsList[0]
+        })
+    }, [AIAgentsList])
 
     function handleSwitchComplexModel(option : IOption){
         setSelectedModels(prevModels => ({...prevModels, complex : option.value}))
@@ -28,9 +32,14 @@ export default function ModelSelection(){
         setSelectedModels(prevModels => ({...prevModels, trivial : option.value}))
     }
 
+    function handleSwitchEmbeddingModel(option : IOption){
+        setSelectedModels(prevModels => ({...prevModels, embedding : option.value}))
+    }
+
     async function handleSave(e : React.MouseEvent){
         e.preventDefault();
-        const agentsName = AgentService.getAgentsNameList()
+        // const agentsName = AgentService.getAgentsNameList()
+        AgentService.updateAgentsConfig({advancedModel : selectedModels.complex, basicModel : selectedModels.trivial, embeddingModel : selectedModels.embedding})
         navigate('/chat')
     }
 
@@ -50,10 +59,10 @@ export default function ModelSelection(){
                             <tr><td>12GB</td><td>Mistral Nemo:12b</td><td>Conversational</td><td><a target="_blank" href="https://ollama.com/library/mistral-nemo">Mistal Nemo on Ollama</a></td></tr>
                             <tr><td>4GB</td><td>starcoder2:3b</td><td>Coding</td><td><a target="_blank" href="https://ollama.com/library/starcoder2">Starcoder 2 on Ollama</a></td></tr>
                             <tr><td>8GB & 12GB</td><td>qwen2.5-coder:7b</td><td>Coding</td><td><a target="_blank" href="https://ollama.com/library/qwen2.5-coder">Qwen 2.5 Coder on Ollama</a></td></tr>
-                            <tr><td>N/A</td><td>nomic-embed-text</td><td>RAG</td><td><a target="_blank" href="https://ollama.com/library/qwen2.5-coder">Qwen 2.5 Coder on Ollama</a></td></tr>
+                            <tr><td>N/A</td><td>nomic-embed-text</td><td>RAG</td><td><a target="_blank" href="https://ollama.com/library/nomic-embed-text">Nomic Embed Text on Ollama</a></td></tr>
                         </tbody>
                     </table>
-                    <p style={{textAlign:'left'}}>II - The backend of Osspita isn't installed yet?</p>
+                    <p style={{textAlign:'left', marginTop: '1rem'}}>II - The backend of Osspita isn't installed yet?</p>
                     <div className="pullCommands">
                                 &gt; cd back<br/>
                                 &gt; npm install<br/>
@@ -65,7 +74,7 @@ export default function ModelSelection(){
                         <>
                             <h2 style={{textAlign:'left', opacity:'0.9'}}>Initial Configuration</h2>
                             <p style={{textAlign:'left', marginTop:'0'}}>Our default prompts work best with <b>mistral-nemo:12b</b>, <b>llama3.2:3b</b> & <b>nomic-embed-text</b>.</p>
-                            <p style={{textAlign:'left'}}>Use these command lines to retrieve the recommended models :</p>
+                            <p style={{textAlign:'left'}}>Use these command lines to retrieve the models you selected :</p>
                             <div className="pullCommands">
                                 &gt; ollama pull llama3.2:3b<br/>
                                 &gt; ollama pull nomic-embed-text<br/>
@@ -76,7 +85,7 @@ export default function ModelSelection(){
                             <Select 
                                 width="100%"
                                 options={modelsList.map((model) => ({ label: model, value: model }))} 
-                                defaultOption={AIAgentsList.find(agent => agent.getName() == "helpfulAssistant")?.getModelName() || selectedModels.complex}
+                                defaultOption={selectedModels.complex}
                                 labelledBy="labelComplexModelName" 
                                 id="complexModelName"
                                 onValueChange={handleSwitchComplexModel}
@@ -86,30 +95,30 @@ export default function ModelSelection(){
                             <Select 
                                 width="100%"
                                 options={modelsList.map((model) => ({ label: model, value: model }))} 
-                                defaultOption={AIAgentsList.find(agent => agent.getName() == "searchQueryOptimizer")?.getModelName() || selectedModels.trivial}
+                                defaultOption={selectedModels.trivial}
                                 labelledBy="labelTrivialModelName" 
                                 id="trivialModelName"
                                 onValueChange={handleSwitchTrivialModel}
                             />
                             <hr style={{marginTop:'1.5rem', borderStyle:"dashed", opacity:'0.2', borderTop:'none'}}/>
-                            <label id="labelTrivialModelName">3. Embeddings generation model <span style={{fontWeight:'400'}}>// [ nomic-embed-text recommended ]</span></label>
+                            {/*<label id="labelTrivialModelName">3. Embeddings generation model <span style={{fontWeight:'400'}}>// [ nomic-embed-text recommended ]</span></label>
                             <Select 
                                 width="100%"
                                 options={modelsList.map((model) => ({ label: model, value: model }))} 
                                 defaultOption={modelsList.includes("nomic-embed-text:latest") ? "nomic-embed-text:latest" : selectedModels.trivial}
                                 labelledBy="labelTrivialModelName" 
                                 id="trivialModelName"
-                                onValueChange={handleSwitchTrivialModel}
-                            />
+                                onValueChange={handleSwitchEmbeddingModel}
+                            />*/}
                             <button className="save purpleShadow" onClick={handleSave}>Save</button>
                         </>}
                     {
                         (!modelsList?.length || modelsList == null) && 
-                        <p className="alert"><span>You need to install Ollama and at least one model to access OSspita.</span><br/>
+                        <div className="alert"><span>You need to install Ollama and at least one model to access OSspita.</span><br/>
                             <a style={{display:'block', marginTop:'0.75rem'}} target="_blank" href="https://ollama.com/download">Click here to download Ollama</a>
                             <hr style={{marginTop:'2.5rem'}}/>
                             <div>PS : If Ollama is already installed then execute : ollama serve and refresh the page.</div>
-                        </p>
+                        </div>
                     }
                 </div>
             </div>
