@@ -18,7 +18,7 @@ import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
 import { useWebSearchState } from "../hooks/useWebSearchState";
 import { FormPromptSettings } from "../components/Modal/FormPromptSettings";
-import { IConversation, IInferenceStats } from "../interfaces/IConversation";
+import { IInferenceStats } from "../interfaces/IConversation";
 import ErrorAlert from "../components/Modal/ErrorAlert";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
 import { FormUploadFile } from "../components/Modal/FormUploadFile";
@@ -42,7 +42,7 @@ function Chat() {
     // Active Conversation Management
     // Manages the state and context of the current active conversation
     // Used for displaying chat history and handling conversation selection
-    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : ""})
+    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""})
 
     // Auto-scroll Reference
     // Ref used to enable auto-scrolling feature during response streaming
@@ -90,7 +90,12 @@ function Chat() {
     const htmlRef = useRef(document.documentElement)
     useEffect(() => {
         // Initialize conversation repository with an empty conversation
-        ConversationsRepository.pushNewConversation(activeConversationStateRef.current.name, activeConversationStateRef.current.history, activeConversationStateRef.current.lastAgentUsed)
+        ConversationsRepository.pushNewConversation(
+            activeConversationStateRef.current.name, 
+            activeConversationStateRef.current.history, 
+            activeConversationStateRef.current.lastAgentUsed, 
+            activeConversationStateRef.current.lastModelUsed
+        )
         // Set scrollbar behavior for better UX
         if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
             htmlRef.current.style.overflow = "-moz-scrollbars-vertical";
@@ -111,7 +116,10 @@ function Chat() {
         setIsStreaming(false)
         setTextareaValue("")
         // Load and set the selected conversation
-        dispatch({ type: ActionType.SET_CONVERSATION, payload: ConversationsRepository.getConversation(activeConversationId.value) })
+        dispatch({ 
+            type: ActionType.SET_CONVERSATION, 
+            payload: ConversationsRepository.getConversation(activeConversationId.value) 
+        })
         // restore the agent used by the selected conversation
         if(activeConversationStateRef.current.lastAgentUsed != "") ChatService.setActiveAgent(new AIAgent(JSON.parse(activeConversationStateRef.current.lastAgentUsed)))
         // !!! should refresh the right panel to display the active agent
@@ -133,46 +141,56 @@ function Chat() {
     //
     ***/
 
+    useEffect(() => {
+        if(activeConversationState.history[activeConversationState.history.length-1]?.answer.asMarkdown == "") scrollToBottom();
+      }, [activeConversationState]);
+
     /**
      * Request a streamed response from the active chatService agent
-     * @param message The user's input message
+     * @param query The user's input query
      * @returns A Promise that resolves when the streaming is complete
      */
-    async function askMainAgent_Streaming(message: string): Promise<void> {
+    async function askMainAgent_Streaming(query: string): Promise<void> {
         try {
-            // Prevent empty messages or multiple concurrent streams
-            if (message == "" || isStreamingRef.current) return
-            // Convert context if the model has changed since the last question (temporarly disabled)
-            // const currentContext = await convertContextOnModelSwitch(activeConversationStateRef.current)
-            const currentContext = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context
+            // Prevent empty query or multiple concurrent streams
+            if (query == "" || isStreamingRef.current) return
+            // if the active conversation model has been changed since the last request -> reset the context
+            const currentContext = ChatService.getActiveAgent().getModelName() != activeConversationStateRef.current.lastModelUsed ? [] : activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context
             setIsStreaming(true)
             // Create a new blank conversation Q&A pair in the active conversation state
-            dispatch({ type: ActionType.NEW_BLANK_HISTORY_ELEMENT, payload: { message, agentUsed : ChatService.getActiveAgent().asString()}})
-            scrollToBottom()
+            dispatch({ 
+                type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
+                payload: { message : query, 
+                agentUsed : ChatService.getActiveAgent().asString(), 
+                modelUsed : ChatService.getActiveAgent().getModelName()}
+            })
             let newContext = []
             let inferenceStats : IInferenceStats
 
             // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current == true) {
                 // Perform web scraping and process the results
-                const scrapedPages = await WebSearchService.scrapeRelatedDatas(message, 3, true)
-                if(scrapedPages == null) return
+                const scrapedPages = await WebSearchService.scrapeRelatedDatas({query, maxPages : 3, summarize : true})
+                if(scrapedPages == null) return // !!! should display an error modal & cancel the QA pair
                 console.log("**LLM Loading**")
-                // format MM/DD/YYYY
-                const currentDate = "Current date : " + new Date().getFullYear() + "/" + new Date().getMonth() + "/" + new Date().getUTCDate() + ". "
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + message, onStreamedChunkReceived_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
+                // format YYYY/MM/DD
+                const currentDate = "Current date : " + new Date().getFullYear() + "/" + (new Date().getMonth() + 1) + "/" + new Date().getDate() + ". "
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + query, onStreamedChunkReceived_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
                 if(isStreamingRef.current == false) return
-                dispatch({ type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, payload: scrapedPages })
+                dispatch({ 
+                    type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, 
+                    payload: scrapedPages 
+                })
             } else {
                 // Use internal knowledge without web search
                 console.log("**LLM Loading**")
                 
                 // If any document is selected, extract the relevant datas for RAG
-                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(message) : ""
+                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + message, onStreamedChunkReceived_Callback, currentContext)
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + query, onStreamedChunkReceived_Callback, ragContext == "" ? currentContext : []) // ??? should the context be passed when in ragged mode ?
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
             }
@@ -180,7 +198,10 @@ function Chat() {
             // If streaming was aborted, exit early
             if(isStreamingRef.current == false) return
             // Update the conversation history with new context and inference stats
-            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, payload: {newContext : newContext || [], inferenceStats} })
+            dispatch({ 
+                type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, 
+                payload: {newContext : newContext || [], inferenceStats} 
+            })
             // Clear textarea if user hasn't modified it during streaming
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // TODO: Implement proper persistence instead of this temporary solution
@@ -205,7 +226,10 @@ function Chat() {
 
     // callback passed to the chatService so it can display the streamed answer
     function onStreamedChunkReceived_Callback({markdown , html} : {markdown : string, html : string}): void {
-        dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload: { html, markdown } })
+        dispatch({ 
+            type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, 
+            payload: { html, markdown } 
+        })
     }
 
     // retrieve the ragDatas to pour into the context
@@ -215,25 +239,6 @@ function Chat() {
         if(RAGChunks.length == 0) return ""
         return DocProcessorService.formatRAGDatas(RAGChunks)
     }
-
-    // !!! will have to convert the conv into token using tokenizer and return only last num_ctx tokens
-    async function convertContextOnModelSwitch(conversationState : IConversation) : Promise<number[]>{
-        return conversationState.history[conversationState.history.length - 1]?.context
-        /*if (conversationState?.lastAgentUsed != "" && conversationState?.lastAgentUsed != ChatService.getActiveAgent().asString()) {
-            console.log("last used model : " + conversationState?.lastAgentUsed)
-            console.log("new model : " + ChatService.getActiveAgent().getModelName())
-            const activeAgent = ChatService.getActiveAgent()
-            console.log("old context : " + JSON.stringify(conversationState.history[conversationState.history.length - 1]?.context || []))
-            const concatenatedConversation = conversationState.history.reduce((acc , conversationQA) => acc + conversationQA.question + "\n\n\n" + conversationQA.answer.asMarkdown + "\n" , "")
-            console.log("concat conversation : " + concatenatedConversation)
-            console.log(activeAgent.getModelName())
-            const newContext = await activeAgent.tokenize(concatenatedConversation)
-            console.log("new context : " + JSON.stringify(newContext))
-            return newContext
-        }
-        return conversationState.history[conversationState.history.length - 1]?.context || []*/
-    }
-
 
     /***
     //
@@ -278,26 +283,40 @@ function Chat() {
     return (
     <div id="globalContainer" className="globalContainer">
 
-        <LeftPanel key={"lp-" + forceLeftPanelRefresh} activeConversationStateRef={activeConversationStateRef} activeConversationId={activeConversationId.value} setActiveConversationId={setActiveConversationId} dispatch={dispatch} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>
+        <LeftPanel key={"lp-" + forceLeftPanelRefresh} 
+            isWebSearchActivated={isWebSearchActivated}
+            setWebSearchActivated={setWebSearchActivated}
+            activeConversationStateRef={activeConversationStateRef} 
+            activeConversationId={activeConversationId.value} 
+            setActiveConversationId={setActiveConversationId} 
+            dispatch={dispatch} 
+            memoizedSetModalStatus={memoizedSetModalStatus} 
+            selectedPromptNameRef={selectedPromptNameRef}/>
         
         <main>
 
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
 
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
-                
-                {<ChatHistory history={[...activeConversationState.history]} isStreaming={isStreaming} setTextareaValue={setTextareaValue} regenerateLastAnswer={regenerateLastAnswer}/>} {/*isARequestBeingProcessed_Background={isARequestBeingProcessed_Background}*/}
-            
+                {<ChatHistory 
+                    history={[...activeConversationState.history]} 
+                    isStreaming={isStreaming} 
+                    setTextareaValue={setTextareaValue} 
+                    regenerateLastAnswer={regenerateLastAnswer}/>}
             </div>
             <div className="stickyBottomContainer">
 
                 {<CustomTextarea ref={customTextareaRef} 
-                    setTextareaValue={setTextareaValue} textareaValue={textareaValue} 
+                    setTextareaValue={setTextareaValue} 
+                    textareaValue={textareaValue} 
                     currentContext={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || []} 
                     askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId.value} />}
 
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
-                    setTextareaValue={setTextareaValue} focusTextarea={handleCustomTextareaFocus} isStreaming={isStreaming} selfClose={setIsFollowUpQuestionsClosed}/>}
+                    setTextareaValue={setTextareaValue} 
+                    focusTextarea={handleCustomTextareaFocus} 
+                    isStreaming={isStreaming} 
+                    selfClose={setIsFollowUpQuestionsClosed}/>}
                 
                 <div className="sendButtonContainer">
                     <div title="active the web search / context length of 10000 recommended" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
