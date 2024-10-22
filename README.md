@@ -20,6 +20,7 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 - Advanced Models settings : Top-K, Repeat, Mirostat, etc..
 - **Responsive** design.
 - Improved Web Search algorithm.
+- Online domain names ranking.
 - Improved RAG algorithm.
 - Graph generation.
 - **Multimodal** operations.
