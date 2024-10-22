@@ -12,7 +12,7 @@ export class WebSearchService{
     static #queryOptimizer : AIAgent
     static #scrapedDatasSummarizer : AIAgent
 
-    static async scrapeRelatedDatas(query : string, maxPages : number = 3, summarize = false) : Promise<ScrapedPage[] | undefined>{
+    static async scrapeRelatedDatas({query , maxPages = 3, summarize = false} : {query : string, maxPages : number, summarize : boolean}) : Promise<ScrapedPage[] | undefined>{
         try{
             console.log("**WebScraping**")
             const optimizedQuery = await this.#optimizeQuery(query)
@@ -42,7 +42,7 @@ export class WebSearchService{
     
             // Check if the response is OK (status in the range 200-299)
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`)
+                throw new Error(`HTTP error ${response.status} : ${response.text()}`)
             }
     
             const scrapedPages : IScrapedPage[] | unknown = await response.json()
@@ -83,7 +83,7 @@ export class WebSearchService{
             if(dbAgent == null) return scrapedPages
             const summarizedPages = [...scrapedPages]
             this.#scrapedDatasSummarizer = new AIAgent({...dbAgent, modelName : dbAgent.model})
-            console.log(this.#scrapedDatasSummarizer.getSystemPrompt())
+            // console.log(this.#scrapedDatasSummarizer.getSystemPrompt())
             for (const page of summarizedPages) {
                 // console.log('INITIAL DATA : ' + page.datas)
                 page.setDatas(

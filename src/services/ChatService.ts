@@ -133,7 +133,6 @@ export class ChatService{
           
               if (!json.done) {
                 content += json.response
-                // if(json?.context?.length > 0) console.log("falseDone : " + json?.context)
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
               }
           }
