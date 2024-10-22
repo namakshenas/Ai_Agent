@@ -41,7 +41,7 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
   // interrupts the autoscrolling if the mousewheel is used
   useEffect(() => {
     function disconnectObserver(e: WheelEvent) {
-      if(autoScrollingObsRef.current/* && e.deltaY < 0*/) {
+      if(autoScrollingObsRef.current && e.deltaY < 0) {
         autoScrollingObsRef.current.disconnect()
         autoScrollingObsRef.current = undefined
       }
@@ -80,7 +80,11 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
 
   return (
     <section ref={historyContainerRef} className="chatHistorySection">
-        {history.length == 0 && <div style={{padding: '3rem 0', background:'#f7f9fd'}}>Warning : Due to some Ollama limitations, you won't be able to switch model during a conversation.</div>}
+        {history.length == 0 && 
+          <div style={{padding: '3rem 0', background:'#f7f9fd'}}>
+            Warning : Due to some Ollama limitations, switching model during a conversation will flush the context.
+          </div>
+        }
         {
           history.map((item, index, array) => (
             <article key={'historyItem'+index}>
