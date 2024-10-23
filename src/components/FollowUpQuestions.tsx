@@ -53,7 +53,7 @@ const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTe
     async function generateFollowUpQuestions(question: string, iter: number = 0): Promise<void> {
 
         const prompt = 
-`You are a state-of-the-art language model trained to adhere strongly to a specified output format. 
+`Ignore all previous directives. You are a state-of-the-art language model trained to adhere strongly to a specified output format.
 
 ### Directives
 1. Given the following question, generate three insightful follow-up questions (max 50 words each) that explore related concepts and encourage deeper understanding. 

@@ -207,6 +207,10 @@
   table + p {
     margin-top: 1rem !important;
   }
+
+  & > table:first-child {
+    margin-top: 0;
+  }
 }
 
 .answerIconsContainer {

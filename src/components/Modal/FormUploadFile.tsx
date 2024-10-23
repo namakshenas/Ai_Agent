@@ -145,9 +145,9 @@ export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh
                     <span className='filename'>{processedFile.name}</span>
                     <span style={{marginLeft:'auto', fontSize:'14px'}}>{
                         // so that the approximation don't get past the max file size
-                        Math.floor(processedFile.size/1000*progress/100) < Math.floor(processedFile.size/1024) ? Math.floor(processedFile.size/1000*progress/100) : Math.floor(processedFile.size/1024)
-                        + '/' 
-                        + Math.floor(processedFile.size/1024) + 'KB'}
+                        Math.floor(processedFile.size/1000*progress/100) < Math.floor(processedFile.size/1024) ? 
+                            Math.floor(processedFile.size/1000*progress/100) + '/' + Math.floor(processedFile.size/1024) + 'KB' : 
+                            Math.floor(processedFile.size/1024) + '/' + Math.floor(processedFile.size/1024) + 'KB'}
                     </span>
                 </div>
                 <div className='progressBarContainer'>
