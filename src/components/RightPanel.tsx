@@ -22,10 +22,17 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     const [formValues, setFormValues] = useState<IFormStructure>(agentToFormDatas(currentAgent.current))
 
+    const isFirstRender = useRef(true)
+
     // refresh the form if agentList state changes
     useEffect(() => {
         currentAgent.current = ChatService.getActiveAgent()
         setFormValues(agentToFormDatas(ChatService.getActiveAgent()))
+        // when this panel is first rendered, set helpfulAssistant as the default agent
+        if (isFirstRender.current) {
+            handleSwitchAgent({label: 'helpfulAssistant', value: 'helpfulAssistant'})
+            isFirstRender.current = false
+        }
     }, [AIAgentsList])
     
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
@@ -138,7 +145,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
                 <button className='purpleShadow' onClick={handleOpenNewAgentFormClick}>+ Create a New Agent</button>
             </article>
             <article className='settingsFormContainer'>
-                <label id="label-agentName">Agent Powering the Chat</label>
+                <label id="label-agentName" style={{display:'flex'}}><div className='circle'></div>Agent Powering the Chat</label>
                 {!isStreaming ? <Select 
                     width="100%"
                     options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [ Core ]`: ""), value: agent.getName() }))} 
