@@ -31,6 +31,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                 temperature: role == "edit" && currentAgent.current ? currentAgent.current.getTemperature() : 0.8,
                 maxContextLength: role == "edit" && currentAgent.current ? currentAgent.current.getContextSize() : 2048,
                 maxTokensPerReply: role == "edit" && currentAgent.current ? currentAgent.current.getNumPredict() : 1024,
+                topP: role == "edit" && currentAgent.current ? currentAgent.current.getTopP() : 0.9,
+                topK: role == "edit" && currentAgent.current ? currentAgent.current.getTopK() : 40,
+                repeatPenalty: role == "edit" && currentAgent.current ? currentAgent.current.getRepeatPenalty() : 1.1,
+                seed: role == "edit" && currentAgent.current ? currentAgent.current.getSeed() : 0,
+                repeatLastN: role == "edit" && currentAgent.current ? currentAgent.current.getRepeatLastN() : 64,
+                tfsZ: role == "edit" && currentAgent.current ? currentAgent.current.getTfsZ() : 1,
                 webSearchEconomy: false,
             }
             setFormValues({...baseForm})
@@ -48,7 +54,15 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
         maxContextLength : 2048,
         maxTokensPerReply : 1024,
         webSearchEconomy : false,
+        topP : 0.9,
+        topK : 40,
+        repeatPenalty : 1.1,
+        seed : 0,
+        repeatLastN : 64,
+        tfsZ : 1,
     })
+
+    const [activeOptionsSet, setActiveOptionsSet] = useState(0)
 
     // const startAgentName = useRef<string>(role == "edit" && currentAgent.current ? currentAgent.current.getName() : "")
 
@@ -65,6 +79,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
     function handleCancelClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
         memoizedSetModalStatus({visibility : false})
+    }
+
+    function handleSwitchOptionsSetClick(e: React.MouseEvent<HTMLButtonElement>){
+        e.preventDefault()
+        e.stopPropagation()
+        setActiveOptionsSet(activeOptionsSet == 0 ? 1 : 0)
     }
 
     async function handleDeleteClick(e: React.MouseEvent<HTMLButtonElement>){
@@ -89,6 +109,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
         .setNumPredict(formValues.maxTokensPerReply)
         .setSystemPrompt(formValues.systemPrompt)
         .setTemperature(formValues.temperature)
+        .setSeed(formValues.seed || 0)
+        .setTopP(formValues.topP || 0.9)
+        .setTfsZ(formValues.tfsZ || 1)
+        .setTopK(formValues.topK || 40)
+        .setRepeatLastN(formValues.repeatLastN || 64)
+        .setRepeatPenalty(formValues.repeatPenalty || 1.1)
 
         let response
         if(role == "create") response = await AgentService.save(newAgent)
@@ -139,13 +165,15 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
         <form className="agentForm">
 
             <div className="labelErrorContainer">
-                <label id="label-agentName" style={{marginTop:0}} className="formLabel">Agent Name</label>{(error != "" && error.includes("Agent name")) && <span className="errorMessage">{error}</span>}</div>
+                <label id="labelAgentName" style={{marginTop:0}} className="formLabel">Agent Name</label>
+                {(error != "" && error.includes("Agent name")) && <span className="errorMessage">{error}</span>}
+            </div>
             <div/>
-            <label id="label-modelName" style={{marginTop:0}} className="formLabel">Model</label>
+            <label style={{marginTop:0}} id="labelModelName" className="formLabel">Model</label>
 
             <div className="agentInputNDeleteContainer">
                 <input
-                    aria-labelledby="label-agentName"
+                    aria-labelledby="labelAgentName"
                     type="text"
                     className="formInput" 
                     spellCheck="false"
@@ -166,122 +194,299 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                 width="100%"
                 options={modelList.map((model) => ({ label: model, value: model }))} 
                 defaultOption={formValues.modelName}
-                labelledBy="label-modelName" 
+                labelledBy="labelModelName" 
                 id="settingsSelectAgent"
                 onValueChange={handleSwitchModel}
             />
 
-            <div style={{gridArea:'e'}} className="labelErrorContainer"><label id="label-systemPrompt" className="formLabel">System Prompt</label>{(error != "" && error.includes("System prompt")) && <span style={{marginTop:'1.5rem'}} className="errorMessage">System Prompt is missing</span>}</div>
-
-            <textarea
-                aria-labelledby="label-systemPrompt"
-                style={{gridArea:'f'}}
-                spellCheck="false"
-                className="formTextarea" 
-                rows={12} 
-                value={formValues.systemPrompt}
-                onChange={(e) => setFormValues(formValues => ({...formValues, systemPrompt : e.target?.value}))}
-            />
-
-            <label id="label-temperature" className="formLabel">Temperature</label>
-            <div/>
-            <label id="label-maxTokensPerReply" className="formLabel">Max Tokens Per Reply</label>
-
-            <div className="inputNSliderContainer">
-                <input
-                aria-labelledby="label-temperature"
-                className="formInput"
-                spellCheck="false"
-                type="number"
-                step="0.01" min="0.01" max="1" 
-                value={formValues.temperature}
-                onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
-                />
-                <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                    <div className="sliderbarContainer">
-                        <div className="sliderTrack">
-                            <div className="slider" style={{marginLeft:'180px'}}>
-                                <img src={picots} alt="picots" className="sliderPicots"/>
-                            </div>
-                        </div>
-                        <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                            <span>Temperature</span><span>0.8</span>
-                        </div>
-                    </div>
+            {/*<div onClick={() => setActiveOptionsSet(activeOptionsSet == 0 ? 1 : 0)} className="baseBar" style={{gridArea:'baseBar'}}>
+                <div style={{display:'flex', textAlign:'left', width:'100%'}}>
+                    <span>Base Options</span>
+                    <svg style={{marginLeft:'auto'}} width="26px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8L12.2278 14.7343C12.108 14.8739 11.892 14.8739 11.7722 14.7343L6 8" fill="none" stroke="#373737" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
                 </div>
-            </div>
-            <div/>
-            <div className="inputNSliderContainer">
-                <input 
-                    aria-labelledby="label-maxTokensPerReply"
+            </div>*/}
+
+            { activeOptionsSet == 0 && <section style={{gridArea:'set1'}} className="settingsSet1">  
+                
+                <div style={{gridArea:'label3', margin : '1.5rem 0 0.85rem 0'}} className="labelErrorContainer">
+                    <label id="labelSystemPrompt" className="formLabel" style={{margin:0}}>System Prompt</label>
+                    {(error != "" && error.includes("System prompt")) && <span className="errorMessage">System Prompt is missing</span>}
+                </div>
+                <textarea
+                    style={{gridArea:'textarea'}}
+                    aria-labelledby="labelSystemPrompt"
+                    spellCheck="false"
+                    className="formTextarea" 
+                    rows={12} 
+                    value={formValues.systemPrompt}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, systemPrompt : e.target?.value}))}
+                />
+
+                <label id="labelTemperature" className="formLabel">Temperature</label>
+                <div/>
+                <label id="labelMaxTokensPerReply" className="formLabel">Max Tokens Per Reply</label>
+
+                <div className="inputNSliderContainer">
+                    <input
+                    aria-labelledby="labelTemperature"
+                    className="formInput"
                     spellCheck="false"
                     type="number"
-                    className="formInput"
-                    value={formValues.maxTokensPerReply}
-                    onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
-                />
-                <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                    <div className="sliderbarContainer">
-                        <div className="sliderTrack">
-                            <div className="slider" style={{marginLeft:'110px'}}>
-                                <img src={picots} alt="picots" className="sliderPicots"/>
+                    step="0.01" min="0.01" max="1" 
+                    value={formValues.temperature}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'180px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
                             </div>
-                        </div>
-                        <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                            <span>Max Tokens</span><span>1024</span>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Temperature</span><span>{formValues.temperature}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div/>
+                <div className="inputNSliderContainer">
+                    <input 
+                        aria-labelledby="labelMaxTokensPerReply"
+                        spellCheck="false"
+                        type="number"
+                        className="formInput"
+                        value={formValues.maxTokensPerReply}
+                        onChange={(e) => setFormValues(formValues => ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'110px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Max Tokens</span><span>{formValues.maxTokensPerReply}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <label id="label-maxContextLength" className="formLabel">Max Context Length</label>
-            <div/>
-            <label id="label-webSearch" className="formLabel">Web Search</label>
+                <label id="labelMaxContextLength" className="formLabel">Max Context Length</label>
+                <div/>
+                <label id="labelWebSearch" className="formLabel">Web Search</label>
 
-            <div className="inputNSliderContainer">
-                <input
-                    aria-labelledby="label-maxContextLength" 
-                    spellCheck="false" 
+                <div className="inputNSliderContainer">
+                    <input
+                        aria-labelledby="labelMaxContextLength" 
+                        spellCheck="false" 
+                        type="number"
+                        step="1" min="0" max="1000000" 
+                        className="formInput"
+                        value={formValues.maxContextLength}
+                        onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'50px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Context Length</span><span>{formValues.maxContextLength}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div/>
+                <div className='webSearchContainer'>
+                    <span>Context Economy (Far slower)</span>
+                    <div className='switchContainer' onClick={() => setWebSearchEconomy(webSearchEconomy => !webSearchEconomy)}>
+                        <div className={webSearchEconomy ? 'switch active' : 'switch'}></div>
+                    </div>
+                    <span>Processing Speed</span>
+                </div>
+
+            </section> }
+
+            {/*<div onClick={() => setActiveOptionsSet(activeOptionsSet == 0 ? 1 : 0)} className="advancedBar" style={{gridArea: 'advancedBar'}}>
+                <div style={{display:'flex', textAlign:'left', width:'100%'}}>
+                    <span>Advanced Options</span>
+                    <svg style={{marginLeft:'auto'}} width="26px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8L12.2278 14.7343C12.108 14.8739 11.892 14.8739 11.7722 14.7343L6 8" fill="none" stroke="#373737" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                </div>
+            </div>*/}
+
+            { activeOptionsSet == 1 && <hr style={{gridArea : 'baseBar', marginTop:'2rem', marginBottom:'0.5rem', border:'none', borderBottom:'1px dashed #37373766'}}/>}
+
+            { activeOptionsSet == 1 && <section style={{gridArea:'set2'}} className="settingsSet2">
+                <label id="labelTopP" className="formLabel" style={{margin : '1rem 0 0.85rem 0'}}>Top-P</label>
+                <div/>
+                <label id="labelTopK" className="formLabel" style={{margin : '1rem 0 0.85rem 0'}}>Top-K</label>
+
+                <div className="inputNSliderContainer">
+                    <input
+                    aria-labelledby="labelTopP"
+                    className="formInput"
+                    spellCheck="false"
                     type="number"
-                    step="1" min="0" max="1000000" 
-                    className="formInput"
-                    value={formValues.maxContextLength}
-                    onChange={(e) => setFormValues(formValues => ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
-                />
-                <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
-                    <div className="sliderbarContainer">
-                        <div className="sliderTrack">
-                            <div className="slider" style={{marginLeft:'50px'}}>
-                                <img src={picots} alt="picots" className="sliderPicots"/>
+                    step="0.01" min="0.01" max="1" 
+                    value={formValues.topP}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, topP : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'180px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
                             </div>
-                        </div>
-                        <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
-                            <span>Context Length</span><span>2048</span>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Top-P</span><span>{formValues.topP}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div/>
-            <div className='webSearchContainer'>
-                <span>Context Economy (Far slower)</span>
-                <div className='switchContainer' onClick={() => setWebSearchEconomy(webSearchEconomy => !webSearchEconomy)}>
-                    <div className={webSearchEconomy ? 'switch active' : 'switch'}></div>
+                <div/>
+                <div className="inputNSliderContainer">
+                    <input 
+                        aria-labelledby="labelTopK"
+                        spellCheck="false"
+                        type="number"
+                        className="formInput"
+                        value={formValues.topK}
+                        step="1" min="1" max="200" 
+                        onChange={(e) => setFormValues(formValues => ({...formValues, topK : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'80px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Top-K</span><span>{formValues.topK}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <span>Processing Speed</span>
-            </div>
 
-            <div style={{gridArea:'o', marginTop:'2rem', display:'flex', flexDirection:'column'}}>
-                <div style={{display:'flex', textAlign:'left', width:'100%', marginBottom:'0.25rem'}}><span>Advanced Options</span><span style={{marginLeft:'auto', fontWeight:'500'}}>Coming Soon</span></div>
-                <hr/>
-            </div>
 
-            <div style={{gridArea:'p', display:'flex', columnGap:'12px', marginTop:'24px'}}>
-                {/*<button style={{width:'22%', columnGap:'0.75rem'}} className="deleteAgentButton purpleShadow">
-                    <svg width="16" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="#ffffff" d="M188 40H152V28C152 20.5739 149.05 13.452 143.799 8.20101C138.548 2.94999 131.426 0 124 0H76C68.5739 0 61.452 2.94999 56.201 8.20101C50.95 13.452 48 20.5739 48 28V40H12C8.8174 40 5.76516 41.2643 3.51472 43.5147C1.26428 45.7652 0 48.8174 0 52C0 55.1826 1.26428 58.2348 3.51472 60.4853C5.76516 62.7357 8.8174 64 12 64H16V200C16 205.304 18.1071 210.391 21.8579 214.142C25.6086 217.893 30.6957 220 36 220H164C169.304 220 174.391 217.893 178.142 214.142C181.893 210.391 184 205.304 184 200V64H188C191.183 64 194.235 62.7357 196.485 60.4853C198.736 58.2348 200 55.1826 200 52C200 48.8174 198.736 45.7652 196.485 43.5147C194.235 41.2643 191.183 40 188 40ZM72 28C72 26.9391 72.4214 25.9217 73.1716 25.1716C73.9217 24.4214 74.9391 24 76 24H124C125.061 24 126.078 24.4214 126.828 25.1716C127.579 25.9217 128 26.9391 128 28V40H72V28ZM160 196H40V64H160V196ZM88 96V160C88 163.183 86.7357 166.235 84.4853 168.485C82.2348 170.736 79.1826 172 76 172C72.8174 172 69.7652 170.736 67.5147 168.485C65.2643 166.235 64 163.183 64 160V96C64 92.8174 65.2643 89.7652 67.5147 87.5147C69.7652 85.2643 72.8174 84 76 84C79.1826 84 82.2348 85.2643 84.4853 87.5147C86.7357 89.7652 88 92.8174 88 96ZM136 96V160C136 163.183 134.736 166.235 132.485 168.485C130.235 170.736 127.183 172 124 172C120.817 172 117.765 170.736 115.515 168.485C113.264 166.235 112 163.183 112 160V96C112 92.8174 113.264 89.7652 115.515 87.5147C117.765 85.2643 120.817 84 124 84C127.183 84 130.235 85.2643 132.485 87.5147C134.736 89.7652 136 92.8174 136 96Z"/>
-                    </svg>Delete
-                </button>*/}
-                <button onClick={handleCancelClick} className="cancelButton purpleShadow">Cancel</button>
+                <label id="labelRepeatPenalty" className="formLabel">Repeat Penalty</label>
+                <div/>
+                <label id="labelSeed" className="formLabel">Seed</label>
+
+                <div className="inputNSliderContainer">
+                    <input
+                    aria-labelledby="labelRepeatPenalty"
+                    className="formInput"
+                    spellCheck="false"
+                    type="number"
+                    step="1" min="0" max="256" 
+                    value={formValues.repeatPenalty}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, repeatPenalty : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'180px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Repeat Penalty</span><span>{formValues.repeatPenalty}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div/>
+                <div className="inputNSliderContainer">
+                    <input 
+                        aria-labelledby="labelSeed"
+                        spellCheck="false"
+                        type="number"
+                        className="formInput"
+                        value={formValues.seed}
+                        step="1" min="1" max="200" 
+                        onChange={(e) => setFormValues(formValues => ({...formValues, seed : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'0px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Seed</span><span>{formValues.seed}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <label id="labelRepeatLastN" className="formLabel">Repeat Last N</label>
+                <div/>
+                <label id="labelTfsZ" className="formLabel">Tfs Z</label>
+
+                <div className="inputNSliderContainer">
+                    <input
+                    aria-labelledby="labelRepeatLastN"
+                    className="formInput"
+                    spellCheck="false"
+                    type="number"
+                    step="1" min="-1" max="512" 
+                    value={formValues.repeatLastN}
+                    onChange={(e) => setFormValues(formValues => ({...formValues, repeatLastN : e.target.value === '' ? 0 : parseInt(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'60px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Repeat Last N</span><span>{formValues.repeatLastN}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div/>
+                <div className="inputNSliderContainer">
+                    <input 
+                        aria-labelledby="labelTfsZ"
+                        spellCheck="false"
+                        type="number"
+                        className="formInput"
+                        value={formValues.tfsZ}
+                        step="0.1" min="1" max="2" 
+                        onChange={(e) => setFormValues(formValues => ({...formValues, tfsZ : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}
+                    />
+                    <div style={{display:'flex', flex: '1 1 100%', height:'100%'}}>
+                        <div className="sliderbarContainer">
+                            <div className="sliderTrack">
+                                <div className="slider" style={{marginLeft:'0px'}}>
+                                    <img src={picots} alt="picots" className="sliderPicots"/>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', justifyContent:'space-between', lineHeight:'12px', marginTop:'10px', fontSize:'14px'}}>
+                                <span>Tfs Z</span><span>{formValues.tfsZ}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>}
+
+            <hr style={{gridArea : 'advancedBar', marginTop:'2rem', marginBottom:'0.5rem', border:'none', borderBottom:'1px dashed #37373766'}}/>
+
+            <div style={{gridArea:'z', display:'flex', columnGap:'12px', marginTop:'1.5rem'}}>
+                <button onClick={handleSwitchOptionsSetClick} className="cancelButton purpleShadow">More Settings</button>
                 <button onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>
             </div>
         </form>

@@ -6,4 +6,10 @@ export default interface IFormStructure{
     maxContextLength : number
     webSearchEconomy : boolean
     maxTokensPerReply : number
+    topP ?: number
+    topK ?: number
+    repeatPenalty ?: number
+    seed ?: number
+    repeatLastN ?: number
+    tfsZ ?: number
 }

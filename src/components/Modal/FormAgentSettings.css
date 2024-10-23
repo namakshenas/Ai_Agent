@@ -1,19 +1,66 @@
 .agentForm {
   display: grid;
   width: 100%;
-  grid-template-rows: auto auto auto auto auto auto auto auto;
+  grid-template-rows: auto auto auto auto auto auto auto;
   grid-template-columns: 1fr 120px 1fr;
   grid-template-areas:
-    "a . b"
-    "c . d"
-    "e e e"
-    "f f f"
-    "g . h"
-    "i . j"
-    "k . l"
-    "m . n"
-    "o o o"
-    ". . p";
+    "label1 . label2"
+    "input1 . input2"
+    "baseBar baseBar baseBar"
+    "set1 set1 set1"
+    "set2 set2 set2"
+    "advancedBar advancedBar advancedBar"
+    ". . z";
+
+  .settingsSet1 {
+    /*background-color: red;*/
+    width: 100%;
+    display: grid;
+    /*grid-column: span 3;*/
+    grid-template-rows: auto auto auto auto auto auto;
+    grid-template-columns: 1fr 120px 1fr;
+    grid-template-areas:
+      "label3 label3 label3"
+      "textarea textarea textarea"
+      "label4 . label5"
+      "input4 . input5"
+      "label6 . label7"
+      "input6 . input7";
+  }
+
+  .settingsSet2 {
+    width: 100%;
+    display: grid;
+    grid-column: span 3;
+    grid-template-rows: auto auto auto auto auto auto;
+    grid-template-columns: 1fr 120px 1fr;
+    grid-template-areas:
+      "label8 . label9"
+      "input8 . input9"
+      "label10 . label11"
+      "input10 . input11"
+      "label12 . label13"
+      "input12 . input13";
+  }
+
+  .advancedBar,
+  .baseBar {
+    width: 100%;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-bottom: 1px solid #373737ff;
+    transition: padding 0.5s ease;
+
+    hr {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+  }
 
   .deleteAgentButton {
     height: 40px;
