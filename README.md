@@ -8,41 +8,39 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 
 - **Real-time interactions** with most Open-Source AI models.
 - Lightweight and **fully local** operations.
-- **User-friendly** conversational UI.
-- R.A.G. so you can feed the LLM your own documents while **preserving your privacy**.
-- Web Search functionality for the integration of **up-to-date informations**.
+- **Beginner-friendly** installation process.
+- Retrieval Augmented Generation so you can probe your own documents while **preserving your privacy**.
+- Web Search functionality for the integration of more **up-to-date informations**.
+- Comprehensive inference stats.
+- Memory allocation tracking for **context length tuning**.
+- **Prompt library** with (versioning coming).
+- Easy access to most **LLM common settings**.
 
-## II - Coming Soon
+## II - Coming Next
 
+- Persistent conversations.
 - **Agents chaining** to tackle complex tasks.
-- Prompt versioning.
-- **Dark mode** theme.
-- Advanced Models settings : Top-K, Repeat, Mirostat, etc..
-- **Responsive** design.
-- Improved Web Search algorithm.
-- Online domain names ranking.
-- Improved RAG algorithm.
-- Graph generation.
 - **Multimodal** operations.
+- **Responsive** design.
+- Online Prompts & Agents sharing.
+- Dedicated coding agent.
+- Improved Web Search algorithm and new related options.
+- Online domain names ranking.
+- Improved RAG algorithm and new related options.
+- Prompt versioning.
+- A **Dark mode** theme.
+- Advanced Models settings : Top-K, Repeat, Mirostat, etc..
+- Charts generation.
+- Voice mode.
+- Context autosizing option.
+- In-depth RAG stats & data.
+- In-depth Web Search stats & data.
 
 ## III - Screenshots
 
 ![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/src/assets/screenshot1.png "osspita main")
 
-## IV - Technologies Used
-
-- React 18.3.1
-- Vite
-- Ollama API
-- ExpressJS
-- LokiJS
-- Duck-duck-scrape
-- Cheerio
-- React-pdftotext
-- Marked 14.1.1
-- Turndown
-
-## V - Getting Started
+## IV - Getting Started
 
 ### Prerequisites
 
@@ -99,16 +97,32 @@ Start the development server:
 
 Open your browser and visit http://localhost:5173 to use the application.
 
-## VI - Usage
+## V - Usage
+
+Video demo :
+
+## VI - Technologies Used
+
+- React 18.3.1
+- Vite
+- Ollama API
+- ExpressJS
+- LokiJS
+- Duck-duck-scrape
+- Cheerio
+- React-pdftotext
+- Marked 14.1.1
+- Turndown
 
 ## VII - Contributing
 
-I'm not looking of any contributor until the v1.0.0 release. Thanks a lot for your support.
+If you face any bug or if you want me to add / improve any functionality, open an issue with your request. Thanks a lot for your help.
 
 ## VIII - Acknowledgments
 
-- Georgi Gerganov and all related contributors for llama.cpp.
+- Georgi Gerganov and all associated contributors for llama.cpp.
 - The Ollama team for providing the inference API.
 - React and Vite communities for their excellent tools.
 - All contributors and supporters of the project.
-- All the people producing GGUF models.
+- Everybody producing GGUF models.
+- And finally, all the people that worked on any of the libraries I used.
