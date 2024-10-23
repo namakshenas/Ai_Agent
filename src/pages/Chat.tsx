@@ -151,11 +151,14 @@ function Chat() {
      * @returns A Promise that resolves when the streaming is complete
      */
     async function askMainAgent_Streaming(query: string): Promise<void> {
+        console.log(JSON.stringify(activeConversationStateRef.current))
         try {
             // Prevent empty query or multiple concurrent streams
             if (query == "" || isStreamingRef.current) return
             // if the active conversation model has been changed since the last request -> reset the context
-            const currentContext = ChatService.getActiveAgent().getModelName() != activeConversationStateRef.current.lastModelUsed ? [] : activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context
+            const currentContext = (ChatService.getActiveAgent().getModelName() != activeConversationStateRef.current.lastModelUsed) 
+                ? [] 
+                    : activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context
             setIsStreaming(true)
             // Create a new blank conversation Q&A pair in the active conversation state
             dispatch({ 
@@ -205,7 +208,7 @@ function Chat() {
             // Clear textarea if user hasn't modified it during streaming
             if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             // TODO: Implement proper persistence instead of this temporary solution
-            ConversationsRepository.replaceConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history)
+            ConversationsRepository.updateConversationById(activeConversationId.value, activeConversationStateRef.current)
         }
         catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
@@ -271,7 +274,7 @@ function Chat() {
     function regenerateLastAnswer() {
         if(isStreamingRef.current) return
         const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
-        ConversationsRepository.replaceConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
+        ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
         askMainAgent_Streaming(retrievedQuestion)
     }

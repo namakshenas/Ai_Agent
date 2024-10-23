@@ -26,12 +26,12 @@ export class ConversationsRepository{
         return
     }
 
-    static replaceConversation(conversationId : number, conversation : IConversation) {
+    static updateConversationById(conversationId : number, conversation : IConversation) {
         this.chatConversations[conversationId] = conversation
         return
     }
 
-    static replaceConversationHistoryById(id : number, history : IConversationElement[]){
+    static updateConversationHistoryById(id : number, history : IConversationElement[]){
         this.chatConversations[id].history = history
     }
 

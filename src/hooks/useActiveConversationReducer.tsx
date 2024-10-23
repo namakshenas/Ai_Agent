@@ -24,6 +24,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
                         sources : [],
                 }]}
                 newState.lastAgentUsed = action.payload.agentUsed
+                newState.lastModelUsed = action.payload.modelUsed
                 activeConversationStateRef.current = {...newState}
                 return {...newState}
             }

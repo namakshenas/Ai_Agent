@@ -37,7 +37,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     }
 
     function handleNewConversation() : void{
-        ConversationsRepository.pushNewConversation("no_name", [], "")
+        ConversationsRepository.pushNewConversation("no_name", [], "", "")
         const nConversations = ConversationsRepository.getConversations().length
         setConversationsListState([...ConversationsRepository.getConversations()])
         setConversationsListPage(Math.ceil(nConversations / 3) - 1)
@@ -59,8 +59,8 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         }
         // deleting the first one and only conversation
         if(id == 0 && ConversationsRepository.getConversations().length < 2){
-            dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "no_name", history : [], lastAgentUsed  : ""}})
-            ConversationsRepository.replaceConversation(0, {name  : "no_name", history  : [], lastAgentUsed   : ""})
+            dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "no_name", history : [], lastAgentUsed  : "", lastModelUsed : ""}})
+            ConversationsRepository.updateConversationById(0, {name  : "no_name", history  : [], lastAgentUsed   : "", lastModelUsed : ""})
             refreshActivePageList()
             return
         }
