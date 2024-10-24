@@ -25,7 +25,6 @@ import { FormUploadFile } from "../components/Modal/FormUploadFile";
 import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
-import { AIAgent } from "../models/AIAgent";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
@@ -120,10 +119,8 @@ function Chat() {
             type: ActionType.SET_CONVERSATION, 
             payload: ConversationsRepository.getConversation(activeConversationId.value) 
         })
-        // restore the agent used by the selected conversation
-        if(activeConversationStateRef.current.lastAgentUsed != "") ChatService.setActiveAgent(new AIAgent(JSON.parse(activeConversationStateRef.current.lastAgentUsed)))
-        // !!! should refresh the right panel to display the active agent
     }, [activeConversationId])
+
 
     // show an error modal with errorMessageRef as a message
     const errorMessageRef = useRef("")
@@ -265,6 +262,9 @@ function Chat() {
 
     function handleScrollToTopClick(){
         document.getElementById("globalContainer")?.scrollIntoView({ behavior: "smooth" })
+        // !!! temp
+        console.log(activeConversationStateRef.current.lastAgentUsed)
+        console.log(ChatService.activeAgent.asString())
     }
 
     function scrollToBottom() {
@@ -307,6 +307,7 @@ function Chat() {
                     setTextareaValue={setTextareaValue} 
                     regenerateLastAnswer={regenerateLastAnswer}/>}
             </div>
+
             <div className="stickyBottomContainer">
 
                 {<CustomTextarea ref={customTextareaRef} 
@@ -321,7 +322,7 @@ function Chat() {
                     isStreaming={isStreaming} 
                     selfClose={setIsFollowUpQuestionsClosed}/>}
                 
-                <div className="sendButtonContainer">
+                <div className="sendStatsWebSearchContainer">
                     <div title="active the web search / context length of 10000 recommended" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Web Search</span>
                         <div className='switchContainer'>
@@ -330,8 +331,8 @@ function Chat() {
                     </div>
                     <div className="infosBottomContainer" onClick={() => console.log(JSON.stringify(lastRAGResultsRef.current))}>
                         <div>Model Loading : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.modelLoadingDuration || 0)).toFixed(2) } s</div>
-                        <div>Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration || 1)))).toFixed(2) } tk/s</div>
-                        <div>Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration || 1))).toFixed(2) } tk/s</div>
+                        <div className="infoItemDisappearLowWidth">Prompt : { Math.min(100, ((activeConversationStateRef.current.inferenceStats?.promptTokensEval || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.promptEvalDuration || 1)))).toFixed(2) } tk/s</div>
+                        <div className="infoItemDisappearLowWidth">Inference : { ((activeConversationStateRef.current.inferenceStats?.tokensGenerated || 0) / nanosecondsToSeconds((activeConversationStateRef.current.inferenceStats?.inferenceDuration || 1))).toFixed(2) } tk/s</div>
                         <div>Full Process : { (nanosecondsToSeconds(activeConversationStateRef.current.inferenceStats?.wholeProcessDuration || 0)).toFixed(2) } s</div>
                     </div>
                     <button title="top of the page" className="goTopButton purpleShadow" onClick={handleScrollToTopClick}>

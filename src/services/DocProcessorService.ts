@@ -105,7 +105,7 @@ const RAGDataIntroductionPrompt =
 
 ### Process
 
-1. ***Prioritize RAG Datas***: Always use the provided RAG data as your primary source of information. This data supersedes any knowledge from your training.
+1. ***Prioritize RAG Datas***: Always use the provided RAG data as your primary source of information. This data supersedes any knowledge from your training and from our conversation.
 2. ***Hierarchical consideration***: When formulating an answer, consider the RAG data in order of priority, with higher priority data taking precedence.
 3. ***Fallback to training data***: If the RAG data is insufficient to answer the query, utilize your training data to provide a response.
 4. ***Acknowledge limitations***: If neither the RAG data nor your training data can adequately address the query, respond with: "I can't find any relevant information to reply."
