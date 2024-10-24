@@ -1,6 +1,7 @@
 .globalContainer {
   display: flex;
   flex-direction: row;
+  min-height: 100vh;
 }
 
 .modelAgentContainer {
@@ -38,7 +39,7 @@
   border: 1px solid #4d749434;
 }
 
-.sendButtonContainer {
+.sendStatsWebSearchContainer {
   display: flex;
   flex-direction: row;
   column-gap: 1rem;
@@ -141,6 +142,12 @@
     justify-content: center;
     flex-direction: row;
     border-radius: 4px;
+
+    .infoItemDisappearLowWidth {
+      @media (max-width: 1820px) {
+        display: none;
+      }
+    }
 
     div {
       display: flex;

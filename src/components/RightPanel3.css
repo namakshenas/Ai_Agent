@@ -1,5 +1,6 @@
 .rightDrawer {
-  height: 100vh;
+  min-height: 100vh;
+  max-height: 920px;
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -79,10 +80,18 @@
       margin-bottom: 0.5rem;
       font-size: 16px;
       color: var(--label-grey-text-color);
-      /*
-      #566181ee
-      #536189ee
-      */
+
+      /*.outerCircle {
+        background-color: var(--light-purple-background-color);
+        height: 14px;
+        width: 14px;
+        border-radius: 14px;
+        margin-right: 0.5rem;
+        align-self: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        outline: 1px solid #6d48c188;*/
 
       .circle {
         background-color: var(--purple-button-color);
@@ -92,6 +101,7 @@
         margin-right: 0.5rem;
         align-self: center;
       }
+      /*}*/
     }
 
     label:first-child {

@@ -15,6 +15,12 @@
   box-shadow: 0 1px 0 #ffffff88;
   font-size: 16px;
 
+  .infoItemDisappearLowWidth {
+    @media (max-width: 1600px) {
+      display: none;
+    }
+  }
+
   span {
     padding: 0 16px;
     height: 100%;
