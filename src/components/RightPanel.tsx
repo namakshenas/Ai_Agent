@@ -73,7 +73,6 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
         currentAgent.current = newAgent
 
         setShowSavingSuccessfulBtn(true)
-
     }
 
     // switch active agent
@@ -145,7 +144,10 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
                 <button className='purpleShadow' onClick={handleOpenNewAgentFormClick}>+ Create a New Agent</button>
             </article>
             <article className='settingsFormContainer'>
-                <label id="label-agentName" style={{display:'flex'}}><div className='circle'></div>Agent Powering the Chat</label>
+                <label id="label-agentName" style={{display:'flex'}}>
+                    {/*<div className='outerCircle'>*/}<div className='circle'></div>{/*</div>*/}
+                    Agent Powering the Chat
+                </label>
                 {!isStreaming ? <Select 
                     width="100%"
                     options={AIAgentsList.map((agent) => ({ label: agent.getName() + (agent.getType() == 'system' ? ` [ Core ]`: ""), value: agent.getName() }))} 
@@ -256,7 +258,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
         </aside>
     )
 }, (prevProps, nextProps) => {
-    // refresh only when modelsList state change
+    // refresh AIAgentsList or isStreaming change
     return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.isStreaming === nextProps.isStreaming )
 })
 

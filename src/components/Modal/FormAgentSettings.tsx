@@ -199,15 +199,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                 onValueChange={handleSwitchModel}
             />
 
-            {/*<div onClick={() => setActiveOptionsSet(activeOptionsSet == 0 ? 1 : 0)} className="baseBar" style={{gridArea:'baseBar'}}>
-                <div style={{display:'flex', textAlign:'left', width:'100%'}}>
-                    <span>Base Options</span>
-                    <svg style={{marginLeft:'auto'}} width="26px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 8L12.2278 14.7343C12.108 14.8739 11.892 14.8739 11.7722 14.7343L6 8" fill="none" stroke="#373737" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                </div>
-            </div>*/}
-
             { activeOptionsSet == 0 && <section style={{gridArea:'set1'}} className="settingsSet1">  
                 
                 <div style={{gridArea:'label3', margin : '1.5rem 0 0.85rem 0'}} className="labelErrorContainer">
@@ -486,8 +477,10 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
             <hr style={{gridArea : 'advancedBar', marginTop:'2rem', marginBottom:'0.5rem', border:'none', borderBottom:'1px dashed #37373766'}}/>
 
             <div style={{gridArea:'z', display:'flex', columnGap:'12px', marginTop:'1.5rem'}}>
-                <button onClick={handleSwitchOptionsSetClick} className="cancelButton purpleShadow">More Settings</button>
-                <button onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>
+                { (role == "create" && activeOptionsSet == 0) && <button style={{width:'50%', marginLeft:'auto'}} onClick={handleSwitchOptionsSetClick} className="cancelButton purpleShadow">Next</button>}
+                { (role == "create" && activeOptionsSet == 1) && <button style={{width:'50%', marginLeft:'auto'}} onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>}
+                { role == "edit" && <button onClick={handleSwitchOptionsSetClick} className="cancelButton purpleShadow">More Settings</button>}
+                { role == "edit" && <button onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>}
             </div>
         </form>
     )
