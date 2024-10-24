@@ -90,7 +90,7 @@ ${question}`
     return (
         followUpQuestions.length > 2 && <div className="followUpQuestionsContainer">
             {followUpQuestions.map((question, id) => (
-                <span role="button" key={'fupquestion' + id} onClick={(e) => handleFollowUpQuestionClick((e.target as HTMLSpanElement).innerText)}>{question}</span>
+                <span className={id == 2 ? 'infoItemDisappearLowWidth' : ''} role="button" key={'fupquestion' + id} onClick={(e) => handleFollowUpQuestionClick((e.target as HTMLSpanElement).innerText)}>{question}</span>
             ))}
             <div style={{display:'flex', flexDirection:'column', rowGap:'0.75rem', justifyContent:'center'}}>
                 <button title="refresh" onClick={handleRefreshFUpClick}>
