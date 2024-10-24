@@ -11,6 +11,8 @@ export class AIAgent extends AIModel {
     #favorite : boolean
     #webSearchEconomy: boolean = false
     #processFn : (request : any) => any = (request : string) => request
+    // outputControlRegex
+    // maxRetry
     protected nextAgent: AIAgent | null = null
 
     constructor({

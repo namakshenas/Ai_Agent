@@ -104,6 +104,11 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
 
     const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed})
 
+    /*useEffect(() => {
+        // when switching conversation, set the last agent used by the conversation as active
+        if(activeConversationState.lastAgentUsed != "") ChatService.setActiveAgent(new AIAgent(JSON.parse(activeConversationState.lastAgentUsed)))
+    }, [activeConversationState])*/
+
     return {activeConversationState, dispatch, activeConversationStateRef, activeConversationId, setActiveConversationId}
 }
 

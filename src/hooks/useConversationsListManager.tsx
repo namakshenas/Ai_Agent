@@ -8,7 +8,7 @@ export default function useConversationsListManager(setActiveConversation : (ind
     const [conversationsListPage, setConversationsListPage] = useState<number>(0)
 
     function handNewConversation() : void{
-        ConversationsRepository.pushNewConversation("no_name", [], "")
+        ConversationsRepository.pushNewConversation("no_name", [], "", "")
         const nConversations = ConversationsRepository.getConversations().length
         setConversationsListState([...ConversationsRepository.getConversations()])
         setConversationsListPage(Math.ceil(nConversations / 3) - 1)

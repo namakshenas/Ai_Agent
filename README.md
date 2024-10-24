@@ -2,7 +2,7 @@
 
 # OSSPITA : Run your local AI assistant to experience enhanced privacy and zero cost.
 
-OSSPITA is a lightweight, fully local, open-source AI-powered research and conversational interface that enables users to interact in real time with various Open-Source models. Leveraging the Ollama API, OSSPITA provides a seamless experience for engaging with cutting-edge AI technology.
+OSSPITA is a lightweight, fully local, open-source desktop interface that enables users to interact for free and in real time with various Open-Source LLMs. Leveraging the Ollama API, OSSPITA provides a user-friendly experience for engaging with cutting-edge AI technology.
 
 ## I - Features
 
@@ -28,6 +28,7 @@ OSSPITA is a lightweight, fully local, open-source AI-powered research and conve
 - Online domain names ranking.
 - Improved RAG algorithm and new related options.
 - Prompt versioning.
+- Code highlighting.
 - A **Dark mode** theme.
 - Advanced Models settings : Top-K, Repeat, Mirostat, etc..
 - Charts generation.
@@ -71,18 +72,6 @@ Navigate to the project directory:
 
 > cd OsspitaUI
 
-#### Backend
-
-> cd back
-
-Install dependencies:
-
-> npm install
-
-Start the development server:
-
-> ./run
-
 #### Frontend
 
 > cd front
@@ -95,7 +84,7 @@ Start the development server:
 
 > npm run dev
 
-Open your browser and visit http://localhost:5173 to use the application.
+Open your browser and visit http://localhost:5173 so that you can be guided through the rest of the installation process.
 
 ## V - Usage
 
@@ -121,7 +110,7 @@ If you face any bug or if you want me to add / improve any functionality, open a
 ## VIII - Acknowledgments
 
 - Georgi Gerganov and all associated contributors for llama.cpp.
-- The Ollama team for providing the inference API.
+- The Ollama team for providing the API used for inference.
 - React and Vite communities for their excellent tools.
 - All contributors and supporters of the project.
 - Everybody producing GGUF models.
