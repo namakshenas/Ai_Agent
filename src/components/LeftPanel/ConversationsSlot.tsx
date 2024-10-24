@@ -37,7 +37,7 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
     }
 
     function handleNewConversation() : void{
-        ConversationsRepository.pushNewConversation("no_name", [], "", "")
+        ConversationsRepository.pushNewConversation("no_name", [], ""/*ChatService.activeAgent.asString()*/, ""/*ChatService.activeAgent.getModelName()*/)
         const nConversations = ConversationsRepository.getConversations().length
         setConversationsListState([...ConversationsRepository.getConversations()])
         setConversationsListPage(Math.ceil(nConversations / 3) - 1)
@@ -98,13 +98,13 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
                 <ul style={{minHeight : '118px'}}>
                     {conversationsListState.slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => 
                         conversationsListPage*3+id != activeConversationId ?
-                        <li onClick={() => handleSetActiveConversation(conversationsListPage*3+id)} key={"conversation" + conversationsListPage*3+id} role="button">
+                        <li title={conversation.lastModelUsed || "no model assigned yet"} onClick={() => handleSetActiveConversation(conversationsListPage*3+id)} key={"conversation" + conversationsListPage*3+id} role="button">
                             {conversation.history[0]?.question.substring(0, 45) || conversation.name}
                             <svg className="arrow" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg">
                                 <path fill="none" d="M1 1L5.29289 5.29289C5.68342 5.68342 5.68342 6.31658 5.29289 6.70711L1 11" stroke="#6D48C1" strokeWidth="2" strokeLinecap="round"/>
                             </svg>
                         </li> : 
-                        <li className="active" key={"conversation" + conversationsListPage*3+id} role="button">
+                        <li title={conversation.lastModelUsed || "no model assigned yet"} className="active" key={"conversation" + conversationsListPage*3+id} role="button">
                             <span>{conversation.history[0]?.question.substring(0, 45) || conversation.name}</span>
                             <button title="delete" className='conversationTrashBtn' onClick={() => handleDeleteConversation(conversationsListPage*3+id)}>
                                 <svg width="14" height="16" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
@@ -138,4 +138,5 @@ interface IProps{
     activeConversationId : number
     setActiveConversationId : ({value} : {value : number}) => void
     dispatch : React.Dispatch<TAction>
+    // activeConversationState : IConversation
 }

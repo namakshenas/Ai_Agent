@@ -4,7 +4,7 @@ import ollama from '../../assets/Ollama3.png'
 import DocumentsSlot from './DocumentsSlot'
 import { ConversationsSlot } from './ConversationsSlot'
 import { PromptsSlot } from './PromptsSlot'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import React from 'react'
 import { IConversation } from '../../interfaces/IConversation'
 import { TAction } from '../../hooks/useActiveConversationReducer'
@@ -13,6 +13,16 @@ import { TAction } from '../../hooks/useActiveConversationReducer'
 const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, activeConversationId, activeConversationStateRef, setActiveConversationId, dispatch, memoizedSetModalStatus, selectedPromptNameRef} : IProps) => {
 
     useEffect(() => {console.log("left panel render")})
+
+    /*const [conversationsSlotRefreshKey, setConversationsSlotRefreshKey] = useState(0)
+
+    function refreshConversationsSlot(){
+        setConversationsSlotRefreshKey(conversationsSlotRefreshKey + 1)
+    }
+
+    useEffect(() => {
+        refreshConversationsSlot()
+    }, [activeConversationStateRef])*/
 
     return(
         <aside className="leftDrawer">
