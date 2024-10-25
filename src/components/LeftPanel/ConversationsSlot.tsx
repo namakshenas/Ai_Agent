@@ -36,12 +36,18 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         if(Math.ceil(nConversations / 3) - 1 < conversationsListPage) setConversationsListPage(pageId => pageId - 1)
     }
 
+    /***
+    //
+    // Events Handlers
+    //
+    ***/
+
     function handleNewConversation() : void{
         ConversationsRepository.pushNewConversation("no_name", [], ""/*ChatService.activeAgent.asString()*/, ""/*ChatService.activeAgent.getModelName()*/)
-        const nConversations = ConversationsRepository.getConversations().length
+        // const nConversations = ConversationsRepository.getConversations().length
         setConversationsListState([...ConversationsRepository.getConversations()])
-        setConversationsListPage(Math.ceil(nConversations / 3) - 1)
-        setActiveConversationId({value : nConversations - 1})
+        setConversationsListPage(0/*Math.ceil(nConversations / 3) - 1*/)
+        setActiveConversationId({value : 0/*nConversations - 1*/})
     }
 
     function handleSetActiveConversation(id : number) : void{
@@ -81,22 +87,13 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         setConversationsListPage(conversationsListPage => conversationsListPage - 1 < 0 ? Math.ceil(conversationsListState.length/3) - 1 : conversationsListPage - 1)
     }
 
-    function nBlankConversationSlotsNeededAsFillers() : number{
-        if (conversationsListPage*3+3 < conversationsListState.length) return 0
-        return conversationsListPage*3+3 - conversationsListState.length
-    }
-
-    function getPagination() : string{
-        return `Page ${conversationsListPage+1} on ${Math.ceil(conversationsListState.length/3) || 1}`
-    }
-
     return(
         <article>
                 <h3>
                     CONVERSATIONS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>{getPagination()}</span>
                 </h3>
                 <ul style={{minHeight : '118px'}}>
-                    {conversationsListState.slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => 
+                    {[...conversationsListState].slice(conversationsListPage*3, conversationsListPage*3+3).map((conversation, id) => 
                         conversationsListPage*3+id != activeConversationId ?
                         <li title={conversation.lastModelUsed || "no model assigned yet"} onClick={() => handleSetActiveConversation(conversationsListPage*3+id)} key={"conversation" + conversationsListPage*3+id} role="button">
                             {conversation.history[0]?.question.substring(0, 45) || conversation.name}
@@ -131,6 +128,15 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
                 </div>
             </article>
     )
+
+    function nBlankConversationSlotsNeededAsFillers() : number{
+        if (conversationsListPage*3+3 < conversationsListState.length) return 0
+        return conversationsListPage*3+3 - conversationsListState.length
+    }
+
+    function getPagination() : string{
+        return `Page ${conversationsListPage+1} on ${Math.ceil(conversationsListState.length/3) || 1}`
+    }
 
 }
 
