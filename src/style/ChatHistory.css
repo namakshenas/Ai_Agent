@@ -9,6 +9,16 @@
   border: 1px solid var(--base-container-border-color);
 }
 
+.modelDateContainer {
+  height: 2rem;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-size: 13px;
+  padding: 0 1rem;
+  background: linear-gradient(to right, #ffffff, #ffffff);
+}
+
 .actorIcon {
   border-radius: 100%;
 }

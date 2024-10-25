@@ -3,10 +3,10 @@ import AnswerRow from "./AnswerRow"
 import QuestionRow from "./QuestionRow"
 import '../../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
-import { IConversationElement } from "../../interfaces/IConversation"
+import { IConversationElement, IInferenceStats } from "../../interfaces/IConversation"
 import { useTTS } from "../../hooks/useTTS"
 
-function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) {
+function ChatHistory({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) {
 
   const historyContainerRef = useRef(null)
   const autoScrollingObsRef = useRef<MutationObserver>()
@@ -53,6 +53,12 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
     }
   }, [autoScrollingObsRef])
 
+  /***
+  //
+  // Events Handlers
+  //
+  ***/
+
   function handleDownloadAsFile(text : string) : void {
     const blob = new Blob([text], {type: "text/plain;charset=utf-8"})
     const url = URL.createObjectURL(blob)
@@ -87,7 +93,7 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
           </div>
         }
         {
-          history.map((item, index, array) => (
+          activeConversationState.history.map((item, index, array) => (
             <article key={'historyItem'+index}>
               <QuestionRow key={'questionRow' + index} question={item.question} onModify={handleModifyQuestion} onDownload={handleDownloadAsFile} onCopyToClipboard={handleCopyToClipboard} index={index}/>
               {(index == (array.length -1)) ? 
@@ -96,14 +102,42 @@ function ChatHistory({history, isStreaming, setTextareaValue, regenerateLastAnsw
             </article>
           ))
         }
+        {activeConversationState.history.length > 0 && <div className="modelDateContainer">{activeConversationState.lastModelUsed} / {formatToUSDateTime(activeConversationState.history[activeConversationState.history.length-1].date)}</div>}
     </section>
   )
+
+  function formatToUSDateTime(isoString : string) : string {
+    const date = new Date(isoString);
+    
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      timeZone: 'America/New_York',
+      hour12: true
+    };
+  
+    return date.toLocaleString('en-US', options);
+  }
+
 }
 
 export default ChatHistory
 
 interface IProps{
-  history : IConversationElement[]
+  /*lastModelUsed : string
+  history : IConversationElement[]*/
+  activeConversationState: {
+    history: IConversationElement[];
+    name: string;
+    lastAgentUsed: string;
+    lastModelUsed: string;
+    hidden?: boolean;
+    inferenceStats?: IInferenceStats;
+  }
   setTextareaValue : (text : string) => void
   regenerateLastAnswer : () => void
   isStreaming : boolean
