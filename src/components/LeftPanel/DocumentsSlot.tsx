@@ -59,6 +59,12 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
         if(isWebSearchActivated == true) setDocsList(docsListRef.current.map(doc => ({...doc, selected : false})))
     }, [isWebSearchActivated])
 
+    /***
+    //
+    // Events Handlers
+    //
+    ***/
+
     function handleSearchTermChange(event : React.ChangeEvent): void {
         setDocumentsListPage(0)
         setDocumentsSearchTerm(() => ((event.target as HTMLInputElement).value))
@@ -102,19 +108,6 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
 
     function handleOpenUploadFileFormClick() : void {
         memoizedSetModalStatus({visibility : true, contentId : "formUploadFile"})
-    }
-
-    function getFilteredDocs() : IRAGDocument[]{
-        return docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase()))
-    }
-
-    function nBlankFileSlotsNeededAsFillers() : number{
-        if (documentsListPage*5+5 < docsListRef.current.length) return 0
-        return documentsListPage*5+5 - docsListRef.current.length
-    }
-
-    function getPagination() : string{
-        return `Page ${documentsListPage + 1} on ${Math.ceil(getFilteredDocs().length / 5) || 1}`
     }
 
     return(
@@ -175,6 +168,19 @@ export default function DocumentsSlot({isWebSearchActivated, setWebSearchActivat
                 </div>
             </article>
     )
+
+    function getFilteredDocs() : IRAGDocument[]{
+        return docsListRef.current.filter(document => document.filename.toLowerCase().includes(documentsSearchTerm.toLowerCase()))
+    }
+
+    function nBlankFileSlotsNeededAsFillers() : number{
+        if (documentsListPage*5+5 < docsListRef.current.length) return 0
+        return documentsListPage*5+5 - docsListRef.current.length
+    }
+
+    function getPagination() : string{
+        return `Page ${documentsListPage + 1} on ${Math.ceil(getFilteredDocs().length / 5) || 1}`
+    }
 }
 
 interface IProps{
