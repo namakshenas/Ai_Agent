@@ -6,16 +6,60 @@ function Modal({children, modalVisibility, memoizedSetModalStatus, /*modalConten
 
     const dialogRef = useRef<HTMLDialogElement>(null)
     const modalVisibilityRef = useRef<boolean>(modalVisibility)
+
+    const isMouseDownInsideModal = useRef<boolean>(false)
     
     useEffect(() => {
         if(modalVisibilityRef && !dialogRef.current?.open) return dialogRef.current?.showModal()
         if(!modalVisibilityRef && dialogRef.current?.open) return dialogRef.current?.close()
     })
+
+    // the following events handler prevent the modal from being closed by releasing the mouse button outside of it
+    // useful when the user makes big gestures when selecting modal text elements
+    function handleOnClick(e : React.MouseEvent) : void{
+        console.log((e.target as HTMLDialogElement).nodeName)
+        if (isMouseDownInsideModal.current && (e.target as HTMLDialogElement).nodeName === 'DIALOG') {
+            e.preventDefault()
+            e.stopPropagation()
+            return
+        }
+    }
+
+    function handleMouseDown(e: React.MouseEvent) : void {
+        const dialogElement = e.target as HTMLDialogElement
+
+        if(dialogElement.nodeName !== 'DIALOG') {
+            isMouseDownInsideModal.current = true
+            return
+        }
+        
+        const rect = dialogElement.getBoundingClientRect()
+        const isInDialog = (
+            rect.top <= e.clientY &&
+            e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX &&
+            e.clientX <= rect.left + rect.width
+        )
+        
+        if (!isInDialog) {
+            isMouseDownInsideModal.current = false
+        } else {
+            isMouseDownInsideModal.current = true
+        }
+    }
+
+    function handleMouseUp(e : React.MouseEvent){
+        e.preventDefault()
+        e.stopPropagation()
+        if (isMouseDownInsideModal.current) return
+        isMouseDownInsideModal.current = false
+        if ((e.target as HTMLDialogElement).nodeName === 'DIALOG') memoizedSetModalStatus({visibility : false})
+    }
     
     // needs to pass setModalVisibility to modalContent
     return (
         <dialog style={width ? {width : width} : {}} data-testid="modal" ref={dialogRef} 
-            onClick={(e) => { if (e.target === dialogRef.current) memoizedSetModalStatus({visibility : false}) }} 
+            onClick={handleOnClick} onMouseUp={handleMouseUp} onMouseDown={handleMouseDown}
             onCancel={(e) => e.preventDefault()}>
                 <div className='modalHorizPadding'></div>
                 <div className='modalVertPaddingNChildrenContainer'>

@@ -7,6 +7,12 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
     const [promptsListPage, setPromptsListPage] = useState(0)
     const {promptsList, setPromptsList} = useFetchPromptsList()
 
+    /***
+    //
+    // Events Handlers
+    //
+    ***/
+
     function handleNextPage() : void{
         setPromptsListPage(page => page + 1 < Math.ceil(promptsList.length/3) ? page+1 : 0)
     }
@@ -27,10 +33,6 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
 
     function handleOpenNewPromptFormClick() : void {
         memoizedSetModalStatus({visibility : true, contentId : "formNewPrompt"})
-    }
-
-    function getPagination() : string{
-        return `Page ${promptsListPage+1} on ${Math.ceil(promptsList.length/3) || 1}`
     }
 
     return(
@@ -58,6 +60,10 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
         </div>
     </article>
     )
+
+    function getPagination() : string{
+        return `Page ${promptsListPage+1} on ${Math.ceil(promptsList.length/3) || 1}`
+    }
 }
 
 interface IProps{
