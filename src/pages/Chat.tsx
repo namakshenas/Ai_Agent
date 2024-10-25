@@ -41,7 +41,7 @@ function Chat() {
     // Active Conversation Management
     // Manages the state and context of the current active conversation
     // Used for displaying chat history and handling conversation selection
-    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""})
+    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""});
 
     // Auto-scroll Reference
     // Ref used to enable auto-scrolling feature during response streaming
@@ -302,7 +302,7 @@ function Chat() {
 
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
                 {<ChatHistory 
-                    history={[...activeConversationState.history]} 
+                    activeConversationState={activeConversationState} 
                     isStreaming={isStreaming} 
                     setTextareaValue={setTextareaValue} 
                     regenerateLastAnswer={regenerateLastAnswer}/>}

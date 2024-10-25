@@ -19,6 +19,7 @@ export interface IInferenceStats {
 export interface IConversationElement{
     question : string
     answer : IConversationAnswer
+    date : string
     context : number[],
     sources : ISource[]
 }

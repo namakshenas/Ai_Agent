@@ -38,6 +38,6 @@ function QuestionRow({index, question, onDownload, onCopyToClipboard, onModify} 
     index : number
     question : string
     onDownload : (text : string) => void
-    onModify : (text : string) => void
     onCopyToClipboard : (text : string) => Promise<void>
+    onModify : (text : string) => void
 }

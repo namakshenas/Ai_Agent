@@ -5,7 +5,7 @@ export class ConversationsRepository{
     static chatConversations : IConversation[] = [];
 
     static pushNewConversation(name : string, history : IConversationElement[], lastAgentUsed : string, lastModelUsed : string){
-        this.chatConversations.push({name, history, lastAgentUsed, lastModelUsed})
+        this.chatConversations.unshift({name, history, lastAgentUsed, lastModelUsed})
         return
     }
 

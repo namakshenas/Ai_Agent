@@ -145,7 +145,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
             </article>
             <article className='settingsFormContainer'>
                 <label id="label-agentName" style={{display:'flex'}}>
-                    {/*<div className='outerCircle'>*/}<div className='circle'></div>{/*</div>*/}
+                    <div className='circle'></div>
                     Agent Powering the Chat
                 </label>
                 {!isStreaming ? <Select 

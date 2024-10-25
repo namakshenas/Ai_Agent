@@ -9,8 +9,6 @@ import { TTSService } from '../../services/TTSService';
 
 function AnswerRow({isStreaming, index, answer, sources, TTS, onDownload, onCopyToClipboard, onRegenerate} : IProps){
 
-    // const answerDivRef = useRef<HTMLDivElement>(null)
-
     // !!! should sanitize source
     function convertSourcesArrayToHTML(sourcesArray : ISource[]) : string{
         if(sourcesArray.length == 0) return ''

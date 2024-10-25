@@ -13,6 +13,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
     // consequence : refresh the chat history when the conversation is autoswitched after a deletion
     const [activeConversationId, setActiveConversationId] = useState<{value : number}>({ value: 0 })
 
+    // now.toISOString()
     function conversationReducer(state : IConversation, action : TAction){
         switch(action.type){
             case ActionType.NEW_BLANK_HISTORY_ELEMENT : {
@@ -22,6 +23,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
                         answer : {asMarkdown : "", asHTML : ""}, 
                         context : [],
                         sources : [],
+                        date : new Date().toISOString(),
                 }]}
                 newState.lastAgentUsed = action.payload.agentUsed
                 newState.lastModelUsed = action.payload.modelUsed
@@ -66,7 +68,8 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
                         question : action.payload.question, 
                         answer : {asMarkdown : action.payload.answer.asMarkdown, asHTML : action.payload.answer.asHTML}, 
                         context : action.payload.context,
-                        sources : []
+                        sources : [],
+                        date : new Date().toISOString(),
                     }]
                 }
                 activeConversationStateRef.current = {...newState}
