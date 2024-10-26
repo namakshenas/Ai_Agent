@@ -5,7 +5,9 @@ import useFetchPromptsList from "../../hooks/useFetchPromptsList";
 export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IProps){
     
     const [promptsListPage, setPromptsListPage] = useState(0)
-    const {promptsList, setPromptsList} = useFetchPromptsList()
+    const { promptsList } = useFetchPromptsList()
+
+    const itemsPerPage = 3;
 
     /***
     //
@@ -14,16 +16,16 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
     ***/
 
     function handleNextPage() : void{
-        setPromptsListPage(page => page + 1 < Math.ceil(promptsList.length/3) ? page+1 : 0)
+        setPromptsListPage(page => page + 1 < Math.ceil(promptsList.length / itemsPerPage) ? page+1 : 0)
     }
 
     function handlePreviousPage() : void{
-        setPromptsListPage(page => page - 1 < 0 ? Math.ceil(promptsList.length/3) - 1 : page - 1)
+        setPromptsListPage(page => page - 1 < 0 ? Math.ceil(promptsList.length / itemsPerPage) - 1 : page - 1)
     }
 
     function nBlankConversationSlotsNeededAsFillers() : number{
-        if (promptsListPage*3+3 < promptsList.length) return 0
-        return promptsListPage*3+3 - promptsList.length
+        if (promptsListPage * itemsPerPage + itemsPerPage < promptsList.length) return 0
+        return promptsListPage * itemsPerPage + itemsPerPage - promptsList.length
     }
 
     function handleOpenEditPromptFormClick(promptName : string) : void {
@@ -41,7 +43,7 @@ export function PromptsSlot({memoizedSetModalStatus, selectedPromptNameRef} : IP
             PROMPTS<span className='nPages' style={{color:"#232323", fontWeight:'500'}}>{getPagination()}</span>
         </h3>
         <ul>
-            {promptsList.slice(promptsListPage * 3, promptsListPage * 3 + 3).map((prompt, index) => (<li key={"prompt" + index + promptsListPage * 3} onClick={() => handleOpenEditPromptFormClick(prompt.name)}>{prompt.name}</li>))}
+            {promptsList.slice(promptsListPage * itemsPerPage, promptsListPage * itemsPerPage + itemsPerPage).map((prompt, index) => (<li key={"prompt" + index + promptsListPage * itemsPerPage} onClick={() => handleOpenEditPromptFormClick(prompt.name)}>{prompt.name}</li>))}
             {
                 nBlankConversationSlotsNeededAsFillers() > 0 && Array(nBlankConversationSlotsNeededAsFillers()).fill("").map((_,id) => (<li className='fillerItem' key={"blank"+id}></li>))
             }
