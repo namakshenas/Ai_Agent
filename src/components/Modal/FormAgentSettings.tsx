@@ -476,6 +476,10 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
 
             <hr style={{gridArea : 'advancedBar', marginTop:'2rem', marginBottom:'0.5rem', border:'none', borderBottom:'1px dashed #37373766'}}/>
 
+            <div style={{gridArea:'y', display:'flex', columnGap:'12px', marginTop:'1.5rem'}}>
+                <button className="cancelButton purpleShadow" style={{width:'calc(50% - 6px)'}} onClick={handleCancelClick}>Cancel</button>
+            </div>
+
             <div style={{gridArea:'z', display:'flex', columnGap:'12px', marginTop:'1.5rem'}}>
                 { (role == "create" && activeOptionsSet == 0) && <button style={{width:'50%', marginLeft:'auto'}} onClick={handleSwitchOptionsSetClick} className="cancelButton purpleShadow">Next</button>}
                 { (role == "create" && activeOptionsSet == 1) && <button style={{width:'50%', marginLeft:'auto'}} onClick={handleSaveClick} className="saveButton purpleShadow">Save</button>}

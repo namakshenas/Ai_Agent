@@ -17,7 +17,6 @@ function Modal({children, modalVisibility, memoizedSetModalStatus, /*modalConten
     // the following events handler prevent the modal from being closed by releasing the mouse button outside of it
     // useful when the user makes big gestures when selecting modal text elements
     function handleOnClick(e : React.MouseEvent) : void{
-        console.log((e.target as HTMLDialogElement).nodeName)
         if (isMouseDownInsideModal.current && (e.target as HTMLDialogElement).nodeName === 'DIALOG') {
             e.preventDefault()
             e.stopPropagation()
@@ -49,14 +48,13 @@ function Modal({children, modalVisibility, memoizedSetModalStatus, /*modalConten
     }
 
     function handleMouseUp(e : React.MouseEvent){
+        if (isMouseDownInsideModal.current) return
         e.preventDefault()
         e.stopPropagation()
-        if (isMouseDownInsideModal.current) return
         isMouseDownInsideModal.current = false
         if ((e.target as HTMLDialogElement).nodeName === 'DIALOG') memoizedSetModalStatus({visibility : false})
     }
     
-    // needs to pass setModalVisibility to modalContent
     return (
         <dialog style={width ? {width : width} : {}} data-testid="modal" ref={dialogRef} 
             onClick={handleOnClick} onMouseUp={handleMouseUp} onMouseDown={handleMouseDown}

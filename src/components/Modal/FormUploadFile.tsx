@@ -90,7 +90,7 @@ export function FormUploadFile({memoizedSetModalStatus, setForceLeftPanelRefresh
         
             default:
                 // Handle any other file types or add a default behavior
-                console.log("Unsupported file type");
+                console.error("Unsupported file type");
                 break;
         }
 
