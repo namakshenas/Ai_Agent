@@ -101,9 +101,9 @@ export default function FirstStart(){
                     <table style={{marginTop:'0.25rem'}}>
                         <thead><tr><th>GPU VRAM</th><th>Model</th><th>Description</th><th>Link</th></tr></thead>
                         <tbody>
-                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("llama3.2:3b")}><td>4GB</td><td>Llama 3.2:3b</td><td>Fast (even on CPU) but limited</td><td><a target="_blank" href="https://ollama.com/library/llama3.2">Ollama page</a></td></tr>
-                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("llama3.1:8b")}><td>8GB</td><td>Llama 3.1:8b</td><td>Decent overall quality</td><td><a target="_blank" href="https://ollama.com/library/llama3.1">Ollama page</a></td></tr>
-                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("mistral-nemo:12b")}><td>12GB</td><td>Mistral Nemo:12b</td><td>Great for most tasks</td><td><a target="_blank" href="https://ollama.com/library/mistral-nemo">Ollama page</a></td></tr>
+                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("llama3.2:3b")}><td>4GB</td><td>Llama 3.2 3b</td><td>Fast (even on CPU) but limited</td><td><a target="_blank" href="https://ollama.com/library/llama3.2">Ollama page</a></td></tr>
+                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("aya-expanse:8b")}><td>8GB</td><td>Aya Expanse 8b</td><td>Decent overall quality</td><td><a target="_blank" href="https://ollama.com/library/aya-expanse:8b">Ollama page</a></td></tr>
+                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("mistral-nemo:12b")}><td>12GB</td><td>Mistral Nemo 12b</td><td>Great for most tasks</td><td><a target="_blank" href="https://ollama.com/library/mistral-nemo">Ollama page</a></td></tr>
                         </tbody>
                     </table>
                     <hr/>
@@ -112,7 +112,7 @@ export default function FirstStart(){
                         &gt; ollama pull llama3.2:3b<br/>
                         &gt; ollama pull nomic-embed-text<br/>
                         {selectedStep2Model == "mistral-nemo:12b" && <>&gt; ollama pull mistral-nemo</>}
-                        {selectedStep2Model == "llama3.1:8b" && <>&gt; ollama pull llama3.1:8b</>}
+                        {selectedStep2Model == "aya-expanse:8b" && <>&gt; ollama pull aya-expanse:8b</>}
                     </div>
                     <hr/>
                     <button className="purpleShadow" onClick={() => setVisibleSection(currentSection => currentSection + 1)} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
