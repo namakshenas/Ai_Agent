@@ -10,7 +10,7 @@ export default class PromptService{
                 body : JSON.stringify({name, prompt, version}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
-            if(!reponse.ok) throw new Error('Error saving agent') // !!! deal with existing name
+            if(!reponse.ok) throw new Error('Error saving the prompt') // !!! deal with existing name
         }catch(e){
             console.error(e)
         }
@@ -23,7 +23,7 @@ export default class PromptService{
                 body : JSON.stringify({name : prompt.name, prompt : prompt.prompt, version : prompt.version}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
-            if(!reponse.ok) throw new Error('Error saving agent')
+            if(!reponse.ok) throw new Error('Error updating the prompt')
         }catch(e){
             console.error(e)
         }
@@ -36,7 +36,7 @@ export default class PromptService{
                 body : JSON.stringify({name : prompt.name, prompt : prompt.prompt, version : prompt.version}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
-            if(!reponse.ok) throw new Error('Error saving agent')
+            if(!reponse.ok) throw new Error('Error updating the prompt')
         }catch(e){
             console.error(e)
         }

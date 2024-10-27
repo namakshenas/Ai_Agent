@@ -43,6 +43,7 @@ export class Conversation{
             answer  : {asMarkdown : "", asHTML : ""},
             context : [],
             sources : [],
+            date : new Date().toISOString(),
         })
     }
 
