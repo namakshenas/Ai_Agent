@@ -1,11 +1,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* c8 ignore start */
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 
 function useModalManager({initialVisibility, initialModalContentId} : IModalObject) {
 
     const [modalVisibility, setModalVisibility] = useState<boolean>(initialVisibility)
     const [modalContentId, setModalContentId] = useState<string>(initialModalContentId)
+
+    // show an error modal with errorMessageRef as a message
+    const errorMessageRef = useRef("")
+    function showErrorModal(errorMessage : string){
+        errorMessageRef.current = errorMessage
+        setModalContentId("error")
+        setModalVisibility(true)
+    }
+
+    // Memoized function to update modal status
+    // Prevents unnecessary re-renders
+    const memoizedSetModalStatus = useCallback(({visibility, contentId} : {visibility : boolean, contentId? : string}) => {
+        setModalVisibility(visibility)
+        if(contentId) setModalContentId(contentId)
+    }, [])
 
     useEffect(() => {
   
@@ -36,7 +51,7 @@ function useModalManager({initialVisibility, initialModalContentId} : IModalObje
 
     }, [modalVisibility])
 
-    return { modalVisibility, setModalVisibility, modalContentId, setModalContentId }
+    return { modalVisibility, setModalVisibility, modalContentId, setModalContentId, memoizedSetModalStatus, showErrorModal, errorMessageRef }
 }
 
 export default useModalManager
