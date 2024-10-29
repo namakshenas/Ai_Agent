@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../components/ChatHistory/ChatHistory";
 import '../style/Chat.css'
 import { ConversationsRepository } from "../repositories/ConversationsRepository";
 import FollowUpQuestions from "../components/FollowUpQuestions";
-import CustomTextarea, { ImperativeHandle } from "../components/CustomTextarea";
+import CustomTextarea from "../components/CustomTextarea";
 import { ActionType, useActiveConversationReducer } from "../hooks/useActiveConversationReducer";
 import { WebSearchService } from "../services/WebSearchService";
 import Modal from "../components/Modal/Modal";
@@ -25,6 +25,7 @@ import { FormUploadFile } from "../components/Modal/FormUploadFile";
 import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
+import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaManager";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
@@ -51,31 +52,12 @@ function Chat() {
     // State variables to force re-renders left panels
     const [forceLeftPanelRefresh, setForceLeftPanelRefresh] = useState(0);
 
-    // Textarea Value Management
-    // Maintains the current value of the textarea at the component level
-    const [textareaValue, _setTextareaValue] = useState("")
-    const textareaValueRef = useRef<string>("")
-
-    // Textarea Focus Control
-    // Ref forwarded to the textarea to access its focus method
-    // Utilized when a user selects one of the three suggestions
-    const customTextareaRef = useRef<ImperativeHandle>(null)
-
-    function setTextareaValue(value: string) {
-        textareaValueRef.current = value
-        _setTextareaValue(value)
-    }
+    // Main textarea management
+    const {textareaValue, setTextareaValue, customTextareaRef, textareaValueRef} = useCustomTextareaManager()
 
     // Modal management
     // Handles modal visibility and content switching
-    const {modalVisibility, modalContentId, setModalVisibility, setModalContentId} = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
-    
-    // Memoized function to update modal status
-    // Prevents unnecessary re-renders
-    const memoizedSetModalStatus = useCallback(({visibility, contentId} : {visibility : boolean, contentId? : string}) => {
-        setModalVisibility(visibility)
-        if(contentId) setModalContentId(contentId)
-    }, [])
+    const {modalVisibility, modalContentId, memoizedSetModalStatus, showErrorModal, errorMessageRef} = useModalManager({initialVisibility : false, initialModalContentId : "formAgentSettings"})
 
     // Ref to store the name of the selected prompt in the left panel
     // Used by the modal to populate the prompt form
@@ -121,15 +103,6 @@ function Chat() {
         })
     }, [activeConversationId])
 
-
-    // show an error modal with errorMessageRef as a message
-    const errorMessageRef = useRef("")
-    function showErrorModal(errorMessage : string){
-        errorMessageRef.current = errorMessage
-        setModalContentId("error")
-        setModalVisibility(true)
-    }
-
     const lastRAGResultsRef = useRef<IRAGChunkResponse[] | null>(null)
 
     /***
@@ -140,7 +113,7 @@ function Chat() {
 
     useEffect(() => {
         if(activeConversationState.history[activeConversationState.history.length-1]?.answer.asMarkdown == "") scrollToBottom();
-      }, [activeConversationState]);
+    }, [activeConversationState]);
 
     /**
      * Request a streamed response from the active chatService agent
@@ -148,7 +121,7 @@ function Chat() {
      * @returns A Promise that resolves when the streaming is complete
      */
     async function askMainAgent_Streaming(query: string): Promise<void> {
-        console.log(JSON.stringify(activeConversationStateRef.current))
+        // console.log(JSON.stringify(activeConversationStateRef.current))
         try {
             // Prevent empty query or multiple concurrent streams
             if (query == "" || isStreamingRef.current) return
@@ -169,15 +142,19 @@ function Chat() {
 
             // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current == true) {
-                // Perform web scraping and process the results
+                console.log("***Web Search***")
                 const scrapedPages = await WebSearchService.scrapeRelatedDatas({query, maxPages : 3, summarize : true})
-                if(scrapedPages == null) return // !!! should display an error modal & cancel the QA pair
-                console.log("**LLM Loading**")
+                if(scrapedPages == null) {
+                    showErrorModal("No results found for your query")
+                    return // !!! cancel the QA pair
+                }
+                console.log("***LLM Loading***")
                 // format YYYY/MM/DD
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + (new Date().getMonth() + 1) + "/" + new Date().getDate() + ". "
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + query, onStreamedChunkReceived_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
+                // If streaming was aborted, exit early
                 if(isStreamingRef.current == false) return
                 dispatch({ 
                     type: ActionType.ADD_SOURCES_TO_LAST_ANSWER, 
@@ -185,7 +162,7 @@ function Chat() {
                 })
             } else {
                 // Use internal knowledge without web search
-                console.log("**LLM Loading**")
+                console.log("***LLM Loading***")
                 
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
@@ -240,6 +217,22 @@ function Chat() {
         return DocProcessorService.formatRAGDatas(RAGChunks)
     }
 
+    function scrollToBottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function regenerateLastAnswer() {
+        if(isStreamingRef.current) return
+        const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
+        ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
+        dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+        askMainAgent_Streaming(retrievedQuestion)
+    }
+
+    function nanosecondsToSeconds(nanoseconds : number) {
+        return nanoseconds / 1e9;
+    }
+
     /***
     //
     // Events Handlers
@@ -265,22 +258,6 @@ function Chat() {
         // !!! temp
         console.log(activeConversationStateRef.current.lastAgentUsed)
         console.log(ChatService.activeAgent.asString())
-    }
-
-    function scrollToBottom() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    function regenerateLastAnswer() {
-        if(isStreamingRef.current) return
-        const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
-        ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
-        dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
-        askMainAgent_Streaming(retrievedQuestion)
-    }
-
-    function nanosecondsToSeconds(nanoseconds : number) {
-        return nanoseconds / 1e9;
     }
 
     return (
