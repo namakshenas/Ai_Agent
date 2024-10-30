@@ -56,14 +56,14 @@ export class ChatService{
       try{
         const answer = await this.activeAgent.ask(question)
         const responseAsHTML = await AnswerFormatingService.format(answer.response)
-        return {context : [...answer.context as number[]], answer : {asMarkdown : answer.response, asHTML : responseAsHTML}, sources : [], question : question}
+        return {context : [...answer.context as number[]], answer : {asMarkdown : answer.response, asHTML : responseAsHTML}, sources : [], question : question, date : new Date().toISOString()}
       }catch(error){
         console.error("Failed to query the model : " + error)
         throw error
       }
     }
 
-    static async askTheActiveAgentForAStreamedResponse(question : string, /*showErrorModal: (message : string) => void, */chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
+    static async askTheActiveAgentForAStreamedResponse(question : string, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
     {
       if(this.activeAgent == null) throw new Error(`Agent is not available`)
       this.setCurrentlyUsedAgent(this.activeAgent)

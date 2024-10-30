@@ -143,7 +143,7 @@ function Chat() {
             // Handle web search if activated, otherwise use internal knowledge
             if (isWebSearchActivatedRef.current == true) {
                 console.log("***Web Search***")
-                const scrapedPages = await WebSearchService.scrapeRelatedDatas({query, maxPages : 3, summarize : true})
+                const scrapedPages = await WebSearchService.scrapeRelatedDatas({query, maxPages : 3})
                 if(scrapedPages == null) {
                     showErrorModal("No results found for your query")
                     return // !!! cancel the QA pair

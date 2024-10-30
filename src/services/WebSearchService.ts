@@ -12,12 +12,14 @@ export class WebSearchService{
     static #queryOptimizer : AIAgent
     static #scrapedDatasSummarizer : AIAgent
 
-    static async scrapeRelatedDatas({query , maxPages = 3, summarize = false} : {query : string, maxPages : number, summarize : boolean}) : Promise<ScrapedPage[] | undefined>{
+    static #isWebSearchSummarizationActivated = false
+
+    static async scrapeRelatedDatas({query , maxPages = 3} : {query : string, maxPages : number, summarize? : boolean}) : Promise<ScrapedPage[] | undefined>{
         try{
             const optimizedQuery = await this.#optimizeQuery(query)
             const trimedQuery = this.#trimQuotes(optimizedQuery)
             const scrapedPages = await this.#callExternalScraper(trimedQuery, maxPages)
-            if(!summarize) return scrapedPages
+            if(!this.#isWebSearchSummarizationActivated) return scrapedPages
             const summarizedScrapedPages = await this.#summarizeScrapedPages(scrapedPages, query)
             return summarizedScrapedPages
         }catch(error){
@@ -101,11 +103,11 @@ export class WebSearchService{
         }
     }
 
-    static #trimQuotes(str : string) {
+    static #trimQuotes(str : string) : string {
         return str.replace(/^['"]|['"]$/g, '').replace('"', " ").replace("'", " ")
     }
 
-    static abortLastRequest(){
+    static abortLastRequest() : void{
         if(this.#abortController) this.#abortController.abort("Signal aborted.")
         if(this.#scrapedDatasSummarizer) this.#scrapedDatasSummarizer.abortLastRequest()
         if(this.#queryOptimizer) this.#queryOptimizer.abortLastRequest()
@@ -114,8 +116,16 @@ export class WebSearchService{
         this.generateNewAbortControllerAndSignal()
     }
 
-   static generateNewAbortControllerAndSignal(){
+    static generateNewAbortControllerAndSignal() : void{
         this.#abortController = new AbortController()
         this.#signal = this.#abortController.signal
+    }
+
+    static getWebSearchSummarizationStatus() : boolean{
+        return this.#isWebSearchSummarizationActivated
+    }
+
+    static setWebSearchSummarizationStatus(status : boolean) : void{
+        this.#isWebSearchSummarizationActivated = status
     }
 }

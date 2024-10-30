@@ -9,6 +9,7 @@ import userPicture from '../assets/usericon4-2.png'
 import React from 'react'
 import AgentService from '../services/API/AgentService'
 import useFetchModelsList from '../hooks/useFetchModelsList'
+import { WebSearchService } from '../services/WebSearchService'
 
 const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming} : IProps) => {
 
@@ -17,7 +18,12 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     useEffect(() => {console.log("right panel render")}) 
 
-    const [webSearchEconomy, setWebSearchEconomy] = useState(true)
+    const [webSearchSummarization, setWebSearchSummarization] = useState(false)
+    useEffect(() => {
+        WebSearchService.setWebSearchSummarizationStatus(webSearchSummarization)
+    },
+    [webSearchSummarization])
+
     const currentAgent = useRef<AIAgent>(ChatService.getActiveAgent())
 
     const [formValues, setFormValues] = useState<IFormStructure>(agentToFormDatas(currentAgent.current))
@@ -237,11 +243,11 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
                 </div>
                 <label>Web Search</label>
                 <div className='webSearchContainer'>
-                    <span>Context Economy</span>
-                    <div className='switchContainer' onClick={() => setWebSearchEconomy(webSearchEconomy => !webSearchEconomy)}>
-                        <div className={webSearchEconomy ? 'switch active' : 'switch'}></div>
-                    </div>
                     <span>Processing Speed</span>
+                    <div className='switchContainer' onClick={() => setWebSearchSummarization(prevStatus => !prevStatus)}>
+                        <div className={webSearchSummarization ? 'switch active' : 'switch'}></div>
+                    </div>
+                    <span>Context Economy</span>
                 </div>
                 <div className='settingsSaveContainer'>
                     <button className='more purpleShadow' onClick={handleOpenEditAgentFormClick}>More Settings</button>
