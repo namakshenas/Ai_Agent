@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Select, { IOption } from "../components/CustomSelect/Select";
 import useFetchModelsList from "../hooks/useFetchModelsList";
@@ -14,7 +15,7 @@ export default function FirstStart(){
 
     const [visibleSection, setVisibleSection] = useState(0)
 
-    const [selectedStep2Model, setSelectedStep2Model] = useState("llama3.1:8b")
+    const [selectedStep2Model, setSelectedStep2Model] = useState("aya-expanse:8b")
 
     const navigate = useNavigate()
 
