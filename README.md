@@ -19,16 +19,16 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 ## II - Coming Next
 
 - Persistent conversations.
-- **Agents chaining** to tackle complex tasks.
 - **Multimodal** operations.
 - **Responsive** design.
-- Online Prompts & Agents sharing.
-- Dedicated coding agent.
-- Improved Web Search algorithm and new related options.
+- **Agent chaining** for complex task resolution.
+- Improved Web Search algorithm with enhanced options.
 - Online domain names ranking.
-- Improved RAG algorithm and new related options.
-- Prompt versioning.
-- Code highlighting.
+- Improved RAG algorithm with enhanced options.
+- Online prompt and agent sharing platform.
+- Prompt versioning system.
+- Dedicated coding agent.
+- Code syntax highlighting.
 - A **Dark mode** theme.
 - Advanced Models settings : Top-K, Repeat, Mirostat, etc..
 - Charts generation.
