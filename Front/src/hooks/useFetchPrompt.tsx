@@ -5,8 +5,8 @@ import PromptService from "../services/API/PromptService";
 
 function useFetchPrompt(name : string | undefined){
 
-    const genericPrompt : IPrompt = {name : "", prompt : "", version : "0.0.1"}
-    const [prompt, setPrompt] = useState<IPrompt | IPromptResponse>({name : "", prompt : "", version : "0.0.1"});
+    const genericPrompt : IPrompt = {name : "", prompts : [{version : 1, text : "", createdAt : new Date().toISOString()}], currentVersion: 1}
+    const [prompt, setPrompt] = useState<IPrompt | IPromptResponse>(genericPrompt);
 
     useEffect(() => {
 

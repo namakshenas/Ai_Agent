@@ -10,10 +10,10 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
     const { prompt, setPrompt } = useFetchPrompt(selectedPromptNameRef?.current)
 
     useEffect(() => {
-        setFormValues({name : prompt.name, prompt : prompt.prompt})
+        setFormValues({name : prompt.name, prompt : prompt.prompts[prompt.prompts.length - 1 ].text, currentVersion : prompt.currentVersion})
     }, [prompt])
 
-    const [formValues, setFormValues] = useState<IFormStructure>({name : prompt.name, prompt : prompt.prompt})
+    const [formValues, setFormValues] = useState<IFormStructure>({name : prompt.name, prompt : prompt.prompts[prompt.prompts.length - 1 ].text, currentVersion : prompt.currentVersion})
     
     function handleCancelClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
@@ -30,10 +30,10 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         e.preventDefault()
         if(!areFormDatasValid()) return // !!! error message missing
         if(role == "edit") {
-            PromptService.updateByName(prompt.name, {name : formValues.name, prompt : formValues.prompt, version : "0.0.1"})
+            PromptService.updateByName(prompt.name, { newName : formValues.name, prompt : formValues.prompt, version : formValues.currentVersion })
         }
         if(role == "create") {
-            PromptService.save(formValues.name, formValues.prompt, "0.0.1")
+            PromptService.save(formValues.name, formValues.prompt)
         }
         if(setForceLeftPanelRefresh) setForceLeftPanelRefresh(prev => prev + 1)
         memoizedSetModalStatus({visibility  : false})
@@ -151,4 +151,5 @@ interface IProps{
 interface IFormStructure {
     name : string
     prompt : string
+    currentVersion : number
 }
