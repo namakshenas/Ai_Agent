@@ -20,7 +20,16 @@ const savePrompt = (db) => async (req, res) => {
       
         const nZerosNeeded = 10 - (highestLokiId + 1).toString().length
 
-        await promptsCollection.insertOne({id: "p" + '0'.repeat(nZerosNeeded) + (highestLokiId + 1) , name: req.body.name, prompt: req.body.prompt, version: req.body.version })
+        await promptsCollection.insertOne({
+          id: "p" + '0'.repeat(nZerosNeeded) + (highestLokiId + 1) , 
+          name: req.body.name, 
+          prompts: [{
+            text : req.body.prompt,
+            version : 1,
+            createdAt: new Date().toISOString(),
+          }], 
+          currentVersion: 1
+        })
         db.saveDatabase((err) => {
             if (err) {
                 console.error("Error saving database:", err)
@@ -99,11 +108,17 @@ const updatePromptByName = (db) => async (req, res) => {
           return res.status(500).json({ error: 'Prompts collection does not exist in the database.' })
         }
     
-        const promptToUpdate = await promptsCollection.findOne({ name: req.params.name })
+        let promptToUpdate = await promptsCollection.findOne({ name: req.params.name })
     
         if (promptToUpdate) {
           // Update existing agent
           Object.assign(promptToUpdate, req.body)
+          const newPromptHistory = promptToUpdate.prompts.map(prompt => {
+            if(prompt.version === req.body.version) return ({
+              text : req.body.prompt
+            })
+          })
+          promptToUpdate = {...promptToUpdate, prompts: newPromptHistory, name : req.body.name }
           await promptsCollection.update(promptToUpdate)
     
           // applying the previous actions to the database
@@ -211,9 +226,9 @@ function validatePromptInputs(body) {
       throw createError(400, 'The request body doesn\'t contain the expected prompt data.')
     }
   
-    const {name, prompt} = body
+    const {name, prompt, version} = body
   
-    if (!name || !prompt) {
+    if (!name || !prompt || !version) {
       throw createError(400, 'The request body doesn\'t contain the expected prompt data.')
     }
     if (name === "" || prompt === "") {
@@ -227,6 +242,9 @@ function validatePromptInputs(body) {
     }
     if (typeof prompt !== "string" || prompt.length > 128000) { // !!! arbitrary
       throw createError(400, 'The prompt is too long (max 128000 characters).')
+    }
+    if (typeof version !== "number" || version > 999) {
+      throw createError(400, 'Cant have more than 999 versions for a single prompt.')
     }
 }
 

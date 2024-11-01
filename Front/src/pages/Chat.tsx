@@ -31,8 +31,6 @@ import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaM
 
 function Chat() {
 
-    // const speechRecognition = useRef<SpeechRecognitionService>(new SpeechRecognitionService())
-
     useEffect(() => console.log("chat render"))
 
     const {AIAgentsList, triggerAIAgentsListRefresh} = useFetchAgentsList()
