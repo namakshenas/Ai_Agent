@@ -1,13 +1,12 @@
-import IPrompt from "../../interfaces/IPrompt"
 import IPromptResponse from "../../interfaces/responses/IPromptResponse"
 
 export default class PromptService{
 
-    static async save(name : string, prompt : string, version : string){
+    static async save(name : string, prompt : string){
         try{
             const reponse = await fetch('http://localhost:3000/prompt', {
                 method : 'POST',
-                body : JSON.stringify({name, prompt, version}),
+                body : JSON.stringify({name, prompt, version : 1}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
             if(!reponse.ok) throw new Error('Error saving the prompt') // !!! deal with existing name
@@ -16,11 +15,11 @@ export default class PromptService{
         }
     }
 
-    static async updateByName(prevName : string, prompt : IPrompt) : Promise<void>{
+    static async updateByName(prevName : string, {newName, prompt, version} : {newName : string, prompt : string, version : number}) : Promise<void>{
         try{
             const reponse = await fetch('http://localhost:3000/prompt/byName/' + prevName, {
                 method : 'PUT',
-                body : JSON.stringify({name : prompt.name, prompt : prompt.prompt, version : prompt.version}),
+                body : JSON.stringify({name : newName, prompt, version}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
             if(!reponse.ok) throw new Error('Error updating the prompt')
@@ -29,11 +28,11 @@ export default class PromptService{
         }
     }
 
-    static async updateById(id : string, prompt : IPrompt) : Promise<void>{
+    static async updateById(id : string, {name, prompt, version} : {name : string, prompt : string, version : number}) : Promise<void>{
         try{
             const reponse = await fetch('http://localhost:3000/prompt/byId/' + id, {
                 method : 'PUT',
-                body : JSON.stringify({name : prompt.name, prompt : prompt.prompt, version : prompt.version}),
+                body : JSON.stringify({name, prompt, version}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
             if(!reponse.ok) throw new Error('Error updating the prompt')
