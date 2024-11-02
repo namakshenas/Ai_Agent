@@ -7,7 +7,7 @@ export interface IListModelResponse {
 interface IModelInfos{
         name: string;
         model: string;
-        modifiedAt: Date;
+        modifiedAt: Date | string;
         size: number;
         digest: string;
         details?: IModelDetails;  
