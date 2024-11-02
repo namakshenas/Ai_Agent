@@ -52,6 +52,10 @@ export default function FirstStart(){
         navigate('/chat')
     }
 
+    async function handleNextClick(){
+        setVisibleSection(currentSection => currentSection + 1)
+    }
+
     return(
         <main className="selectPage">
             <div style={{textAlign:'left', marginTop:'2rem'}} className="container">
@@ -82,7 +86,7 @@ export default function FirstStart(){
                     <hr/>
                     <div style={{ marginTop:'1rem', width:'100%', display: 'flex', height:'40px', flexDirection:'row', columnGap:'0.75rem'}}>
                         <button className="skipButton purpleShadow" onClick={handleSkipClick}>skip</button>
-                        <button className="purpleShadow" onClick={() => setVisibleSection(currentSection => currentSection + 1)} style={{width:'25%', margin:'0'}}>next</button>
+                        <button className="purpleShadow" onClick={handleNextClick} style={{width:'25%', margin:'0'}}>next</button>
                     </div>
                 </section>}
                 {visibleSection == 1 && <section>
@@ -94,7 +98,7 @@ export default function FirstStart(){
                     <hr/>
                     <p style={{textAlign:'left', marginTop:'1rem'}}>II - Install the version of the application matching your OS.</p>
                     <hr/>
-                    <button className="purpleShadow" onClick={() => setVisibleSection(currentSection => currentSection + 1)} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
+                    <button className="purpleShadow" onClick={handleNextClick} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
                 </section>}
                 {visibleSection == 2 && <section>
                     <h3 style={{textAlign:'left', opacity:'0.9'}}>Models Installation</h3>
@@ -116,7 +120,7 @@ export default function FirstStart(){
                         {selectedStep2Model == "aya-expanse:8b" && <>&gt; ollama pull aya-expanse:8b</>}
                     </div>
                     <hr/>
-                    <button className="purpleShadow" onClick={() => setVisibleSection(currentSection => currentSection + 1)} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
+                    <button className="purpleShadow" onClick={handleNextClick} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
                 </section>}
                 {visibleSection == 3 && <section>
                     <h3 style={{textAlign:'left', opacity:'0.9'}}>Confirm your Selection</h3>
