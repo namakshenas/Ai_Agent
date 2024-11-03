@@ -39,7 +39,7 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 
 ## III - Screenshots
 
-![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/src/assets/screenshot1.png "osspita main")
+![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/screenshot1.png "osspita main")
 
 ## IV - Getting Started
 

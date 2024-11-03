@@ -12,7 +12,7 @@ export default interface IAgent{
     repeat_last_n: number
     repeat_penalty: number
     seed: number
-    stop: "AI assistant:",
+    stop: string | "AI assistant:",
     tfs_z: number
     num_predict: number // maxTokensPerReply
     top_k: number

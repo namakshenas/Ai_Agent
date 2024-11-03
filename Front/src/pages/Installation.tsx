@@ -2,13 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Select, { IOption } from "../components/CustomSelect/Select";
 import useFetchModelsList from "../hooks/useFetchModelsList";
-import '../style/FirstStart.css'
+import '../style/Installation.css'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from "react";
 import AgentService from "../services/API/AgentService";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
 
-export default function FirstStart(){
+export default function Installation(){
 
     const modelsList = useFetchModelsList("includes-embedding-models")
     const { AIAgentsList } = useFetchAgentsList()
