@@ -11,7 +11,7 @@ export interface IAIModelParams{
     repeat_last_n?: number
     repeat_penalty?: number
     seed?: number
-    stop?: "AI assistant:",
+    stop?: string,
     tfs_z?: number
     top_k?: number
     top_p?: number
