@@ -8,6 +8,7 @@ import { OllamaService } from '../../services/OllamaService'
 import { fireEvent } from '@testing-library/dom'
 import AgentService from '../../services/API/AgentService';
 import mockModelsList from '../../__mocks__/mockModelsList';
+import mockAgentsList from '../../__mocks__/mockAgentsList';
 
 const mockedUsedNavigate = vi.fn()
 
@@ -22,6 +23,7 @@ describe('Given I am on the Configuration page', () => {
     beforeEach(() => {
         vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList);
         vi.spyOn(AgentService, 'updateAgentsConfig').mockResolvedValueOnce();
+        vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList);
         vi.mock('react-router-dom', async () => {
             const actual = await vi.importActual('react-router-dom');
             return {
@@ -108,7 +110,7 @@ describe('Given I am on the Configuration page', () => {
             const select1 : HTMLElement = screen.getAllByRole("combobox")[0]
             expect(select1).toBeDefined()
             expect(select1.textContent).toBe("mistral-nemo:12b")
-            fireEvent.mouseDown(select1)
+            act(() => fireEvent.mouseDown(select1))
             await waitFor(() => expect(screen.getAllByRole("listbox")).toHaveLength(1))
 
             // 6 models listed in the select
@@ -117,13 +119,13 @@ describe('Given I am on the Configuration page', () => {
             expect(listBox1.children.length).toEqual(6)
 
             // select aya-expanse:8b
-            fireEvent.mouseDown(listBox1.children[0])
+            act(() => fireEvent.mouseDown(listBox1.children[0]))
 
-            // lama3.2:3b should be selected by default as the basic model
+            // llama3.2:3b should be selected by default as the basic model
             const select2 : HTMLElement = screen.getAllByRole("combobox")[1]
             expect(select2).toBeDefined()
             expect(select2.textContent).toBe("llama3.2:3b")
-            fireEvent.mouseDown(select2)
+            act(() => fireEvent.mouseDown(select2))
             await waitFor(() => expect(screen.getAllByRole("listbox")).toHaveLength(1))
 
             // 6 models listed in the select
@@ -132,7 +134,7 @@ describe('Given I am on the Configuration page', () => {
             expect(listBox2.children.length).toEqual(6)
 
             // select llama3.2:1b
-            fireEvent.mouseDown(listBox2.children[1])
+            act(() => fireEvent.mouseDown(listBox2.children[1]))
 
             // save button
             const saveButton : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent  == "Save")[0]

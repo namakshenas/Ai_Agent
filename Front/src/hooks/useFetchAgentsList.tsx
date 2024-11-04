@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import AgentService from "../services/API/AgentService";
 import { AIAgent } from "../models/AIAgent";
-// import { ChatService } from "../services/ChatService";
 
 function useFetchAgentsList(){
     const [AIAgentsList, setAIAgentsList] = useState<AIAgent[]>([])
