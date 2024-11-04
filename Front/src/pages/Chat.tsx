@@ -300,7 +300,7 @@ function Chat() {
                 <div className="sendStatsWebSearchContainer">
                     <div title="active the web search / context length of 10000 recommended" style={{opacity : '1'}} className={isWebSearchActivated ? "searchWebCheck activated" : "searchWebCheck"} role="button" onClick={handleSearchWebClick}>
                         <span className="label">Web Search</span>
-                        <div className='switchContainer'>
+                        <div className='switchContainer' role='button'>
                             <div className={isWebSearchActivated ? 'switch active' : 'switch'}></div>
                         </div>
                     </div>
