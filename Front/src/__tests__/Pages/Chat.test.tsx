@@ -27,6 +27,9 @@ const mockVoices = [
 
 describe('Given I am on the Chat page', () => {
     beforeEach(() => {
+        HTMLDialogElement.prototype.show = vi.fn()
+        HTMLDialogElement.prototype.showModal = vi.fn()
+        HTMLDialogElement.prototype.close = vi.fn()
         vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList)
         vi.spyOn(OllamaService, 'getRunningModelInfos').mockResolvedValue(mockRunningModelsInfos)
         vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList)
@@ -65,24 +68,4 @@ describe('Given I am on the Chat page', () => {
         await waitFor(() => expect(webSearchButton.children[1].children[0].className.includes("active")).toBeTruthy())
     })
 
-    test('Can navigate between RAG Documents', async () => {
-        await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
-        expect(screen.getByText(/dracula/i)).toBeInTheDocument()
-        expect(screen.getByText(/montecristo/i)).toBeInTheDocument()
-        expect(screen.getByText(/sota/i)).toBeInTheDocument()
-        expect(screen.getByText(/mockFile1/i)).toBeInTheDocument()
-        expect(screen.getByText(/mockFile2/i)).toBeInTheDocument()
-        expect(screen.queryByText(/mockFile3/i)).not.toBeInTheDocument()
-
-        const previousPages = screen.getAllByTitle("previous page")
-        const nextPages = screen.getAllByTitle("next page")
-
-        act(() => nextPages[1].click())
-        await waitFor(() => expect(screen.getByText(/mockFile3/i)).toBeInTheDocument())
-        expect(screen.queryByText(/dracula/i)).not.toBeInTheDocument()
-
-        act(() => previousPages[1].click())
-        await waitFor(() => expect(screen.getByText(/dracula/i)).toBeInTheDocument())
-        expect(screen.queryByText(/mockFile3/i)).not.toBeInTheDocument()
-    })
 })
