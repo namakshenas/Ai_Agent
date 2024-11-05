@@ -68,21 +68,10 @@ function Chat() {
     // Initializes conversation repository and sets scrollbar behavior
     const htmlRef = useRef(document.documentElement)
     useEffect(() => {
-        // Initialize conversation repository with an empty conversation
-        ConversationsRepository.pushNewConversation(
-            activeConversationStateRef.current.name, 
-            activeConversationStateRef.current.history, 
-            activeConversationStateRef.current.lastAgentUsed, 
-            activeConversationStateRef.current.lastModelUsed
-        )
         // Set scrollbar behavior for better UX
         if (htmlRef.current && htmlRef.current.style.overflowY != "scroll") {
             htmlRef.current.style.overflow = "-moz-scrollbars-vertical";
             htmlRef.current.style.overflowY = "scroll";
-        }
-
-        return () => {
-            ConversationsRepository.clearAll()
         }
     }, [])
 
