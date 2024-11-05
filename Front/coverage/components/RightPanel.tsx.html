@@ -1,0 +1,913 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for components/RightPanel.tsx</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">components</a> RightPanel.tsx</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">82.29% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>172/209</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">70% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>14/20</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">18.18% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>2/11</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">82.29% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>172/209</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a>
+<a name='L269'></a><a href='#L269'>269</a>
+<a name='L270'></a><a href='#L270'>270</a>
+<a name='L271'></a><a href='#L271'>271</a>
+<a name='L272'></a><a href='#L272'>272</a>
+<a name='L273'></a><a href='#L273'>273</a>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useEffect, useRef, useState } from 'react'
+import './RightPanel3.css'
+import { AIAgent } from '../models/AIAgent'
+import IFormStructure from '../interfaces/IAgentFormStructure'
+import Select, { IOption } from './CustomSelect/Select'
+import { ChatService } from '../services/ChatService'
+import userPicture from '../assets/usericon4-2.png'
+import React from 'react'
+import AgentService from '../services/API/AgentService'
+import useFetchModelsList from '../hooks/useFetchModelsList'
+import { WebSearchService } from '../services/WebSearchService'
+&nbsp;
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming} : IProps) =&gt; {
+&nbsp;
+    // retrieved for the ollama api
+    const modelsList = useFetchModelsList()
+&nbsp;
+    useEffect(() =&gt; {console.log("right panel render")}) 
+&nbsp;
+    const [webSearchSummarization, setWebSearchSummarization] = useState(false)
+    useEffect(() =&gt; {
+        WebSearchService.setWebSearchSummarizationStatus(webSearchSummarization)
+    },
+    [webSearchSummarization])
+&nbsp;
+    const currentAgent = useRef&lt;AIAgent&gt;(ChatService.getActiveAgent())
+&nbsp;
+    const [formValues, setFormValues] = useState&lt;IFormStructure&gt;(agentToFormDatas(currentAgent.current))
+&nbsp;
+    const isFirstRender = useRef(true)
+&nbsp;
+    // refresh the form if agentList state changes
+    useEffect(() =&gt; {
+        currentAgent.current = ChatService.getActiveAgent()
+        setFormValues(agentToFormDatas(ChatService.getActiveAgent()))
+        // when this panel is first rendered, set helpfulAssistant as the default agent
+        if (isFirstRender.current) {
+            handleSwitchAgent({label: 'helpfulAssistant', value: 'helpfulAssistant'})
+            isFirstRender.current = false
+        }
+    }, [AIAgentsList])
+    
+    const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState&lt;boolean&gt;(false)
+    const timeoutRef = useRef&lt;null | NodeJS.Timeout&gt;(null)
+&nbsp;
+    function agentToFormDatas(agent : AIAgent){
+        return {
+            agentName: agent.getName(),
+            modelName: agent.getModelName(),
+            systemPrompt: agent.getSystemPrompt().replace(/\t/g,''),
+            temperature: agent.getTemperature(),
+            maxContextLength: agent.getContextSize(),
+            maxTokensPerReply: agent.getNumPredict(),
+            webSearchEconomy: true,
+        }
+    }
+&nbsp;
+    // the multiple renders on save are due to the multiple graphical states of the save button
+<span class="fstat-no" title="function not covered" >    function handleUpdateAgent(e : React.MouseEvent&lt;HTMLButtonElement&gt;){</span>
+<span class="cstat-no" title="statement not covered" >        e.preventDefault()</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if(!isFormValid()) return // !!! should show error modal</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        // retrieve all the parameters of the active agent as a string &amp; update some of them with the form values</span>
+<span class="cstat-no" title="statement not covered" >        const newAgent = new AIAgent({...JSON.parse(ChatService.getActiveAgent().asString()),</span>
+<span class="cstat-no" title="statement not covered" >            modelName : formValues.modelName,</span>
+<span class="cstat-no" title="statement not covered" >            num_ctx : formValues.maxContextLength,</span>
+<span class="cstat-no" title="statement not covered" >            num_predict : formValues.maxTokensPerReply,</span>
+<span class="cstat-no" title="statement not covered" >            systemPrompt  : formValues.systemPrompt,</span>
+<span class="cstat-no" title="statement not covered" >            temperature  : formValues.temperature</span>
+<span class="cstat-no" title="statement not covered" >        })</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        // best choice cause the name can't be modified within this form</span>
+<span class="cstat-no" title="statement not covered" >        // + active agent may not have the unique id generated by the DB if this agent is newly created</span>
+<span class="cstat-no" title="statement not covered" >        AgentService.updateByName(newAgent.getName(), newAgent)</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        ChatService.setActiveAgent(newAgent)</span>
+<span class="cstat-no" title="statement not covered" >        currentAgent.current = newAgent</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        setShowSavingSuccessfulBtn(true)</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+&nbsp;
+    // switch active agent
+    async function handleSwitchAgent(option : IOption){
+        // const targetAgent = AgentLibrary.getAgent(option.value)
+        const targetAgent = await AgentService.getAgentByName(option.value)
+        if(targetAgent == null) <span class="branch-0 cbranch-no" title="branch not covered" >return</span>
+        const newAIAgent = new AIAgent({...targetAgent, modelName : targetAgent.model})
+        currentAgent.current = newAIAgent
+        ChatService.setActiveAgent(newAIAgent)
+        const agent = ChatService.getActiveAgent()
+        const newFormValues : IFormStructure = {
+            agentName: agent.getName(),
+            modelName: agent.getModelName(),
+            systemPrompt: agent.getSystemPrompt().replace(/\t/g,''),
+            temperature: agent.getTemperature(),
+            maxContextLength: agent.getContextSize(),
+            maxTokensPerReply: agent.getNumPredict(),
+            webSearchEconomy: true,
+        }
+        setFormValues({...newFormValues})
+    }
+&nbsp;
+    // switch active model
+<span class="fstat-no" title="function not covered" >    function handleSwitchModel(option : IOption){</span>
+<span class="cstat-no" title="statement not covered" >        setFormValues(currentFormValues =&gt; ({...currentFormValues, modelName: option.value}))</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+&nbsp;
+    // edit agent
+<span class="fstat-no" title="function not covered" >    function handleOpenEditAgentFormClick(){</span>
+<span class="cstat-no" title="statement not covered" >        memoizedSetModalStatus({visibility : true, contentId : "formEditAgent"})</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+&nbsp;
+    // create new agent
+<span class="fstat-no" title="function not covered" >    function handleOpenNewAgentFormClick(){</span>
+<span class="cstat-no" title="statement not covered" >        memoizedSetModalStatus({visibility : true, contentId : "formNewAgent"})</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+&nbsp;
+    // save button animation
+    useEffect(() =&gt; {
+        if(!showSavingSuccessfulBtn) <span class="branch-0 cbranch-no" title="branch not covered" >return</span>
+<span class="cstat-no" title="statement not covered" >        timeoutRef.current = setTimeout(() =&gt; setShowSavingSuccessfulBtn(false), 2500)</span>
+<span class="cstat-no" title="statement not covered" >        return () =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            if (timeoutRef.current) {</span>
+<span class="cstat-no" title="statement not covered" >            clearTimeout(timeoutRef.current)</span>
+<span class="cstat-no" title="statement not covered" >            }</span>
+<span class="cstat-no" title="statement not covered" >        }     </span>
+    }, [showSavingSuccessfulBtn])
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function isFormValid(){</span>
+<span class="cstat-no" title="statement not covered" >        const {modelName, systemPrompt, temperature, maxContextLength, maxTokensPerReply } = formValues</span>
+<span class="cstat-no" title="statement not covered" >        if(!modelName || !modelsList.includes(modelName)) return false</span>
+<span class="cstat-no" title="statement not covered" >        if(!systemPrompt) return false</span>
+<span class="cstat-no" title="statement not covered" >        if(!temperature || temperature  &lt;  0 || temperature &gt;  2.0 ) return false</span>
+<span class="cstat-no" title="statement not covered" >        if(!maxContextLength  || maxContextLength &lt;  0) return false</span>
+<span class="cstat-no" title="statement not covered" >        if(!maxTokensPerReply  || maxTokensPerReply &lt;  1) return false</span>
+<span class="cstat-no" title="statement not covered" >        return true</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+&nbsp;
+    return(
+        &lt;aside className="rightDrawer"&gt;
+            &lt;div className='userSettingsContainer'&gt;
+                &lt;span style={{marginLeft:'36px', fontSize:'15px'}}&gt;
+                    &lt;a href="https://ollama.com/library?sort=newest" target="_blank"&gt;Check the latest Models for Ollama&lt;/a&gt;
+                &lt;/span&gt;
+                &lt;img src={userPicture}/&gt;
+            &lt;/div&gt;
+            &lt;article className='newAgentContainer'&gt;
+                &lt;button className='purpleShadow' onClick={handleOpenNewAgentFormClick}&gt;+ Create a New Agent&lt;/button&gt;
+            &lt;/article&gt;
+            &lt;article className='settingsFormContainer'&gt;
+                &lt;label id="label-agentName" style={{display:'flex'}}&gt;
+                    &lt;div className='circle'&gt;&lt;/div&gt;
+                    Agent Powering the Chat
+                &lt;/label&gt;
+                {!isStreaming ? &lt;Select 
+                    width="100%"
+                    options={AIAgentsList.map((agent) =&gt; ({ label: agent.getName() + (agent.getType() == 'system' ? ` [ Core ]`<span class="branch-0 cbranch-no" title="branch not covered" >: ""</span>), value: agent.getName() }))} 
+                    defaultOption={formValues.agentName<span class="branch-0 cbranch-no" title="branch not covered" > || "helpfulAssistant"}</span>
+                    labelledBy="label-agentName" 
+                    id="settingsSelectAgent"
+                    onValueChange={handleSwitchAgent}
+                /&gt; : &lt;div className='beingUsed'&gt;
+                        Currenly used by the Chat
+                        &lt;svg width="24px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+                            &lt;path d="M13 14C13 13.4477 12.5523 13 12 13C11.4477 13 11 13.4477 11 14V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V14Z" fill="#454545"/&gt;
+                            &lt;path fillRule="evenodd" clipRule="evenodd" d="M7 8.12037C5.3161 8.53217 4 9.95979 4 11.7692V17.3077C4 19.973 6.31545 22 9 22H15C17.6846 22 20 19.973 20 17.3077V11.7692C20 9.95979 18.6839 8.53217 17 8.12037V7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7V8.12037ZM15 7V8H9V7C9 6.64936 9.06015 6.31278 9.17071 6C9.58254 4.83481 10.6938 4 12 4C13.3062 4 14.4175 4.83481 14.8293 6C14.9398 6.31278 15 6.64936 15 7ZM6 11.7692C6 10.866 6.81856 10 8 10H16C17.1814 10 18 10.866 18 11.7692V17.3077C18 18.7208 16.7337 20 15 20H9C7.26627 20 6 18.7208 6 17.3077V11.7692Z" fill="#454545"/&gt;
+                        &lt;/svg&gt;
+                    &lt;/div&gt;}
+                &lt;label id="label-modelName"&gt;Model&lt;/label&gt;
+                {!isStreaming ? &lt;Select 
+                    width="100%"
+                    options={modelsList.map((model) =&gt; ({ label: model, value: model }))} 
+                    defaultOption={formValues.modelName}
+                    labelledBy="label-modelName" 
+                    id="settingsSelectModel"
+                    onValueChange={handleSwitchModel}
+                /&gt; : &lt;div className='beingUsed'&gt;
+                    Currenly used by the Chat
+                    &lt;svg width="24px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+                        &lt;path d="M13 14C13 13.4477 12.5523 13 12 13C11.4477 13 11 13.4477 11 14V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V14Z" fill="#454545"/&gt;
+                        &lt;path fillRule="evenodd" clipRule="evenodd" d="M7 8.12037C5.3161 8.53217 4 9.95979 4 11.7692V17.3077C4 19.973 6.31545 22 9 22H15C17.6846 22 20 19.973 20 17.3077V11.7692C20 9.95979 18.6839 8.53217 17 8.12037V7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7V8.12037ZM15 7V8H9V7C9 6.64936 9.06015 6.31278 9.17071 6C9.58254 4.83481 10.6938 4 12 4C13.3062 4 14.4175 4.83481 14.8293 6C14.9398 6.31278 15 6.64936 15 7ZM6 11.7692C6 10.866 6.81856 10 8 10H16C17.1814 10 18 10.866 18 11.7692V17.3077C18 18.7208 16.7337 20 15 20H9C7.26627 20 6 18.7208 6 17.3077V11.7692Z" fill="#454545"/&gt;
+                    &lt;/svg&gt;
+                &lt;/div&gt;}
+                &lt;label&gt;System Prompt&lt;/label&gt;
+                &lt;div className='systemPromptContainer'&gt;
+                    &lt;input 
+                        spellCheck="false"
+                        readOnly
+                        type="text" 
+                        value={formValues.systemPrompt.length &gt; <span class="branch-0 cbranch-no" title="branch not covered" >37 ? formValues.systemPrompt.substring(0, 34)+'...' : f</span>ormValues.systemPrompt}
+                    /&gt;
+                    &lt;button className='purpleShadow' onClick={handleOpenEditAgentFormClick}&gt;
+                        &lt;svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+                            &lt;path d="M21.9984 5.76357C21.9992 5.61882 21.9715 5.47532 21.9167 5.34131C21.862 5.2073 21.7813 5.08541 21.6794 4.98263L17.0157 0.318979C16.913 0.217037 16.7911 0.136386 16.6571 0.0816487C16.5231 0.0269117 16.3796 -0.000833794 16.2348 3.12556e-06C16.0901 -0.000833794 15.9466 0.0269117 15.8125 0.0816487C15.6785 0.136386 15.5566 0.217037 15.4539 0.318979L12.3411 3.43175L0.318995 15.4538C0.217053 15.5566 0.136401 15.6785 0.0816639 15.8125C0.026927 15.9465 -0.000818536 16.09 1.83843e-05 16.2348V20.8984C1.83843e-05 21.1902 0.115902 21.4699 0.322177 21.6762C0.528451 21.8825 0.80822 21.9984 1.09994 21.9984H5.76359C5.9175 22.0067 6.07145 21.9827 6.21546 21.9277C6.35946 21.8728 6.49032 21.7882 6.59953 21.6794L18.5556 9.65728L21.6794 6.59951C21.7796 6.49278 21.8614 6.37011 21.9214 6.23654C21.932 6.14886 21.932 6.06023 21.9214 5.97256C21.9265 5.92136 21.9265 5.86977 21.9214 5.81857L21.9984 5.76357ZM5.31262 19.7985H2.19985V16.6858L13.122 5.76357L16.2348 8.87634L5.31262 19.7985ZM17.7857 7.32546L14.6729 4.21269L16.2348 2.6618L19.3366 5.76357L17.7857 7.32546Z" fill="white"/&gt;
+                        &lt;/svg&gt;
+                    &lt;/button&gt;
+                &lt;/div&gt;
+                &lt;label&gt;Temperature&lt;/label&gt;
+                &lt;div className='temperatureContainer'&gt;
+                    &lt;input 
+                        spellCheck="false" 
+                        type="number"
+                        step="0.01" min="0" max="2" 
+                        value={formValues.temperature}
+                        onChange={<span class="fstat-no" title="function not covered" >(e) =&gt; setFormValues(formValues =&gt; ({...formValues, temperature : e.target.value === '' ? 0 : parseFloat(e.target.value)}))}</span>
+                    /&gt;
+                    &lt;figure title="0 : Predictable &lt;-&gt; 2 : Creative" data-tooltip="Predictable &lt;-&gt; Creative"&gt;
+                        &lt;svg style={{transform:'translateX(0.5px) translateY(0.5px)'}} width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+                        &lt;path fillRule="evenodd" clipRule="evenodd" d="M9.40629 1.71324H24V3.42702H10.1991C10.2567 3.70901 10.2857 3.99609 10.2857 4.2839V13.8039C11.1126 14.6476 11.6719 15.7165 11.8935 16.8767C12.1151 18.0368 11.9892 19.2366 11.5315 20.3255C11.0738 21.4143 10.3047 22.3439 9.32069 22.9976C8.33665 23.6513 7.18148 24 6 24C4.81853 24 3.66335 23.6513 2.67932 22.9976C1.69529 22.3439 0.926207 21.4143 0.468513 20.3255C0.0108194 19.2366 -0.115114 18.0368 0.106505 16.8767C0.328123 15.7165 0.887429 14.6476 1.71429 13.8039V4.2839C1.71134 3.38597 1.99162 2.50997 2.51529 1.78044C3.03897 1.0509 3.77937 0.504982 4.63123 0.22029C5.4831 -0.0644014 6.40306 -0.0733719 7.26031 0.194654C8.11757 0.462681 8.86848 0.994061 9.40629 1.71324ZM3.56976 21.5261C4.28481 22.0174 5.13235 22.2798 6 22.2785C6.86765 22.2798 7.71519 22.0174 8.43024 21.5261C9.1453 21.0348 9.69408 20.3378 10.0038 19.5275C10.3136 18.7173 10.3697 17.8321 10.1647 16.9893C9.95972 16.1464 9.50331 15.3858 8.856 14.8082L8.57143 14.552V4.2839C8.57143 3.60212 8.30051 2.94826 7.81828 2.46617C7.33604 1.98408 6.68199 1.71324 6 1.71324C5.31802 1.71324 4.66396 1.98408 4.18173 2.46617C3.69949 2.94826 3.42857 3.60212 3.42857 4.2839V14.552L3.144 14.8082C2.4967 15.3858 2.04029 16.1464 1.83529 16.9893C1.6303 17.8321 1.6864 18.7173 1.99616 19.5275C2.30592 20.3378 2.85471 21.0348 3.56976 21.5261ZM21.4288 6.85456H15.4288V8.56834H21.4288V6.85456ZM24.0002 11.9959H15.4288V13.7097H24.0002V11.9959ZM21.4288 17.1372H15.4288V18.851H21.4288V17.1372ZM6.85738 4.2839V15.5811C7.42927 15.7832 7.91128 16.181 8.2182 16.704C8.52513 17.2271 8.63721 17.8418 8.53463 18.4394C8.43205 19.0371 8.12143 19.5793 7.65766 19.9702C7.19388 20.361 6.60682 20.5754 6.00023 20.5754C5.39364 20.5754 4.80658 20.361 4.34281 19.9702C3.87904 19.5793 3.56841 19.0371 3.46584 18.4394C3.36326 17.8418 3.47534 17.2271 3.78226 16.704C4.08919 16.181 4.57119 15.7832 5.14309 15.5811V4.2839H6.85738Z" fill="black"/&gt;
+                        &lt;/svg&gt;
+                    &lt;/figure&gt;
+                &lt;/div&gt;
+                &lt;label&gt;Context Length (RAG needs 5000+)&lt;/label&gt;
+                &lt;div className='contextContainer'&gt;
+                    &lt;input 
+                        spellCheck="false" 
+                        type="number"
+                        step="1" min="0" max="1000000" 
+                        value={formValues.maxContextLength}
+                        onChange={<span class="fstat-no" title="function not covered" >(e) =&gt; setFormValues(formValues =&gt; ({...formValues, maxContextLength : e.target.value === '' ? 0 : parseInt(e.target.value)}))}</span>
+                    /&gt;
+                    &lt;figure title="Amount of Tokens considered during Inference" data-tooltip="Amount of Tokens considered during Inference"&gt;
+                        &lt;svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+                        &lt;path d="M16.6667 8H9.33333C8.6 8 8 8.6 8 9.33333V16.6667C8 17.4 8.6 18 9.33333 18H16.6667C17.4 18 18 17.4 18 16.6667V9.33333C18 8.6 17.4 8 16.6667 8ZM16 16H10V10H16V16ZM26 10.3333C26 9.6 25.4 9 24.6667 9H22.3333V6.33333C22.3333 4.86667 21.1333 3.66667 19.6667 3.66667H17V1.33333C17 0.6 16.4 0 15.6667 0C14.9333 0 14.3333 0.6 14.3333 1.33333V3.66667H11.6667V1.33333C11.6667 0.6 11.0667 0 10.3333 0C9.6 0 9 0.6 9 1.33333V3.66667H6.33333C4.86667 3.66667 3.66667 4.86667 3.66667 6.33333V9H1.33333C0.6 9 0 9.6 0 10.3333C0 11.0667 0.6 11.6667 1.33333 11.6667H3.66667V14.3333H1.33333C0.6 14.3333 0 14.9333 0 15.6667C0 16.4 0.6 17 1.33333 17H3.66667V19.6667C3.66667 21.1333 4.86667 22.3333 6.33333 22.3333H9V24.6667C9 25.4 9.6 26 10.3333 26C11.0667 26 11.6667 25.4 11.6667 24.6667V22.3333H14.3333V24.6667C14.3333 25.4 14.9333 26 15.6667 26C16.4 26 17 25.4 17 24.6667V22.3333H19.6667C21.1333 22.3333 22.3333 21.1333 22.3333 19.6667V17H24.6667C25.4 17 26 16.4 26 15.6667C26 14.9333 25.4 14.3333 24.6667 14.3333H22.3333V11.6667H24.6667C25.4 11.6667 26 11.0667 26 10.3333ZM19.3333 20.6667H6.66667C5.93333 20.6667 5.33333 20.0667 5.33333 19.3333V6.66667C5.33333 5.93333 5.93333 5.33333 6.66667 5.33333H19.3333C20.0667 5.33333 20.6667 5.93333 20.6667 6.66667V19.3333C20.6667 20.0667 20.0667 20.6667 19.3333 20.6667Z" fill="black"/&gt;
+                        &lt;/svg&gt;
+                    &lt;/figure&gt;
+                &lt;/div&gt;
+                &lt;label&gt;Max Tokens Per Reply&lt;/label&gt;
+                &lt;div className='maxTokensContainer'&gt;
+                    &lt;input
+                        spellCheck="false"
+                        type="number"
+                        value={formValues.maxTokensPerReply}
+                        onChange={<span class="fstat-no" title="function not covered" >(e) =&gt; setFormValues(formValues =&gt; ({...formValues, maxTokensPerReply : e.target.value === '' ? 0 : parseInt(e.target.value)}))}</span>
+                    /&gt;
+                    &lt;figure&gt;
+                        &lt;svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;
+                        &lt;path fillRule="evenodd" clipRule="evenodd" d="M22 14.6667V20.7778C22 21.1019 21.8712 21.4128 21.642 21.642C21.4128 21.8712 21.1019 22 20.7778 22H14.6667V19.5556H19.5556V14.6667H22ZM7.33333 0V2.44444H2.44444V7.33333H0V1.22222C0 0.898069 0.128769 0.587192 0.357981 0.357981C0.587192 0.128769 0.898069 0 1.22222 0H7.33333ZM17.8249 2.44444H14.6667V0H20.7778C21.1019 0 21.4128 0.128769 21.642 0.357981C21.8712 0.587192 22 0.898069 22 1.22222V7.33333H19.5556V4.17267L14.2193 9.50644L12.4911 7.77822L17.8249 2.44444ZM4.17511 19.5531H7.33333V21.9976H1.22222C0.898069 21.9976 0.587192 21.8688 0.357981 21.6396C0.128769 21.4104 0 21.0995 0 20.7753V14.6642H2.44444V17.8261L7.78067 12.4911L9.50889 14.2193L4.17511 19.5531Z" fill="black"/&gt;
+                        &lt;/svg&gt;
+                    &lt;/figure&gt;
+                &lt;/div&gt;
+                &lt;label&gt;Web Search&lt;/label&gt;
+                &lt;div className='webSearchContainer'&gt;
+                    &lt;span&gt;Processing Speed&lt;/span&gt;
+                    &lt;div className='switchContainer' onClick={<span class="fstat-no" title="function not covered" >() =&gt; setWebSearchSummarization(prevStatus =&gt; !prevStatus)}&gt;</span>
+                        &lt;div className={<span class="branch-0 cbranch-no" title="branch not covered" >webSearchSummarization ? 'switch active' : '</span>switch'}&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;span&gt;Context Economy&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div className='settingsSaveContainer'&gt;
+                    &lt;button className='more purpleShadow' onClick={handleOpenEditAgentFormClick}&gt;More Settings&lt;/button&gt;
+                    {
+                        !showSavingSuccessfulBtn ? &lt;button className='save purpleShadow' onClick={handleUpdateAgent}&gt;Save&lt;/button&gt;
+                        :&lt;button className='save purpleShadow'&gt;
+                            &lt;svg className='checkmarkSVG' viewBox='0 0 100 100'&gt;
+                                &lt;path className='checkmarkIcon' d='M 25 50 L 43 68 L 75 32'/&gt;
+                            &lt;/svg&gt;
+                        &lt;/button&gt;
+                    }
+                &lt;/div&gt;
+            &lt;/article&gt;
+        &lt;/aside&gt;
+    )
+}, (prevProps, nextProps) =&gt; {
+    // refresh AIAgentsList or isStreaming change
+    return (JSON.stringify(prevProps.AIAgentsList.map(agent =&gt; agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent =&gt; agent.asString())) &amp;&amp; prevProps.isStreaming === nextProps.isStreaming )
+})
+&nbsp;
+export default RightPanel
+&nbsp;
+interface IProps{
+    memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) =&gt; void
+    AIAgentsList: AIAgent[]
+    isStreaming : boolean
+}</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2024-11-05T11:22:00.410Z
+            </div>
+        <script src="../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
+    </body>
+</html>
+    
