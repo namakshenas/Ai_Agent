@@ -9,6 +9,9 @@ export default defineConfig({
     setupFiles: './src/__tests__/vitest.setup.ts',
     css: true,
     watch: false,
+    coverage: {
+      exclude: ['**/node_modules/**', '**/dist/**', '**/your-folder-to-ignore/**', '**/__mocks__/**', '**/__tests__/**', '**/constants/**', '**/interfaces/**', '**/models/**', '**/router/**', '**/deprecated/**', '**/vite.config.ts', '**/eslint.config.js', '**/src/main.tsx', '**/src/vite-env.d.ts'],
+    },
   },
   optimizeDeps: {
     include: ['react-pdf', 'react-pdftotext']

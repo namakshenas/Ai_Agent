@@ -1,6 +1,6 @@
-- NOT FUNCTIONAL YET -
+Release : Alpha 1.0
 
-# OSSPITA : Run your local AI assistant to experience enhanced privacy and zero cost.
+# OSSPITA : Run your AI assistant locally to experience enhanced privacy and zero cost.
 
 OSSPITA is a lightweight, fully local, open-source desktop interface that enables users to interact for free and in real time with various Open-Source LLMs. Leveraging the Ollama API, OSSPITA provides a user-friendly experience for engaging with cutting-edge AI technology.
 
@@ -45,10 +45,10 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 
 ### Prerequisites
 
-- Node.js (v18.12.1 or higher) : https://nodejs.org/en/
-- npm (8.19.2 or higher)
+- Node.js (v22.11.0 or higher) : https://nodejs.org/en/
+- npm (10.9.0 or higher)
 - Ollama (installed and running locally) : https://ollama.com/download
-- OSSPITABack running if you want access to the websearch functionality.
+- The OSspita backend running.
 - At least one open source model.
 - Nvidia CUDA if needed : https://developer.nvidia.com/cuda-downloads
 
@@ -102,6 +102,8 @@ Video demo :
 - React-pdftotext
 - Marked 14.1.1
 - Turndown
+- Cors
+- BodyParser
 
 ## VII - Contributing
 
