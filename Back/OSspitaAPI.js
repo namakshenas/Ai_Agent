@@ -16,7 +16,7 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 function databaseInit() {
-    removeCollections()
+    // removeCollections()
     if (db.getCollection("prompts") === null) {
       db.addCollection("prompts")
     }
