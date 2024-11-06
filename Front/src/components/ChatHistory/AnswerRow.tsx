@@ -15,6 +15,10 @@ function AnswerRow({isStreaming, index, answer, sources, TTS, onDownload, onCopy
         return sourcesArray.reduce((acc, source) => acc + source.asHTML, '<hr style="opacity:0.3; margin:1.15rem 0 0.5rem 0;"><span style="font-size:14px; font-weight:600; text-decoration:underline; margin-bottom:0.25rem;">Sources :</span>').slice(0, -4)
     }
 
+    /*function showCOT() {
+        (document.querySelector('hidden') as HTMLElement).style.display = 'block';
+    }*/
+
     return(
         <article className="historyItem answerItem" key={'answer' + index} id={'answer' + index}>
             <figure className={ isStreaming ? "actorFigureAnimation" : ""}>
