@@ -40,7 +40,7 @@ function Chat() {
     // Active Conversation Management
     // Manages the state and context of the current active conversation
     // Used for displaying chat history and handling conversation selection
-    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : ""});
+    const { activeConversationId, setActiveConversationId, activeConversationState, dispatch, activeConversationStateRef } = useActiveConversationReducer({name : "First Conversation", history : [], lastAgentUsed  : "", lastModelUsed : "", images : []});
 
     // Auto-scroll Reference
     // Ref used to enable auto-scrolling feature during response streaming
@@ -122,7 +122,7 @@ function Chat() {
                 type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
                 payload: { message : query, 
                 agentUsed : ChatService.getActiveAgent().asString(), 
-                modelUsed : ChatService.getActiveAgent().getModelName()}
+                modelUsed : ChatService.getActiveAgent().getModelName(),}
             })
             let newContext = []
             let inferenceStats : IInferenceStats

@@ -6,7 +6,7 @@ import ScrapedPage from "../models/ScrapedPage"
 export function useActiveConversationReducer({name, history, lastAgentUsed, lastModelUsed} : IConversation) {
 
     // !!! needs last model used in case the agent model was switched after the last request
-    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed}) 
+    const activeConversationStateRef = useRef<IConversation>({name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed, images : []}) 
     // {value : 0} instead of a simple 0 -> replacing a {value : 0} with a {value : 0} 
     // will trigger all activeConversationId related effects
     // when replacing a 0 with a 0 won't
@@ -105,7 +105,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
         }
     }
 
-    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed})
+    const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed, images : []})
 
     /*useEffect(() => {
         if(activeConversationState.history[activeConversationState.history.length-1]?.answer.asMarkdown == "") scrollToBottom();
