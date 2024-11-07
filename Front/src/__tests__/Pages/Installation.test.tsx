@@ -16,71 +16,71 @@ const MockedRouter = () => (
     <MemoryRouter>
       <Installation />
     </MemoryRouter>
-);
+)
 
 describe('Given I am on the Configuration page', () => {
 
     beforeEach(() => {
-        vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList);
-        vi.spyOn(AgentService, 'updateAgentsConfig').mockResolvedValueOnce();
-        vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList);
+        vi.spyOn(OllamaService, 'getModelList').mockResolvedValue(mockModelsList)
+        vi.spyOn(AgentService, 'updateAgentsConfig').mockResolvedValueOnce()
+        vi.spyOn(AgentService, 'getAll').mockResolvedValue(mockAgentsList)
         vi.mock('react-router-dom', async () => {
-            const actual = await vi.importActual('react-router-dom');
+            const actual = await vi.importActual('react-router-dom')
             return {
               ...actual,
               useNavigate: () => mockedUsedNavigate,
             };
-        });
+        })
           
         render(<MockedRouter />)
-    });
+    })
 
     test('Step 1 should be visible by default', async () => {
-        await waitFor(() => expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument())
         expect(screen.getByText(/skip/i)).toBeInTheDocument()
         expect(screen.getByText(/next/i)).toBeInTheDocument()
         const allButtons = screen.queryAllByRole("button")
         expect(allButtons).toHaveLength(2)
-    });
+    })
 
     describe('When I click on the "next" button while being on Step 1', () => {
         test('I should be redirected to the 2nd Step of the config process', async () => {
             // screen.debug()
-            expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument();
-            expect(screen.queryByText(/Step 2 on 4/i)).not.toBeInTheDocument();
+            expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument()
+            expect(screen.queryByText(/Step 2 on 4/i)).not.toBeInTheDocument()
             const nextButton : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent == "next")[0]
             act(() => nextButton.click())
-            await waitFor(() => expect(screen.getByText(/Step 2 on 4/i)).toBeInTheDocument());
+            await waitFor(() => expect(screen.getByText(/Step 2 on 4/i)).toBeInTheDocument())
         })
     })
 
     describe('When I click on the "next" button while being on Step 2', () => {
         test('Page 3 should be displayed', async () => {
-            expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument();
+            expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument()
             const nextButtonP2 : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent == "next")[0]
             act(() => nextButtonP2.click())
-            await waitFor(() => expect(screen.getByText(/Step 2 on 4/i)).toBeInTheDocument());
+            await waitFor(() => expect(screen.getByText(/Step 2 on 4/i)).toBeInTheDocument())
             const nextButtonP3 : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent == "next")[0]
             act(() => nextButtonP3.click())
-            await waitFor(() => expect(screen.getByText(/Step 3 on 4/i)).toBeInTheDocument());
+            await waitFor(() => expect(screen.getByText(/Step 3 on 4/i)).toBeInTheDocument())
         })
     })
 
     describe('When I am on Step 3', () => {
         test('I should be able to select the models I need and it should have an effect on step 4', async () => {
-            expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument();
+            expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument()
             const nextButtonP2 : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent == "next")[0]
             act(() => nextButtonP2.click())
-            await waitFor(() => expect(screen.getByText(/Step 2 on 4/i)).toBeInTheDocument());
+            await waitFor(() => expect(screen.getByText(/Step 2 on 4/i)).toBeInTheDocument())
             const nextButtonP3 : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent == "next")[0]
             act(() => nextButtonP3.click())
-            await waitFor(() => expect(screen.getByText(/Step 3 on 4/i)).toBeInTheDocument());
+            await waitFor(() => expect(screen.getByText(/Step 3 on 4/i)).toBeInTheDocument())
 
             // check clicking on row 1 action
             const row1 = screen.getByText(/4GB/i).parentElement;
             expect(row1).toBeDefined()
             expect(screen.getByText(/> ollama pull aya-expanse:8b/i)).toBeInTheDocument()
-            if (row1) act(() => row1.click());
+            if (row1) act(() => row1.click())
 
             // always use queryByText with not.toBeInTheDocument()
             // The method getByText is designed to throw an error if the element is not found. This means that if the text is present in the document, 
@@ -93,7 +93,7 @@ describe('Given I am on the Configuration page', () => {
             const row2 = screen.getByText(/8GB/i).parentElement;
             expect(row2).toBeDefined()
             expect(screen.queryByText(/> ollama pull aya-expanse:8b/i)).not.toBeInTheDocument()
-            if (row2) act(() => row2.click());
+            if (row2) act(() => row2.click())
             await waitFor(() => expect(screen.getByText(/> ollama pull aya-expanse:8b/i)).toBeInTheDocument())
 
             // check clicking on row 3 action
@@ -101,7 +101,7 @@ describe('Given I am on the Configuration page', () => {
             expect(row3).toBeDefined()
             expect(screen.queryByText(/> ollama pull mistral-nemo/i)).not.toBeInTheDocument()
             if (row3) act(() => row3.click())
-            await waitFor(() => expect(screen.getByText(/> ollama pull mistral-nemo/i)).toBeInTheDocument());
+            await waitFor(() => expect(screen.getByText(/> ollama pull mistral-nemo/i)).toBeInTheDocument())
 
             const nextButtonP4 : HTMLElement = screen.queryAllByRole("button").filter(button => button.textContent == "next")[0]
             act(() => nextButtonP4.click())
@@ -145,12 +145,12 @@ describe('Given I am on the Configuration page', () => {
     })
 
     test('Step 1 should give me the option to be redirected to the chat', async () => {
-        await waitFor(() => expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByText(/Welcome to OSSPITA/i)).toBeInTheDocument())
         expect(screen.getByText(/skip/i)).toBeInTheDocument()
         const skipButton : HTMLElement = screen.getByText(/skip/i)
-        expect(skipButton).toBeDefined();
+        expect(skipButton).toBeDefined()
         act(() => skipButton.click())
         // await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
         await waitFor(() => expect(mockedUsedNavigate).toHaveBeenCalledWith("/chat"))
-    });
-});
+    })
+})

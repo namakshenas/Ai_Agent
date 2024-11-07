@@ -2,7 +2,7 @@ import IPromptResponse from "../../interfaces/responses/IPromptResponse"
 
 export default class PromptService{
 
-    static async save(name : string, prompt : string){
+    static async save(name : string, prompt : string) : Promise<void>{
         try{
             const reponse = await fetch('http://localhost:3000/prompt', {
                 method : 'POST',

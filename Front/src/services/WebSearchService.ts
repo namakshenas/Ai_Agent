@@ -14,7 +14,7 @@ export class WebSearchService{
 
     static #isWebSearchSummarizationActivated = false
 
-    static async scrapeRelatedDatas({query , maxPages = 3} : {query : string, maxPages : number, summarize? : boolean}) : Promise<ScrapedPage[] | undefined>{
+    static async scrapeRelatedDatas({query , maxPages = 3} : {query : string, maxPages? : number, summarize? : boolean}) : Promise<ScrapedPage[] | undefined>{
         try{
             const optimizedQuery = await this.#optimizeQuery(query)
             const trimedQuery = this.#trimQuotes(optimizedQuery)

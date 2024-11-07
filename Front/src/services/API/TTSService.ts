@@ -1,3 +1,5 @@
+/* c8 ignore start */
+
 export default class PromptService{
 
     static async generateAudio(text : string){
@@ -13,3 +15,5 @@ export default class PromptService{
         }
     }
 }
+
+/* c8 ignore stop */

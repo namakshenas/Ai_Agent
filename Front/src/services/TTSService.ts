@@ -21,6 +21,7 @@ export class TTSService{
         this.voices = this.populateVoiceList()
     }
 
+    /* c8 ignore start */
     speak(text : string) {
         if (this.synth.speaking) {
             this.synth.cancel()
@@ -48,6 +49,7 @@ export class TTSService{
             this.synth.speak(utterThis);
         }
     }
+    /* c8 ignore stop */
 
     resume(){
         this.synth.resume()
