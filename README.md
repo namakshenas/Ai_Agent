@@ -1,5 +1,7 @@
 Release : Alpha 1.0
 
+![ollama](https://github.com/ollama/ollama)
+
 # OSSPITA : Run your AI assistant locally to experience enhanced privacy and zero cost.
 
 OSSPITA is a lightweight, fully local, open-source desktop interface that enables users to interact for free and in real time with various Open-Source LLMs. Leveraging the Ollama API, OSSPITA provides a user-friendly experience for engaging with cutting-edge AI technology.
