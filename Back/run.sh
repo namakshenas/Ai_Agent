@@ -1,3 +1,3 @@
 #!/bin/bash
 
-nodemon OSspitaAPI.js
+node OSspitaAPI.js
