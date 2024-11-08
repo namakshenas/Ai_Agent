@@ -44,6 +44,15 @@ main.selectPage {
       color: var(--purple-button-color);
       background-color: var(--light-purple-background-color);
     }
+
+    &.active {
+      background-color: rgb(109, 72, 193);
+      color: #fff;
+
+      td a:any-link {
+        color: #fff;
+      }
+    }
   }
 
   hr {

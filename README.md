@@ -12,11 +12,11 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 - Lightweight and **fully local** operations.
 - **Beginner-friendly** installation process.
 - Retrieval Augmented Generation so you can probe your own documents while **preserving your privacy**.
-- Web Search functionality for the integration of more **up-to-date informations**.
+- Web Search functionality for the integration of more **up-to-date information**.
 - Comprehensive inference stats.
 - Memory allocation tracking for **context length tuning**.
 - **Prompt library** with (versioning coming).
-- Easy access to most **LLM common settings**.
+- Easy access to the most **common LLM settings**.
 
 ## II - Coming Next
 
@@ -32,7 +32,6 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 - Dedicated coding agent.
 - Code syntax highlighting.
 - A **Dark mode** theme.
-- Advanced Models settings : Top-K, Repeat, Mirostat, etc..
 - Charts generation.
 - Voice mode.
 - Context autosizing option.

@@ -106,9 +106,9 @@ export default function Installation(){
                     <table style={{marginTop:'0.25rem'}}>
                         <thead><tr><th>GPU VRAM</th><th>Model</th><th>Description</th><th>Link</th></tr></thead>
                         <tbody>
-                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("llama3.2:3b")}><td>4GB</td><td>Llama 3.2 3b</td><td>Fast (even on CPU) but limited</td><td><a target="_blank" href="https://ollama.com/library/llama3.2">Ollama page</a></td></tr>
-                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("aya-expanse:8b")}><td>8GB</td><td>Aya Expanse 8b</td><td>Decent overall quality</td><td><a target="_blank" href="https://ollama.com/library/aya-expanse:8b">Ollama page</a></td></tr>
-                            <tr className="modelRow" onClick={() => handleSelectModelOnStep2("mistral-nemo:12b")}><td>12GB</td><td>Mistral Nemo 12b</td><td>Great for most tasks</td><td><a target="_blank" href="https://ollama.com/library/mistral-nemo">Ollama page</a></td></tr>
+                            <tr className={selectedStep2Model == "llama3.2:3b" ? "modelRow active" : "modelRow"} onClick={() => handleSelectModelOnStep2("llama3.2:3b")}><td>4GB</td><td>Llama 3.2 3b</td><td>Fast (even on CPU) but limited</td><td><a target="_blank" href="https://ollama.com/library/llama3.2">Ollama page</a></td></tr>
+                            <tr className={selectedStep2Model == "aya-expanse:8b" ? "modelRow active" : "modelRow"} onClick={() => handleSelectModelOnStep2("aya-expanse:8b")}><td>8GB</td><td>Aya Expanse 8b</td><td>Decent overall quality</td><td><a target="_blank" href="https://ollama.com/library/aya-expanse:8b">Ollama page</a></td></tr>
+                            <tr className={selectedStep2Model == "mistral-nemo:12b" ? "modelRow active" : "modelRow"} onClick={() => handleSelectModelOnStep2("mistral-nemo:12b")}><td>12GB</td><td>Mistral Nemo 12b</td><td>Great for most tasks</td><td><a target="_blank" href="https://ollama.com/library/mistral-nemo">Ollama page</a></td></tr>
                         </tbody>
                     </table>
                     <hr/>
