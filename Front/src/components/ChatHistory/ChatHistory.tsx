@@ -86,7 +86,7 @@ function ChatHistory({activeConversationState, isStreaming, setTextareaValue, re
 
   return (
     <section ref={historyContainerRef} className="chatHistorySection">
-        {history.length == 0 && 
+        {activeConversationState.history.length == 0 && 
           <div style={{padding: '2rem 0', background:'#f7f9fd', display:"flex", flexDirection:"column", justifyContent: "center"}}>
             <span>Warning : Due to some Ollama limitations, switching model during a conversation will flush the context.</span>
             <span style={{marginTop:'0.75rem'}}>Agents can be switched with no consequences as long as each of them use the same model.</span>
