@@ -10,7 +10,7 @@ import React from 'react'
 
 const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps) => {
 
-    useEffect(() => {console.log("fup questions render")})
+    // useEffect(() => {console.log("fup questions render")})
 
     const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([])
 

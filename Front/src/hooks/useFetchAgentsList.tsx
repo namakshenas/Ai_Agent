@@ -13,7 +13,7 @@ function useFetchAgentsList(){
             const AIAgents = retrievedAgentsList.map((agent) => new AIAgent({...agent, modelName : agent.model}))
             // don't setState if prevState == newState
             if(JSON.stringify(AIAgents.map(agent => agent.asString())) == JSON.stringify(AIAgentsList.map(agent => agent.asString()))) return
-            console.log("fetch Agents")
+            // console.log("fetch Agents")
             setAIAgentsList([...AIAgents])
             // set the first agent in DB as the active agent only if the agent currently active is the default one
             // if(ChatService.getActiveAgent().getId() == "a0000000001") ChatService.setActiveAgent(AIAgents[0])

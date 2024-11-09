@@ -8,13 +8,13 @@ import { ChatService } from '../services/ChatService'
 // function LoadedModelInfosBar() {
 const LoadedModelInfosBar = React.memo(({ hasStreamingEnded } : IProps) => {
 
-    useEffect(() => {console.log("infos bar render")})
+    // useEffect(() => {console.log("infos bar render")})
 
     const [runningModelsInfos, setRunningModelsInfos] = useState<IRunningModelInfos | null>(null)
 
     useEffect(() => {
       async function effect(){
-        console.log("LoadedModelInfosBar : RefreshRunningModels")
+        // console.log("LoadedModelInfosBar : RefreshRunningModels")
         if(hasStreamingEnded == true) await refreshRunningModelInfos()
       }
       effect()

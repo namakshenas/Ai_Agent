@@ -468,10 +468,18 @@ export class AIModel{
     getTopP(): number {
         return this.#top_p;
     }
+
+    getContext() : number[]{
+        return this.#context
+    }
     
     getStatus(): "standard" | "base" | "favorite" {
         return this.#status;
     }    
+
+    getSignal() : AbortSignal{
+        return this.#signal;
+    }
 
     asString(){
         return JSON.stringify({

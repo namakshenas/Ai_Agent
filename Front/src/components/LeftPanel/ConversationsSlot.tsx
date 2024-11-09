@@ -65,8 +65,8 @@ export function ConversationsSlot({activeConversationId, setActiveConversationId
         }
         // deleting the first one and only conversation
         if(id == 0 && ConversationsRepository.getConversations().length < 2){
-            dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "no_name", history : [], lastAgentUsed  : "", lastModelUsed : ""}})
-            ConversationsRepository.updateConversationById(0, {name  : "no_name", history  : [], lastAgentUsed   : "", lastModelUsed : ""})
+            dispatch({type : ActionType.SET_CONVERSATION, payload : {name : "no_name", history : [], lastAgentUsed  : "", lastModelUsed : "", images : []}})
+            ConversationsRepository.updateConversationById(0, {name  : "no_name", history  : [], lastAgentUsed   : "", lastModelUsed : "", images : []})
             refreshActivePageList()
             return
         }

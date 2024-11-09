@@ -31,7 +31,7 @@ import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaM
 
 function Chat() {
 
-    useEffect(() => console.log("chat render"))
+    // useEffect(() => console.log("chat render"))
 
     const {AIAgentsList, triggerAIAgentsListRefresh} = useFetchAgentsList()
     

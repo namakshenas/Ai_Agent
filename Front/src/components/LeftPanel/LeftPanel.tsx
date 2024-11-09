@@ -8,11 +8,12 @@ import { useEffect } from 'react'
 import React from 'react'
 import { IConversation } from '../../interfaces/IConversation'
 import { TAction } from '../../hooks/useActiveConversationReducer'
+import ImagesSlot from './ImagesSlot'
 
 // export default function LeftPanel({activeConversation, setActiveConversation, setModalStatus, selectedPromptRef} : IProps){
 const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, activeConversationId, activeConversationStateRef, setActiveConversationId, dispatch, memoizedSetModalStatus, selectedPromptNameRef} : IProps) => {
 
-    useEffect(() => {console.log("left panel render")})
+    // useEffect(() => {console.log("left panel render")})
 
     /*const [conversationsSlotRefreshKey, setConversationsSlotRefreshKey] = useState(0)
 
@@ -29,6 +30,7 @@ const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, acti
             <figure style={{cursor:'pointer'}} onClick={() => location.reload()}><span>OSSPITA FOR</span> <img src={ollama}/></figure>
             <ConversationsSlot activeConversationId={activeConversationId} setActiveConversationId={setActiveConversationId} dispatch={dispatch}/>
             <DocumentsSlot isWebSearchActivated={isWebSearchActivated} setWebSearchActivated={setWebSearchActivated} memoizedSetModalStatus={memoizedSetModalStatus}/>
+            {/*<ImagesSlot/>*/}
             <PromptsSlot selectedPromptNameRef={selectedPromptNameRef} memoizedSetModalStatus={memoizedSetModalStatus}/>
         </aside>
     )
