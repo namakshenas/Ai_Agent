@@ -41,7 +41,7 @@ describe('DocService', () => {
       await DocService.saveDocWithEmbeddings(processedDoc)
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://127.0.0.1:3000/embeddings',
+        '/backend/embeddings',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify(processedDoc)
@@ -70,7 +70,7 @@ describe('DocService', () => {
       await DocService.deleteByName('test.pdf')
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://127.0.0.1:3000/doc/byName/test.pdf',
+        '/backend/doc/byName/test.pdf',
         expect.objectContaining({
           method: 'DELETE'
         })
@@ -99,7 +99,7 @@ describe('DocService', () => {
 
       expect(result).toEqual(mockDocs)
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://127.0.0.1:3000/docs',
+        '/backend/docs',
         expect.objectContaining({
           method: 'GET'
         })
@@ -129,7 +129,7 @@ describe('DocService', () => {
 
       expect(result).toEqual(mockRAGResults)
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://127.0.0.1:3000/docs/bySimilarity',
+        '/backend/docs/bySimilarity',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({
