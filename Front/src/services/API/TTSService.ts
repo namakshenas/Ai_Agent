@@ -4,7 +4,7 @@ export default class PromptService{
 
     static async generateAudio(text : string){
         try{
-            const reponse = await fetch('http://localhost:3000/tts/generate', {
+            const reponse = await fetch('/backend/tts/generate', {
                 method : 'POST',
                 body : JSON.stringify({text}),
                 headers:{ 'Content-Type' : 'application/json' }

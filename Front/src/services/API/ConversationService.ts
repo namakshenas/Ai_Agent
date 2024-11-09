@@ -4,7 +4,7 @@ export default class ConversationService{
  
     static async save(conversation : IConversation){
         try{
-            const reponse = await fetch('http://localhost:3000/conversation', {
+            const reponse = await fetch('/backend/conversation', {
                 method : 'POST',
                 body : JSON.stringify({...conversation}),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -17,7 +17,7 @@ export default class ConversationService{
 
     static async updateById(conversationId : number, conversation : IConversation) : Promise<void>{
         try{
-            const reponse = await fetch('http://localhost:3000/conversation/byId/' + conversationId, {
+            const reponse = await fetch('/backend/conversation/byId/' + conversationId, {
                 method : 'PUT',
                 body : JSON.stringify({id : conversationId, ...conversation}),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -30,7 +30,7 @@ export default class ConversationService{
 
     static async getById(conversationId : number) : Promise<IConversation | undefined>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/conversation/byId/" + conversationId, {
+            const response = await fetch("/backend/conversation/byId/" + conversationId, {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -49,7 +49,7 @@ export default class ConversationService{
 
     static async getAll() : Promise<IConversation[] | undefined>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/conversations", {
+            const response = await fetch("/backend/conversations", {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -68,7 +68,7 @@ export default class ConversationService{
 
     static async deleteById(conversationId : number) : Promise<void>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/conversation/byId/" + conversationId, {
+            const response = await fetch("/backend/conversation/byId/" + conversationId, {
                 method:"DELETE"
             })
 

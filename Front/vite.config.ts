@@ -20,6 +20,20 @@ export default defineConfig({
     commonjsOptions: {
       include: [/react-pdf/, /node_modules/, /react-pdftotext/]
     }
+  },
+  server: {
+    proxy: {
+      '/backend': {
+        target: 'http://localhost:5174',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/backend/, '')
+      },
+      '/ollama': {
+        target: 'http://localhost:11434',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ollama/, '')
+      }
+    }
   }
 })
 

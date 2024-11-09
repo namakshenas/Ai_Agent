@@ -4,7 +4,7 @@ export default class PromptService{
 
     static async save(name : string, prompt : string) : Promise<void>{
         try{
-            const reponse = await fetch('http://localhost:3000/prompt', {
+            const reponse = await fetch('/backend/prompt', {
                 method : 'POST',
                 body : JSON.stringify({name, prompt, version : 1}),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -17,7 +17,7 @@ export default class PromptService{
 
     static async updateByName(prevName : string, {newName, prompt, version} : {newName : string, prompt : string, version : number}) : Promise<void>{
         try{
-            const reponse = await fetch('http://localhost:3000/prompt/byName/' + prevName, {
+            const reponse = await fetch('/backend/prompt/byName/' + prevName, {
                 method : 'PUT',
                 body : JSON.stringify({name : newName, prompt, version}),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -30,7 +30,7 @@ export default class PromptService{
 
     static async updateById(id : string, {name, prompt, version} : {name : string, prompt : string, version : number}) : Promise<void>{
         try{
-            const reponse = await fetch('http://localhost:3000/prompt/byId/' + id, {
+            const reponse = await fetch('/backend/prompt/byId/' + id, {
                 method : 'PUT',
                 body : JSON.stringify({name, prompt, version}),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -43,7 +43,7 @@ export default class PromptService{
 
     static async getByName(name : string) : Promise<IPromptResponse | undefined>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/prompt/byName/" + name, {
+            const response = await fetch("/backend/prompt/byName/" + name, {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -62,7 +62,7 @@ export default class PromptService{
 
     static async getAll() : Promise<IPromptResponse[] | undefined>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/prompts", {
+            const response = await fetch("/backend/prompts", {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -81,7 +81,7 @@ export default class PromptService{
 
     static async deleteById(promptId : string) : Promise<void>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/prompt/byId/" + promptId, {
+            const response = await fetch("/backend/prompt/byId/" + promptId, {
                 method:"DELETE"
             })
 
@@ -97,7 +97,7 @@ export default class PromptService{
 
     static async deleteByName(promptName : string) : Promise<void>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/prompt/byName/" + promptName, {
+            const response = await fetch("/backend/prompt/byName/" + promptName, {
                 method:"DELETE"
             })
 

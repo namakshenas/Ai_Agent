@@ -10,7 +10,7 @@ export default class DocService{
 
     static async saveDocWithEmbeddings(processedDoc : IEmbedChunkedDoc[]){
         try{
-            const response = await fetch("http://127.0.0.1:3000/embeddings", {
+            const response = await fetch("/backend/embeddings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", },
                 body : JSON.stringify(processedDoc)
@@ -27,7 +27,7 @@ export default class DocService{
     // deletion by name possible since duplicates aren't allowed
     static async deleteByName(filename : string){
         try{
-            const response = await fetch("http://127.0.0.1:3000/doc/byName/" + filename, {
+            const response = await fetch("/backend/doc/byName/" + filename, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json", }
             })
@@ -42,7 +42,7 @@ export default class DocService{
 
     static async getAll() : Promise<IRAGDocument[]>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/docs", {
+            const response = await fetch("/backend/docs", {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -63,7 +63,7 @@ export default class DocService{
         try {
             console.log("***Get RAG Datas***")
             const queryEmbeddings = (await this.embeddingModel.askEmbeddingsFor(query)).embedding
-            const response = await fetch("http://127.0.0.1:3000/docs/bySimilarity", {
+            const response = await fetch("/backend/docs/bySimilarity", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", },
                 body : JSON.stringify({ query,  embeddings : DocProcessorService.normalizeVector(queryEmbeddings), targetFilesNames })

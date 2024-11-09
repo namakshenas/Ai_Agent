@@ -3,7 +3,7 @@ import { IRunningModelsResponse } from "../interfaces/responses/IRunningModelRes
 
 export class OllamaService{
     static async getModelList() : Promise<IListModelResponse | undefined>{
-        const url = "http://127.0.0.1:11434/api/tags"
+        const url = "/ollama/api/tags"
         try {
             const response = await fetch(url);
             if (!response.ok) {
@@ -17,7 +17,7 @@ export class OllamaService{
     }
 
     static async getRunningModelInfos() : Promise<IRunningModelsResponse | undefined>{
-        const url = "http://127.0.0.1:11434/api/ps"
+        const url = "/ollama/api/ps"
         try {
             const response = await fetch(url);
             if (!response.ok) {

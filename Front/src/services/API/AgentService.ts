@@ -6,7 +6,7 @@ export default class AgentService{
 
     static async save(agent : AIAgent) : Promise<string | void>{
         try{
-            const reponse = await fetch('http://localhost:3000/agent', {
+            const reponse = await fetch('/backend/agent', {
                 method : 'POST',
                 body : agent.asString(),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -20,7 +20,7 @@ export default class AgentService{
 
     static async updateByName(agentName : string, agent : AIAgent) : Promise<string | void>{
         try{
-            const reponse = await fetch('http://localhost:3000/agent/byName/' + agentName, {
+            const reponse = await fetch('/backend/agent/byName/' + agentName, {
                 method : 'PUT',
                 body : agent.asString(),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -34,7 +34,7 @@ export default class AgentService{
 
     static async updateById(agent : AIAgent) : Promise<string | void>{
         try{
-            const reponse = await fetch('http://localhost:3000/agent/byId/' + agent.getId(), {
+            const reponse = await fetch('/backend/agent/byId/' + agent.getId(), {
                 method : 'PUT',
                 body : agent.asString(),
                 headers:{ 'Content-Type' : 'application/json' }
@@ -48,7 +48,7 @@ export default class AgentService{
 
     static async getAll(): Promise<IAgentResponse[] | undefined>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/agents", {
+            const response = await fetch("/backend/agents", {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -72,7 +72,7 @@ export default class AgentService{
 
     static async getAgentByName(name : string): Promise<IAgentResponse | undefined>{
         try {
-            const response = await fetch("http://127.0.0.1:3000/agent/byName/" + name, {
+            const response = await fetch("/backend/agent/byName/" + name, {
                 method: "GET",
                 headers: { "Content-Type": "application/json", }
             })
@@ -91,7 +91,7 @@ export default class AgentService{
 
     static async deleteAgent(name : string): Promise<void>{
         try{
-            const response = await fetch("http://127.0.0.1:3000/agent/byName/" + name, {
+            const response = await fetch("/backend/agent/byName/" + name, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json", }
             })
@@ -106,7 +106,7 @@ export default class AgentService{
 
     static async updateAgentsConfig({advancedModel, basicModel, embeddingModel} : {advancedModel : string, basicModel : string, embeddingModel : string}) : Promise<void>{
         try{
-            const reponse = await fetch('http://localhost:3000/agents/config', {
+            const reponse = await fetch('/backend/agents/config', {
                 method : 'PUT',
                 body : JSON.stringify({advancedModel, basicModel, embeddingModel}),
                 headers:{ 'Content-Type' : 'application/json' }

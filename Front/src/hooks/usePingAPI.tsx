@@ -7,7 +7,7 @@ function usePingAPI(){
 
         async function fetchPing() {
             try{
-                const response = await fetch("http://127.0.0.1:3000/ping", {
+                const response = await fetch("/backend/ping", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

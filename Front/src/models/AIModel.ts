@@ -85,7 +85,7 @@ export class AIModel{
      */
     async ask(prompt : string) : Promise<ICompletionResponse> {
         try {
-            const response = await fetch("http://127.0.0.1:11434/api/generate", {
+            const response = await fetch("/ollama/api/generate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -119,7 +119,7 @@ export class AIModel{
 
     async askForAStreamedResponse(prompt : string) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
         try {
-            const response = await fetch("http://127.0.0.1:11434/api/generate", {
+            const response = await fetch("/ollama/api/generate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -165,7 +165,7 @@ export class AIModel{
      */
     async askEmbeddingsFor(sequence : string) : Promise<IEmbeddingResponse> {
         try {
-            const response = await fetch("http://127.0.0.1:11434/api/embeddings", {
+            const response = await fetch("/ollama/api/embeddings", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -195,7 +195,7 @@ export class AIModel{
 
     async tokenize(sequence : string) : Promise<number[]> {
         try {
-            const response = await fetch("http://127.0.0.1:11434/api/tokenize", {
+            const response = await fetch("/ollama/api/tokenize", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

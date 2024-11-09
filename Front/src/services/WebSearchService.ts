@@ -31,7 +31,7 @@ export class WebSearchService{
     // !!! should be able to abort
     static async #callExternalScraper(query : string, maxPages : number = 3) : Promise<ScrapedPage[]>{ // !!! make use of maxPages
         try {
-            const response = await fetch('http://127.0.0.1:3000/scrape', {
+            const response = await fetch('/backend/scrape', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
