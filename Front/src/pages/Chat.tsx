@@ -26,6 +26,7 @@ import DocService from "../services/API/DocService";
 import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
 import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaManager";
+import { ImageRepository } from "../repositories/ImageRepository";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
@@ -138,7 +139,7 @@ function Chat() {
                 console.log("***LLM Loading***")
                 // format YYYY/MM/DD
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + (new Date().getMonth() + 1) + "/" + new Date().getDate() + ". "
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(currentDate + query, onStreamedChunkReceived_Callback, currentContext, scrapedPages) // convert to object and add : showErrorModal : (errorMessage: string) => void
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse({question : currentDate + query, chunkProcessorCallback : onStreamedChunkReceived_Callback, context : currentContext, scrapedPages}) // convert to object and add : showErrorModal : (errorMessage: string) => void
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
                 // If streaming was aborted, exit early
@@ -154,7 +155,13 @@ function Chat() {
                 // If any document is selected, extract the relevant datas for RAG
                 const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
 
-                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(ragContext + query, onStreamedChunkReceived_Callback, ragContext == "" ? currentContext : []) // ??? should the context be passed when in ragged mode ?
+                const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(
+                    {
+                        question : ragContext + query, 
+                        chunkProcessorCallback : onStreamedChunkReceived_Callback, 
+                        context : ragContext == "" ? currentContext : [], 
+                        images : ImageRepository.getImagesAsBase64()}
+                    )
                 newContext = finalDatas.newContext
                 inferenceStats = finalDatas.inferenceStats
             }

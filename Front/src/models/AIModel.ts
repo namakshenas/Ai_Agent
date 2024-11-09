@@ -117,14 +117,15 @@ export class AIModel{
         }
     }
 
-    async askForAStreamedResponse(prompt : string) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
+    async askForAStreamedResponse(prompt : string, images : string[] = []) : Promise<ReadableStreamDefaultReader<Uint8Array>>{
         try {
             const response = await fetch("/ollama/api/generate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: this.#buildRequest({prompt, stream : true}),
+                // ? querying an image : no image
+                body:  (images.length && this.#modelName.includes("vision")) ? this.#buildVisionRequest({prompt, stream : true, images}) : this.#buildRequest({prompt, stream : true}),
                 signal: this.#signal,
                 // keepalive: true
             })
@@ -372,6 +373,24 @@ export class AIModel{
         return JSON.stringify(requestWithOptions)
     }
 
+    #buildVisionRequest({prompt, images, stream} : {prompt : string, images : string[], stream : boolean}) : string {
+        const baseRequest : IBaseVisionOllamaRequest = {
+            "model": this.getModelName(),
+            "stream": stream,
+            "system": this.getSystemPrompt(),
+            "prompt": prompt,
+            "context" : [...this.getContext()],
+            "images" : images,
+        }
+        const requestWithOptions = {...baseRequest, 
+            "options": { 
+                "num_ctx": this.getContextSize(),
+                "temperature" : this.getTemperature(), 
+                "num_predict" : this.getNumPredict()
+        }}
+        return JSON.stringify(requestWithOptions)
+    }
+
     /**
      * @private
      * @function #buildEmbeddingRequest
@@ -511,4 +530,8 @@ export interface IBaseOllamaRequest{
     prompt: string
     context : number[]
     options? : unknown
+}
+
+interface IBaseVisionOllamaRequest extends IBaseOllamaRequest {
+    images: string[]
 }

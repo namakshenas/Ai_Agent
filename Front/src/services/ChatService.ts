@@ -29,12 +29,37 @@ export class ChatService{
       favorite : false
     })
 
+    /*static FollowUpQuestionsGenerator : AIAgent = new AIAgent({
+      id : 'a0000000008',
+      name: "FollowUpQuestionsGenerator",
+      modelName : "llama3.2:3b",
+      systemPrompt : "You are an helpful assistant",
+      mirostat: 0,
+      mirostat_eta: 0.1,
+      mirostat_tau: 5.0,
+      num_ctx: 2048,
+      repeat_last_n: 64,
+      repeat_penalty: 1.1,
+      temperature: 0.1,
+      seed: 0,
+      stop: "AI assistant:",
+      tfs_z: 1,
+      num_predict: 1024,
+      top_k: 40,
+      top_p: 0.9,
+      type : "system",
+      favorite : false
+    })*/
+
     static stillInUseAgent = this.activeAgent
 
     static async askForFollowUpQuestions(question : string, context:number[] = []) : Promise<string>
     {
       try{
         if(this.activeAgent == null) throw new Error(`Agent is not available`)
+
+        // if vision model, no follow up questions
+        if(this.activeAgent.getModelName().includes("vision") || this.activeAgent.getModelName().includes("minicpm") || this.activeAgent.getModelName().includes("llava")) return ""
 
         this.activeAgent.setContext(context)
         const answer = await this.activeAgent.ask(question)
@@ -63,7 +88,12 @@ export class ChatService{
       }
     }
 
-    static async askTheActiveAgentForAStreamedResponse(question : string, chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, context:number[] = [], scrapedPages?: ScrapedPage[]) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
+    static async askTheActiveAgentForAStreamedResponse({
+      question, 
+      chunkProcessorCallback, 
+      context = [], 
+      scrapedPages, 
+      images} : IAskedStreamedResponseParameters) : Promise<{newContext :number[], inferenceStats : IInferenceStats}>
     {
       if(this.activeAgent == null) throw new Error(`Agent is not available`)
       this.setCurrentlyUsedAgent(this.activeAgent)
@@ -88,7 +118,7 @@ export class ChatService{
       let content = ""
       let decod = ""
       try{
-          const reader = await this.activeAgent.askForAStreamedResponse(webDatasSizedForAvailableContext + '\n\n<MYREQUEST>' + question + '</MYREQUEST>')
+          const reader = await this.activeAgent.askForAStreamedResponse(webDatasSizedForAvailableContext + '\n\n<MYREQUEST>' + question + '</MYREQUEST>', images)
 
           while(true){
               const { value } = await reader.read()
@@ -236,3 +266,11 @@ export class ChatService{
 }
 
 /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
+
+interface IAskedStreamedResponseParameters {
+  question : string, 
+  chunkProcessorCallback : ({markdown , html} : {markdown : string, html : string}) => void, 
+  context:number[], 
+  scrapedPages?: ScrapedPage[], 
+  images?: string[]
+}
