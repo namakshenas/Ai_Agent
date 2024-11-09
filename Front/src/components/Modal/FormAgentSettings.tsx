@@ -84,6 +84,8 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
     function handleSwitchOptionsSetClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
         e.stopPropagation()
+        if(formValues.agentName == "") return setError("Agent name is required.")
+        if(formValues.systemPrompt == "") return setError("System prompt is missing.")
         setActiveOptionsSet(activeOptionsSet == 0 ? 1 : 0)
     }
 

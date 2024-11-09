@@ -76,7 +76,7 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         <form className="prompt-form">
         <div style={{marginBottom:"14px", width:"100%", display:"flex", justifyContent:"space-between"}}>
             <label id="label-name" style={{margin:0}}>Name</label>
-            <span style={{marginLeft:'auto', fontWeight:'500', width:'calc(40px * 4 + 8px * 3)', textAlign:'left'}}>Actions</span>
+            {role == "edit" && <span style={{marginLeft:'auto', fontWeight:'500', width:'calc(40px * 4 + 8px * 3)', textAlign:'left'}}>Actions</span>}
         </div>
         <div className="nameNOptionsWrapper">
             <input aria-labelledby="label-name" 

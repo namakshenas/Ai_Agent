@@ -4,11 +4,11 @@ import ollama from '../../assets/Ollama3.png'
 import DocumentsSlot from './DocumentsSlot'
 import { ConversationsSlot } from './ConversationsSlot'
 import { PromptsSlot } from './PromptsSlot'
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 import React from 'react'
 import { IConversation } from '../../interfaces/IConversation'
 import { TAction } from '../../hooks/useActiveConversationReducer'
-import ImagesSlot from './ImagesSlot'
+// import ImagesSlot from './ImagesSlot'
 
 // export default function LeftPanel({activeConversation, setActiveConversation, setModalStatus, selectedPromptRef} : IProps){
 const LeftPanel = React.memo(({isWebSearchActivated, setWebSearchActivated, activeConversationId, activeConversationStateRef, setActiveConversationId, dispatch, memoizedSetModalStatus, selectedPromptNameRef} : IProps) => {
