@@ -6,6 +6,8 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 
 ![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/screenshot1.png "osspita main")
 
+[![OSSPITA Demo](https://img.youtube.com/vi/zKxcANYu-9I/0.jpg)](https://www.youtube.com/watch?v=zKxcANYu-9I)
+
 ## I - Features
 
 - **Real-time interactions** with most Open-Source AI models.
