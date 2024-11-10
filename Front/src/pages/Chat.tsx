@@ -12,7 +12,7 @@ import { WebSearchService } from "../services/WebSearchService";
 import Modal from "../components/Modal/Modal";
 import FormAgentSettings from "../components/Modal/FormAgentSettings";
 import LeftPanel from "../components/LeftPanel/LeftPanel";
-import RightPanel from "../components/RightPanel";
+import RightPanel from "../components/RightPanel/RightPanel";
 import LoadedModelInfosBar from "../components/LoadedModelInfosBar";
 import useModalManager from "../hooks/useModalManager";
 import { useStreamingState } from "../hooks/useStreamingState";
