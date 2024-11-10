@@ -24,6 +24,19 @@
       height: 40px;
     }
 
+    .labelErrorContainer {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-between;
+      max-width: 50%;
+
+      span {
+        color: hsla(337, 89%, 28%, 0.733);
+        font-weight: 500;
+      }
+    }
+
     .nameNOptionsWrapper {
       width: 100%;
       display: flex;

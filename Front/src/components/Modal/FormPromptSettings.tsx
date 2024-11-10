@@ -8,6 +8,7 @@ import PromptService from "../../services/API/PromptService"
 export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRef, setForceLeftPanelRefresh, role} : IProps){
 
     const { prompt, setPrompt } = useFetchPrompt(selectedPromptNameRef?.current)
+    const [error, setError] = useState("")
 
     useEffect(() => {
         setFormValues({name : prompt.name, prompt : prompt.prompts[prompt.prompts.length - 1 ].text, currentVersion : prompt.currentVersion})
@@ -20,15 +21,9 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         memoizedSetModalStatus({visibility : false})
     }
 
-    function areFormDatasValid(){
-        if(formValues.name == "") return false
-        if(formValues.prompt == "") return false
-        return true
-    }
-
     function handleSaveClick(e: React.MouseEvent<HTMLButtonElement>){
         e.preventDefault()
-        if(!areFormDatasValid()) return // !!! error message missing
+        if(!isFormValid()) return // !!! error message missing
         if(role == "edit") {
             PromptService.updateByName(prompt.name, { newName : formValues.name, prompt : formValues.prompt, version : formValues.currentVersion })
         }
@@ -56,6 +51,20 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         }
     }
 
+    function isFormValid(){
+        const {name, prompt } = formValues
+        setError("")
+        if(!name || name == "") { 
+            setError("Prompt name is required.")
+            return false
+        }
+        if(!prompt || prompt == "") { 
+            setError("A prompt is required.")
+            return false
+        }
+        return true
+    }
+
     return(
     <div className="formNHistoryContainer">
         {role == "edit" && <div className="historyContainer">
@@ -75,12 +84,13 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
         </div>}
         <form className="prompt-form">
         <div style={{marginBottom:"14px", width:"100%", display:"flex", justifyContent:"space-between"}}>
-            <label id="label-name" style={{margin:0}}>Name</label>
+            <div className="labelErrorContainer"><label id="label-name" style={{margin:0}}>Name</label>{error.includes("name") && <span>{error}</span>}</div>
             {role == "edit" && <span style={{marginLeft:'auto', fontWeight:'500', width:'calc(40px * 4 + 8px * 3)', textAlign:'left'}}>Actions</span>}
         </div>
         <div className="nameNOptionsWrapper">
             <input aria-labelledby="label-name" 
-                style={{maxWidth:'50%'}} type="text" 
+                style={error.includes("name") ? {maxWidth:'50%', borderColor: 'hsla(337, 89%, 28%, 0.733)'} : {maxWidth:'50%'}}
+                type="text" 
                 spellCheck="false" 
                 value={formValues.name} 
                 onChange={(e) => setFormValues(formValues => ({...formValues, name : e.target?.value}))}
@@ -117,14 +127,14 @@ export function FormPromptSettings({memoizedSetModalStatus, selectedPromptNameRe
                 </button>
             </>}
         </div>
-        <label id="label-prompt">Prompt</label>
+        <div className="labelErrorContainer" style={{maxWidth:'100%'}}><label id="label-prompt">Prompt</label>{error.includes("A prompt") && <span style={{marginTop: '1.5rem'}}>{error}</span>}</div>
         <textarea
             aria-labelledby="label-prompt"
             spellCheck="false"
             className="form-textarea" 
             rows={12} 
             value={formValues.prompt}
-            style={{position:"relative"}}
+            style={error.includes("A prompt") ? {position:"relative", outlineColor: 'hsla(337, 89%, 28%, 0.733)'} : {position:"relative"}}
             onChange={(e) => setFormValues(formValues => ({...formValues, prompt : e.target?.value}))}
         />
             {/*<button className="purpleShadow">
