@@ -81,7 +81,8 @@ export default function Installation(){
                     <hr/>
                     <p style={{textAlign:'left', marginTop:'0.5rem'}}>II - Now run it by executing (from the back folder) :</p>
                     <div className="pullCommands">
-                                &gt; ./run
+                                &gt; node OSspitaAPI.js<br/>
+                                &gt; server should run on port 5174
                     </div>
                     <hr/>
                     <div style={{ marginTop:'1rem', width:'100%', display: 'flex', height:'40px', flexDirection:'row', columnGap:'0.75rem'}}>
