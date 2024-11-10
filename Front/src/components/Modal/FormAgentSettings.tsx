@@ -176,6 +176,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
             <div className="agentInputNDeleteContainer">
                 <input
                     aria-labelledby="labelAgentName"
+                    style={error != "" && error.includes("Agent name") ? {borderColor: 'hsla(337, 89%, 28%, 0.733)'} : {}}
                     type="text"
                     className="formInput" 
                     spellCheck="false"
@@ -208,7 +209,7 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                     {(error != "" && error.includes("System prompt")) && <span className="errorMessage">System Prompt is missing</span>}
                 </div>
                 <textarea
-                    style={{gridArea:'textarea'}}
+                    style={error != "" && error.includes("System prompt") ? {outlineColor: 'hsla(337, 89%, 28%, 0.733)', gridArea:'textarea'} : {gridArea:'textarea'}}
                     aria-labelledby="labelSystemPrompt"
                     spellCheck="false"
                     className="formTextarea" 
