@@ -10,10 +10,7 @@ export class AIAgent extends AIModel {
     #type : 'system' | 'user_created'
     #favorite : boolean
     #webSearchEconomy: boolean = false
-    #processFn : (request : any) => any = (request : string) => request
-    // outputControlRegex
-    // maxRetry
-    protected nextAgent: AIAgent | null = null
+    #observers : AIAgent[] = []
 
     constructor({
         id,
@@ -78,19 +75,6 @@ export class AIAgent extends AIModel {
         return this.#name
     }
 
-    setNextAgent(agent: AIAgent): AIAgent {
-        this.nextAgent = agent
-        return agent
-    }
-
-    getNextAgent(): AIAgent | null {
-        return this.nextAgent
-    }
-
-    setProcessFn(fn : (params : unknown) => unknown){
-        this.#processFn = fn
-    }
-
     getWebSearchEconomy() : boolean {
         return this.#webSearchEconomy
     }
@@ -115,19 +99,6 @@ export class AIAgent extends AIModel {
 
     setFavorite(favorite : boolean){
         this.#favorite = favorite
-    }
-    
-    async process(request: string): Promise<string>{
-        // should contain all the pre and post inference related to this agent
-        this.#processFn(request)
-        return this.passToNext((await this.ask(request)).response) // !!! should pass context too with response
-    }
-
-    protected async passToNext(response: string): Promise<string> {
-        if (this.nextAgent) {
-            return await this.nextAgent.process(response)
-        }
-        return response // if there is not next agent, this is the final reply
     }
 
     asString(){
@@ -157,7 +128,18 @@ export class AIAgent extends AIModel {
         )
     }
 
-    //setOutputSchema
+    // Observer methods
+    update(data : string) : string {
+        return data
+    }
+
+    addObserver(observer : AIAgent ) {
+        this.#observers.push(observer);
+    }
+
+    notifyObservers(data : string) {
+        this.#observers.forEach(observer => observer.update(data));
+    }
 }
 
 // should be able to link a control agent
