@@ -8,7 +8,7 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 
 Video demo :
 
-[![OSspita Video Demo](https://img.youtube.com/vi/zKxcANYu-9I/0.jpg)](https://www.youtube.com/watch?v=zKxcANYu-9I "OSspita Video Demo")
+[![OSspita Video Demo](https://img.youtube.com/vi/zKxcANYu-9I/0.jpg)](https://www.youtube.com/watch?v=zKxcANYu-9I "OSspita Video Demo")<br>
 *Click the image above to watch the video on YouTube*
 
 ## I - Features
