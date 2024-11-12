@@ -5,8 +5,12 @@ import '../../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
 import { IConversationElement, IInferenceStats } from "../../interfaces/IConversation"
 import { useTTS } from "../../hooks/useTTS"
+import React from "react"
 
-function ChatHistory({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) {
+const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) => {
+// function ChatHistory({activeConversationState, isStreaming, setTextareaValue, regenerateLastAnswer} : IProps) {
+
+  useEffect(() => console.log("chat history render"))
 
   const historyContainerRef = useRef(null)
   const autoScrollingObsRef = useRef<MutationObserver>()
@@ -123,7 +127,11 @@ function ChatHistory({activeConversationState, isStreaming, setTextareaValue, re
     return date.toLocaleString('en-US', options);
   }
 
-}
+//}
+}, (prevProps, nextProps) => {
+  // refresh AIAgentsList or isStreaming change
+  return (JSON.stringify(prevProps.activeConversationState) === JSON.stringify(nextProps.activeConversationState)) && prevProps.isStreaming === nextProps.isStreaming
+})
 
 export default ChatHistory
 

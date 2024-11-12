@@ -17,7 +17,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
 
-    // useEffect(() => {console.log("right panel render")}) 
+    useEffect(() => {console.log("right panel render")}) 
 
     const [webSearchSummarization, setWebSearchSummarization] = useState(false)
     useEffect(() => {

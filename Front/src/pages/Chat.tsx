@@ -35,7 +35,7 @@ import InferenceStatsFormatingService from "../services/InferenceStatsFormatingS
 
 function Chat() {
 
-    // useEffect(() => console.log("chat render"))
+    useEffect(() => console.log("chat render"))
 
     const {AIAgentsList, triggerAIAgentsListRefresh} = useFetchAgentsList()
     
