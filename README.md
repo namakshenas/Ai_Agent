@@ -6,9 +6,10 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 
 ![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/screenshot1.png "osspita main")
 
-Showcase video :
+Video demo :
 
-[![OSSPITA Demo](https://img.youtube.com/vi/zKxcANYu-9I/0.jpg)](https://www.youtube.com/watch?v=zKxcANYu-9I)
+[![OSspita Video Demo](https://img.youtube.com/vi/zKxcANYu-9I/0.jpg)](https://www.youtube.com/watch?v=zKxcANYu-9I "OSspita Video Demo")<br>
+*Click the image above to watch the video on YouTube*
 
 ## I - Features
 
