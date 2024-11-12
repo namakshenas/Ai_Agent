@@ -129,8 +129,13 @@ export class AIAgent extends AIModel {
     }
 
     // Observer methods
-    update(data : string) : string {
-        return data
+    async update(data : string) : Promise<string> {
+        const response = (await this.ask(data)).response
+        console.log(response)
+        // if there is no observer listening to this agent
+        if(this.#observers.length == 0) return response
+        // if there is an observer
+        return this.#observers[0].update(response)
     }
 
     addObserver(observer : AIAgent ) {

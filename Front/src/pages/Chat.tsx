@@ -27,6 +27,8 @@ import DocProcessorService from "../services/DocProcessorService";
 import IRAGChunkResponse from "../interfaces/responses/IRAGChunkResponse";
 import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaManager";
 import { ImageRepository } from "../repositories/ImageRepository";
+import AIAgentChain from "../models/AIAgentChain";
+import AnswerFormatingService from "../services/AnswerFormatingService";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
@@ -195,6 +197,21 @@ function Chat() {
         }
     }
 
+    // query the agents chain
+    async function sendRequestThroughActiveChain(query : string): Promise<void>{
+        // refreshing the agents in case they have been updated
+        // !!! should be refresh when switch right panel tab
+        dispatch({ 
+            type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
+            payload: { message : query, 
+            agentUsed : AIAgentChain.getLastAgent().getName(),
+            modelUsed : AIAgentChain.getLastAgent().getModelName(),}
+        })
+        const response = await AIAgentChain.process(query)
+        dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response), markdown : response}})
+        return
+    }
+
     // callback passed to the chatService so it can display the streamed answer
     function onStreamedChunkReceived_Callback({markdown , html} : {markdown : string, html : string}): void {
         dispatch({ 
@@ -315,7 +332,8 @@ function Chat() {
                         <button title="cancel the request" className="cancelSendButton purpleShadow" onClick={handleAbortStreamingClick}>
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
-                        <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button>
+                        <><button className="sendButton purpleShadow" style={{width:'40px'}} onClick={() => sendRequestThroughActiveChain(textareaValue)}>Chain</button>
+                        <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button></>
                     }
                 </div>
 
