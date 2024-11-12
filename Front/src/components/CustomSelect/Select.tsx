@@ -3,7 +3,7 @@
 import './style/Select.css'
 import ComboBox from "./ComboBox"
 import OptionsList from "./OptionsList"
-import {useState, useRef, useEffect} from 'react'
+import {useState, useRef, useEffect, ChangeEvent} from 'react'
 import { useKeyboardHandler } from './hooks/useKeyboardHandler'
 import { SelectContext } from './contexts/SelectContext'
 import { ISelectPreset } from './presets/ISelectPreset'
@@ -36,7 +36,7 @@ function Select({ options, id, labelledBy, defaultOption, onValueChange, preset,
         activeOptionRef.current = {...option}
         _setActiveOption({...option})
         if(onValueChange == null || !onValueChangeCall) return
-        onValueChange(option)
+        onValueChange(option, id)
     }
 
     // display the default option into the combobox
@@ -92,7 +92,7 @@ interface IProps{
     id : string
     labelledBy ?: string
     defaultOption ?: string
-    onValueChange ?: (activeOption : IOption) => unknown
+    onValueChange ?: (activeOption : IOption, id : string) => unknown
     preset ?: ISelectPreset
     width ?: string | number
 }
