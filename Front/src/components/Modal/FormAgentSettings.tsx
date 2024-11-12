@@ -40,7 +40,6 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
                 webSearchEconomy: false,
             }
             setFormValues({...baseForm})
-            
         }
 
         retrieveAgent(ChatService.getActiveAgent().getName())
@@ -120,7 +119,12 @@ export default function FormAgentSettings({memoizedSetModalStatus, role, trigger
 
         let response
         if(role == "create") response = await AgentService.save(newAgent)
-        if(role == "edit") response = await AgentService.updateById(newAgent)
+        if(role == "edit") {
+            if(!currentAgent.current) return
+            const agent = await AgentService.getAgentByName(currentAgent.current.getName())
+            console.log(JSON.stringify(agent))
+            response = await AgentService.updateById(newAgent)
+        }
         
         // if any error saving or updating the model -> the modal stays open & the active agent is not updated
         if(response != null) return setError(response)

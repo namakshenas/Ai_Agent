@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-private-class-members */
 import { IAIModelParams } from "../interfaces/params/IAIModelParams.js"
+import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse.js"
 import { AIModel } from "./AIModel.js"
 
 export class AIAgent extends AIModel {
@@ -127,15 +128,39 @@ export class AIAgent extends AIModel {
             }
         )
     }
+    
+    clone() : AIAgent{
+        return new AIAgent({
+            id : this.getId(),
+            name : this.#name,
+            modelName: this.getModelName(),
+            systemPrompt: this.getSystemPrompt(),
+            num_ctx: this.getContextSize(),
+            temperature: this.getTemperature(),
+            num_predict: this.getNumPredict(),
+            mirostat: this.getMirostat(),
+            mirostat_eta: this.getMirostatEta(),
+            mirostat_tau: this.getMirostatTau(),
+            repeat_last_n: this.getRepeatLastN(),
+            repeat_penalty: this.getRepeatPenalty(),
+            seed: this.getSeed(),
+            stop: this.getStop(),
+            tfs_z: this.getTfsZ(),
+            top_k: this.getTopK(),
+            top_p: this.getTopP(),
+            type: this.getType(),
+            favorite: this.getFavorite()
+        })
+    }
 
     // Observer methods
-    async update(data : string) : Promise<string> {
-        const response = (await this.ask(data)).response
-        console.log(response)
+    async update(data : string) : Promise<ICompletionResponse> {
+        const response = await this.ask(data)
+        console.log(response.response)
         // if there is no observer listening to this agent
         if(this.#observers.length == 0) return response
         // if there is an observer
-        return this.#observers[0].update(response)
+        return this.#observers[0].update(response.response)
     }
 
     addObserver(observer : AIAgent ) {

@@ -12,7 +12,7 @@ import { WebSearchService } from '../../services/WebSearchService'
 import AIAgentChain from '../../models/AIAgentChain'
 import RightMenu from './RightMenu'
 
-const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming} : IProps) => {
+const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreaming, activeMenuItem, setActiveMenuItem} : IProps) => {
 
     // retrieved for the ollama api
     const modelsList = useFetchModelsList()
@@ -32,8 +32,6 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     const isFirstRender = useRef(true)
 
-    const [activeMenuItem, setActiveMenuItem] = useState<"agent"|"settings"|"chain">("agent")
-
     // refresh the form if agentList state changes
     useEffect(() => {
         currentAgent.current = ChatService.getActiveAgent()
@@ -44,6 +42,11 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
             isFirstRender.current = false
         }
     }, [AIAgentsList])
+
+    useEffect(() => {
+        AIAgentChain.empty()
+        setCurrentChain([])
+    }, [activeMenuItem])
     
     const [showSavingSuccessfulBtn, setShowSavingSuccessfulBtn] = useState<boolean>(false)
     const timeoutRef = useRef<null | NodeJS.Timeout>(null)
@@ -116,8 +119,9 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     }
 
     useEffect(() => {
-        const agentsArray = currentChain.map(link => AIAgentsList.filter(agent => (agent.getName() == link.agentName))[0])
-        if(agentsArray.length == 0) return AIAgentChain.updateAgentsList([])
+        // each agent is cloned to avoid circular observables calling
+        const agentsArray = currentChain.map(link => AIAgentsList.filter(agent => (agent.getName() == link.agentName))[0].clone())
+        if(agentsArray.length == 0) return AIAgentChain.empty()
         AIAgentChain.updateAgentsList(agentsArray)
     }, [currentChain])
 
@@ -138,7 +142,6 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
 
     function handleMenuItemClick(item : string){
         if(item === "agent" || item === "chain" || item === "settings") return setActiveMenuItem(item)
-        return setActiveMenuItem("agent")
     }
 
     // save button animation
@@ -165,7 +168,7 @@ const RightPanel = React.memo(({memoizedSetModalStatus, AIAgentsList, isStreamin
     if(activeMenuItem == "settings") return (<aside className="rightDrawer">
         <RightMenu handleMenuItemClick={handleMenuItemClick}/>
         <article className='comingSoonContainer'>
-            <span onClick={() => AIAgentChain.process("how to build a bunker"/*"list all movies directed by christopher nolan"*/)} className='comingSoon' style={{textAlign:'center', width:'100%'}}>
+            <span className='comingSoon' style={{textAlign:'center', width:'100%'}}>
                 Coming Soon
             </span>
         </article>
@@ -175,7 +178,7 @@ if(activeMenuItem == "chain") return (<aside className="rightDrawer">
     <RightMenu handleMenuItemClick={handleMenuItemClick}/>
     <article className='chainContainer'>
         <h3>CURRENT CHAIN</h3>
-        <p>NB : Each Agent will process the response of its predecessor.</p>
+        <p>NB : Each Agent will process the response of its predecessor. The final response will be displayed.</p>
         {currentChain.map((link, index) => (<div key={"agentArrowGroup"+index} style={{display:'flex', flexDirection:'column', width:'100%', alignItems:'center'}}>
             <div className="chainSelectDeleteContainer">
                 <Select 
@@ -319,7 +322,7 @@ if(activeMenuItem == "chain") return (<aside className="rightDrawer">
     )
 }, (prevProps, nextProps) => {
     // refresh AIAgentsList or isStreaming change
-    return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.isStreaming === nextProps.isStreaming )
+    return (JSON.stringify(prevProps.AIAgentsList.map(agent => agent.asString())) === JSON.stringify(nextProps.AIAgentsList.map(agent => agent.asString())) && prevProps.isStreaming === nextProps.isStreaming && prevProps.activeMenuItem === nextProps.activeMenuItem)
 })
 
 export default RightPanel
@@ -328,4 +331,6 @@ interface IProps{
     memoizedSetModalStatus : ({visibility, contentId} : {visibility : boolean, contentId? : string}) => void
     AIAgentsList: AIAgent[]
     isStreaming : boolean
+    activeMenuItem : "agent" | "chain" | "settings"
+    setActiveMenuItem : (menuItem: "agent"|"settings"|"chain") => void
 }

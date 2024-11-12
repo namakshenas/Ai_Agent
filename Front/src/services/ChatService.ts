@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
 import IScrapedPage from "../interfaces/IScrapedPage";
+import { ICompletionResponse } from "../interfaces/responses/ICompletionResponse";
 import { AIAgent } from "../models/AIAgent";
 import ScrapedPage from "../models/ScrapedPage";
 import AnswerFormatingService from "./AnswerFormatingService";
+import InferenceStatsFormatingService from "./InferenceStatsFormatingService";
 export class ChatService{
 
     static #targetedRAGDocs : string[] = []
@@ -99,7 +101,7 @@ export class ChatService{
       this.setCurrentlyUsedAgent(this.activeAgent)
 
       let newContext = []
-      const inferenceStats : IInferenceStats = {
+      let inferenceStats : IInferenceStats = {
         promptEvalDuration : 0,
         inferenceDuration : 0,
         modelLoadingDuration : 0,
@@ -150,12 +152,7 @@ export class ChatService{
 
               if(json.done) {
                 newContext = json.context || []
-                inferenceStats.promptEvalDuration = json.prompt_eval_duration
-                inferenceStats.promptTokensEval = json.prompt_eval_duration
-                inferenceStats.inferenceDuration = json.eval_duration
-                inferenceStats.modelLoadingDuration = json.load_duration
-                inferenceStats.wholeProcessDuration = json.total_duration
-                inferenceStats.tokensGenerated = json.eval_count
+                inferenceStats = InferenceStatsFormatingService.extractStats(json)
                 content += json.response
                 chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
                 break

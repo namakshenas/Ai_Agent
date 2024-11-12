@@ -29,6 +29,7 @@ import useCustomTextareaManager from "../hooks/CustomTextarea/useCustomTextareaM
 import { ImageRepository } from "../repositories/ImageRepository";
 import AIAgentChain from "../models/AIAgentChain";
 import AnswerFormatingService from "../services/AnswerFormatingService";
+import InferenceStatsFormatingService from "../services/InferenceStatsFormatingService";
 // import { TTSService } from "../services/TTSService";
 // import SpeechRecognitionService from "../services/SpeechRecognitionService";
 
@@ -66,6 +67,14 @@ function Chat() {
 
     const {isWebSearchActivated, isWebSearchActivatedRef, setWebSearchActivated} = useWebSearchState()
     const [isFollowUpQuestionsClosed, setIsFollowUpQuestionsClosed] = useState<boolean>(false)
+
+    
+    const [activeMenuItem, _setActiveMenuItem] = useState<"agent"|"settings"|"chain">("agent")
+    const activeMenuItemRef = useRef<"agent"|"settings"|"chain">("agent")
+    function setActiveMenuItem(menuItem: "agent"|"settings"|"chain") {
+        _setActiveMenuItem(menuItem)
+        activeMenuItemRef.current = menuItem
+    }
 
     // Effect hook for initial setup
     // Initializes conversation repository and sets scrollbar behavior
@@ -197,19 +206,30 @@ function Chat() {
         }
     }
 
-    // query the agents chain
+    // query the active chain
     async function sendRequestThroughActiveChain(query : string): Promise<void>{
-        // refreshing the agents in case they have been updated
-        // !!! should be refresh when switch right panel tab
-        dispatch({ 
-            type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
-            payload: { message : query, 
-            agentUsed : AIAgentChain.getLastAgent().getName(),
-            modelUsed : AIAgentChain.getLastAgent().getModelName(),}
-        })
-        const response = await AIAgentChain.process(query)
-        dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response), markdown : response}})
-        return
+        try{
+            if(AIAgentChain.isEmpty()) return
+            dispatch({ 
+                type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
+                payload: { message : query, 
+                agentUsed : AIAgentChain.getLastAgent().getName(),
+                modelUsed : AIAgentChain.getLastAgent().getModelName(),}
+            })
+            const response = await AIAgentChain.process(query)
+            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response.response), markdown : response.response}})
+            if(textareaValueRef.current == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
+            const stats = InferenceStatsFormatingService.extractStats(response)
+            dispatch({ 
+                type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, 
+                payload: {newContext : [], inferenceStats: stats} 
+            })
+            return
+        }catch (error : unknown) {
+            dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
+            console.error(error)
+            showErrorModal("Stream failed : " + error)
+        }
     }
 
     // callback passed to the chatService so it can display the streamed answer
@@ -249,6 +269,15 @@ function Chat() {
     // Events Handlers
     //
     ***/
+
+    async function handlePressEnterKey(query : string) : Promise<void>{
+        if(activeMenuItemRef.current == "chain") {
+            await sendRequestThroughActiveChain(query)
+            return
+        }
+        await askMainAgent_Streaming(query)
+        return
+    }
 
     function handleAbortStreamingClick() {
         ChatService.abortAgentLastRequest()
@@ -302,7 +331,7 @@ function Chat() {
                     setTextareaValue={setTextareaValue} 
                     textareaValue={textareaValue} 
                     currentContext={activeConversationStateRef.current.history[activeConversationStateRef.current.history.length - 1]?.context || []} 
-                    askMainAgent_Streaming={askMainAgent_Streaming} activeConversationId={activeConversationId.value} />}
+                    handlePressEnterKey={handlePressEnterKey} activeConversationId={activeConversationId.value} />}
 
                 {!isFollowUpQuestionsClosed && <FollowUpQuestions historyElement={activeConversationState.history[activeConversationState.history.length - 1]}
                     setTextareaValue={setTextareaValue} 
@@ -332,15 +361,17 @@ function Chat() {
                         <button title="cancel the request" className="cancelSendButton purpleShadow" onClick={handleAbortStreamingClick}>
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
-                        <><button className="sendButton purpleShadow" style={{width:'40px'}} onClick={() => sendRequestThroughActiveChain(textareaValue)}>Chain</button>
-                        <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button></>
+                        <>
+                            {activeMenuItem == "agent" && <button className="sendButton purpleShadow" onClick={() => askMainAgent_Streaming(textareaValue)}>Send</button>}
+                            {activeMenuItem == "chain" && <button className="sendButton purpleShadow" onClick={() => sendRequestThroughActiveChain(textareaValue)}>Send&nbsp;<span style={{fontWeight:'400'}}>(to Chain)</span></button>}
+                        </>
                     }
                 </div>
 
             </div>
         </main>
 
-        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming}/>
+        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming} activeMenuItem={activeMenuItem} setActiveMenuItem={setActiveMenuItem}/>
         
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "560px"}>
