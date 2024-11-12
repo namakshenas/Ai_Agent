@@ -12,6 +12,20 @@
   align-items: flex-start;
   max-width: 360px;
 
+  h3 {
+    font-size: 14px;
+    color: var(--label-grey-text-color);
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+    font-family: "Poppins";
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
   a:any-link {
     color: var(--main-black-text-color);
     text-decoration: underline;
@@ -32,6 +46,7 @@
         var(--base-container-background-color)
       );
       border: 1px solid #ffffffaa;
+      /*box-shadow: 0 6px 12px -2px hsla(265, 40%, 32%, 0.188);*/
       box-shadow: 0 6px 12px -2px #42396b30;
       border-radius: 6px;
       padding: 0 0.75rem;
@@ -80,6 +95,7 @@
     width: 100%;
     /*flex: 0 0 100%;*/
     border: 1px solid #ffffffaa;
+    /*box-shadow: 0 6px 12px -2px hsla(265, 40%, 32%, 0.188);*/
     box-shadow: 0 6px 12px -2px #42396b30;
 
     .beingUsed {
@@ -373,6 +389,121 @@
           rgba(255, 255, 255, 0.15) 50%
         ),
         var(--purple-button-color);
+
+      &:hover {
+        background: var(--purple-button-hover-background-color);
+        border: 1px solid var(--purple-button-hover-border-color);
+        box-shadow: 0 2px 0px #fff;
+        color: #ffffffee;
+      }
+    }
+  }
+
+  .comingSoonContainer {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(
+      to bottom,
+      #ffffff66,
+      var(--base-container-background-color)
+    );
+    border: 1px solid var(--base-container-border-color);
+    border-radius: 6px;
+    padding: 12px 1rem;
+    width: 100%;
+    border: 1px solid #ffffffaa;
+    box-shadow: 0 6px 12px -2px #42396b30;
+    margin-bottom: 12px;
+    height: 85vh;
+
+    span {
+      background: var(--main-background-color);
+      border: 1px dashed #aebae0;
+      padding: 0 0.5rem 0 0.5rem;
+      display: flex;
+      border-radius: 4px;
+      height: 3rem;
+      flex-grow: 0;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .chainContainer {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(
+      to bottom,
+      #ffffff66,
+      var(--base-container-background-color)
+    );
+    border: 1px solid var(--base-container-border-color);
+    border-radius: 6px;
+    padding: 12px 1rem;
+    width: 100%;
+    border: 1px solid #ffffffaa;
+    box-shadow: 0 6px 12px -2px #42396b30;
+    margin-bottom: 12px;
+    align-items: center;
+
+    .chainSelectDeleteContainer {
+      display: flex;
+      flex-direction: row;
+      column-gap: 0.5rem;
+      width: 100%;
+
+      button {
+        width: 40px;
+        flex: 0 0 40px;
+        height: 40px;
+        /*border: 2px solid #6d48c1;
+        background: #fff;
+
+        &.white {
+          background: #f8f8fc99;
+          box-shadow: 0 1px 2px -1px hsla(252, 29%, 53%, 0.3),
+            0 4px 8px -1px hsla(246, 29%, 52%, 0.21);
+
+          &:hover {
+            background: var(--secondary-button-hover-color);
+            box-shadow: inset 0 1px 2px
+                var(--secondary-button-hover-innershadow-color),
+              0 2px 0px #fff;
+            outline: 1px solid var(--secondary-button-border-hover-color);
+            border: none;
+            color: var(--main-black-text-color);
+            text-shadow: #ffffffff;
+
+            svg path {
+              fill: #707baf;
+            }
+          }
+        }*/
+      }
+    }
+
+    .agentNStatusContainer {
+      display: flex;
+      column-gap: 0.5rem;
+    }
+
+    p {
+      display: flex;
+      text-align: left;
+      margin-bottom: 1.25rem;
+      font-size: 14px;
+    }
+
+    svg {
+      margin: 12px 0;
+    }
+
+    button {
+      color: #fff;
+      width: 100%;
+      font-weight: 500;
+      height: 44px;
+      background: var(--purple-button-color);
 
       &:hover {
         background: var(--purple-button-hover-background-color);
