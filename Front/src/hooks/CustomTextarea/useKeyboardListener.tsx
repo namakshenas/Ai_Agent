@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react"
 
-function useKeyboardListener(textareaRef : React.RefObject<HTMLTextAreaElement>, handleSendMessageStreaming : (message : string) => Promise<void>, activeConversationId : number, currentContext : number[]){
+function useKeyboardListener(textareaRef : React.RefObject<HTMLTextAreaElement>, handlePressEnterKey : (message : string) => Promise<void>, activeConversationId : number, currentContext : number[]){
 
     useEffect(() => {
         window.addEventListener('keydown', handleOnKeyDown)
@@ -17,7 +17,7 @@ function useKeyboardListener(textareaRef : React.RefObject<HTMLTextAreaElement>,
         // if(event.key === 'Tab' && autoCompletion.current) applyAutoCompleteOnTabPress(event)
         if(event.key === 'Enter' && !event.shiftKey && document.activeElement?.id == "mainTextArea") {
             event.preventDefault()
-            if(textareaRef.current) await handleSendMessageStreaming(textareaRef.current.value)
+            if(textareaRef.current) await handlePressEnterKey(textareaRef.current.value)
         }
     }
 }

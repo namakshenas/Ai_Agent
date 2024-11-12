@@ -413,7 +413,7 @@ const agents = [
         favorite : false
     },
     {
-        id : 'a0000000007',
+        id : 'a0000000008',
         name: "EssayWritingAssistant",
         model : "mistral-nemo:latest",
         systemPrompt : ScholarPrompt,
@@ -434,7 +434,7 @@ const agents = [
         favorite : false
     },
     {
-        id : 'a0000000008',
+        id : 'a0000000009',
         name: "tableSummarizer",
         model : "llama3.2:3b",
         systemPrompt : "Summarize the given table as a text.",
