@@ -326,7 +326,9 @@ function Chat() {
                     activeConversationState={activeConversationStateRef.current} 
                     isStreaming={isStreaming} 
                     setTextareaValue={setTextareaValue} 
-                    regenerateLastAnswer={regenerateLastAnswer}/>}
+                    regenerateLastAnswer={regenerateLastAnswer}
+                    activeConversationId={activeConversationId.value}
+                    />}
             </div>
 
             <div className="stickyBottomContainer">

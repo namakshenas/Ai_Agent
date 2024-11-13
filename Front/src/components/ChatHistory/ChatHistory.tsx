@@ -129,6 +129,7 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
 
 // }
 }, (prevProps, nextProps) => {
+  if(prevProps.activeConversationId !== nextProps.activeConversationId) return false
   if(prevProps.activeConversationState.history.length !== nextProps.activeConversationState.history.length) return false
   // refresh when isStreaming is equal to true and props changes
   if(prevProps.isStreaming == true) return false
@@ -143,4 +144,5 @@ interface IProps{
   setTextareaValue : (text : string) => void
   regenerateLastAnswer : () => void
   isStreaming : boolean
+  activeConversationId : number
 }
