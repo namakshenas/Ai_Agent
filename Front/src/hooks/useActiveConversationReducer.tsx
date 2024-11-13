@@ -35,7 +35,7 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
                 const newState = {...state, 
                     history : [...state.history]
                 }
-                const historyId = newState.history.length -1
+                const historyId = newState.history.length - 1
                 newState.history[historyId].answer = {asHTML : action.payload.html, asMarkdown : action.payload.markdown}
                 activeConversationStateRef.current = {...newState}
                 return {...newState}
@@ -106,15 +106,6 @@ export function useActiveConversationReducer({name, history, lastAgentUsed, last
     }
 
     const [activeConversationState, dispatch] = useReducer(conversationReducer, {name : name, history : history, lastAgentUsed  : lastAgentUsed, lastModelUsed : lastModelUsed, images : []})
-
-    /*useEffect(() => {
-        if(activeConversationState.history[activeConversationState.history.length-1]?.answer.asMarkdown == "") scrollToBottom();
-    }, [activeConversationState]);*/
-
-    /*useEffect(() => {
-        // when switching conversation, set the last agent used by the conversation as active
-        if(activeConversationState.lastAgentUsed != "") ChatService.setActiveAgent(new AIAgent(JSON.parse(activeConversationState.lastAgentUsed)))
-    }, [activeConversationState])*/
 
     return {activeConversationState, dispatch, activeConversationStateRef, activeConversationId, setActiveConversationId}
 }

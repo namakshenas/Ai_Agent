@@ -209,6 +209,9 @@ function Chat() {
     // query the active chain
     async function sendRequestThroughActiveChain(query : string): Promise<void>{
         try{
+            // used to refresh chatHistory
+            setIsStreaming(true)
+            
             if(AIAgentChain.isEmpty()) return
             dispatch({ 
                 type: ActionType.NEW_BLANK_HISTORY_ELEMENT, 
@@ -224,6 +227,7 @@ function Chat() {
                 type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, 
                 payload: {newContext : [], inferenceStats: stats} 
             })
+            setIsStreaming(false)
             return
         }catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
@@ -319,7 +323,7 @@ function Chat() {
 
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={historyContainerRef}> {/* element needed for scrolling*/}
                 {<ChatHistory 
-                    activeConversationState={activeConversationState} 
+                    activeConversationState={activeConversationStateRef.current} 
                     isStreaming={isStreaming} 
                     setTextareaValue={setTextareaValue} 
                     regenerateLastAnswer={regenerateLastAnswer}/>}

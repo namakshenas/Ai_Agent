@@ -3,7 +3,7 @@ import AnswerRow from "./AnswerRow"
 import QuestionRow from "./QuestionRow"
 import '../../style/ChatHistory.css'
 import { useEffect, useRef } from "react"
-import { IConversationElement, IInferenceStats } from "../../interfaces/IConversation"
+import { IConversation } from "../../interfaces/IConversation"
 import { useTTS } from "../../hooks/useTTS"
 import React from "react"
 
@@ -127,25 +127,19 @@ const ChatHistory = React.memo(({activeConversationState, isStreaming, setTextar
     return date.toLocaleString('en-US', options);
   }
 
-//}
+// }
 }, (prevProps, nextProps) => {
-  // refresh AIAgentsList or isStreaming change
-  return (JSON.stringify(prevProps.activeConversationState) === JSON.stringify(nextProps.activeConversationState)) && prevProps.isStreaming === nextProps.isStreaming
+  if(prevProps.activeConversationState.history.length !== nextProps.activeConversationState.history.length) return false
+  // refresh when isStreaming is equal to true and props changes
+  if(prevProps.isStreaming == true) return false
+  // refresh when isStreaming changes
+  return prevProps.isStreaming === nextProps.isStreaming
 })
 
 export default ChatHistory
 
 interface IProps{
-  /*lastModelUsed : string
-  history : IConversationElement[]*/
-  activeConversationState: {
-    history: IConversationElement[];
-    name: string;
-    lastAgentUsed: string;
-    lastModelUsed: string;
-    hidden?: boolean;
-    inferenceStats?: IInferenceStats;
-  }
+  activeConversationState : IConversation
   setTextareaValue : (text : string) => void
   regenerateLastAnswer : () => void
   isStreaming : boolean
