@@ -1,3 +1,3 @@
 #!/bin/bash
 
-node OSspitaAPI.js
+node osspita.js

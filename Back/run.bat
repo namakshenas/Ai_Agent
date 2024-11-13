@@ -1,1 +1,1 @@
-node OSspitaAPI.js
+node osspita.js
