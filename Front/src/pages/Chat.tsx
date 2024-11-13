@@ -227,6 +227,7 @@ function Chat() {
                 type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, 
                 payload: {newContext : [], inferenceStats: stats} 
             })
+            ConversationsRepository.updateConversationById(activeConversationId.value, activeConversationStateRef.current)
             setIsStreaming(false)
             return
         }catch (error : unknown) {
