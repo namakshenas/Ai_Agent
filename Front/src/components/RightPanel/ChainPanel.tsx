@@ -16,7 +16,7 @@ function ChainPanel({handleMenuItemClick, AIAgentsList,  currentChain, setCurren
         <RightMenu handleMenuItemClick={handleMenuItemClick}/>
         <article className='chainContainer'>
             <h3>CURRENT CHAIN</h3>
-            <p>NB : Each Agent will process the response of its predecessor. The final response will be displayed.</p>
+            <p>NB : Each Agent will process its predecessor's response using its own System Prompt. Finally, the last response will be displayed.</p>
             <div style={{width:'100%', height:'1px', borderBottom:'1px dashed #35353599', marginBottom:'1.25rem'}}></div>
             <div className="yourQuery">Your Query</div>
             <svg width="20" height="30" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
