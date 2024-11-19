@@ -16,6 +16,7 @@ Video demo :
 - **Real-time interactions** with most Open-Source AI models.
 - Lightweight and **fully local** operations.
 - **Beginner-friendly** installation process.
+- **Agent chaining** for complex task resolution.
 - Retrieval Augmented Generation so you can probe your own documents while **preserving your privacy**.
 - Web Search functionality for the integration of more **up-to-date information**.
 - Comprehensive inference stats.
@@ -28,7 +29,7 @@ Video demo :
 - Persistent conversations.
 - **Multimodal** operations.
 - **Responsive** design.
-- **Agent chaining** for complex task resolution.
+- **Parallel processing** added to Agent chaining.
 - Improved Web Search algorithm with enhanced options.
 - Online domain names ranking.
 - Improved RAG algorithm with enhanced options (chunk size selection).
