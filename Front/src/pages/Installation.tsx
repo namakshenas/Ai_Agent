@@ -5,10 +5,13 @@ import useFetchModelsList from "../hooks/useFetchModelsList";
 import '../style/Installation.css'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from "react";
-import AgentService from "../services/API/AgentService";
+// import AgentService from "../services/API/AgentService";
 import useFetchAgentsList from "../hooks/useFetchAgentsList";
+import { useServices } from "../hooks/useServices";
 
 export default function Installation(){
+
+    const { agentService } = useServices();
 
     const modelsList = useFetchModelsList("includes-embedding-models")
     const { AIAgentsList } = useFetchAgentsList()
@@ -28,6 +31,10 @@ export default function Installation(){
         })
     }, [AIAgentsList])
 
+    useEffect(() => {
+        if(visibleSection == 3) setSelectedModels(currentModels => ({...currentModels, trivial : modelsList.includes(currentModels.trivial) ? currentModels.trivial : modelsList[0], complex : modelsList.includes(currentModels.complex) ? currentModels.complex : modelsList[0]}))   
+    }, [visibleSection])
+
     function handleSwitchComplexModel(option : IOption){
         setSelectedModels(prevModels => ({...prevModels, complex : option.value}))
     }
@@ -43,7 +50,7 @@ export default function Installation(){
 
     async function handleSaveClick(e : React.MouseEvent){
         e.preventDefault();
-        AgentService.updateAgentsConfig({advancedModel : selectedModels.complex, basicModel : selectedModels.trivial, embeddingModel : selectedModels.embedding})
+        agentService.updateAgentsConfig({advancedModel : selectedModels.complex, basicModel : selectedModels.trivial, embeddingModel : selectedModels.embedding})
         navigate('/chat')
     }
 
@@ -124,12 +131,12 @@ export default function Installation(){
                     <button className="purpleShadow" onClick={handleNextClick} style={{width:'33%', marginLeft:'auto', marginTop:'1rem'}}>next</button>
                 </section>}
                 {visibleSection == 3 && <section>
-                    <h3 style={{textAlign:'left', opacity:'0.9'}}>Confirm your Selection</h3>
+                    <h3 style={{textAlign:'left', opacity:'0.9'}} onClick={() => console.log(selectedModels)}>Confirm your Selection</h3>
                     <p style={{marginBottom:'0.25rem'}}>I - The most complex tasks will be handled by this model you previously selected :</p>
                     <Select 
                         width="100%"
                         options={modelsList.map((model) => ({ label: model, value: model }))} 
-                        defaultOption={modelsList.includes(selectedModels.complex) ? selectedModels.complex : modelsList[0]}
+                        defaultOption={selectedModels.complex}
                         labelledBy="labelComplexModelName" 
                         id="complexModelName"
                         onValueChange={handleSwitchComplexModel}
@@ -139,7 +146,7 @@ export default function Installation(){
                     <Select 
                         width="100%"
                         options={modelsList.map((model) => ({ label: model, value: model }))} 
-                        defaultOption={modelsList.includes(selectedModels.trivial) ? selectedModels.trivial : modelsList[0]}
+                        defaultOption={selectedModels.trivial}
                         labelledBy="labelComplexModelName" 
                         id="complexModelName"
                         onValueChange={handleSwitchTrivialModel}
