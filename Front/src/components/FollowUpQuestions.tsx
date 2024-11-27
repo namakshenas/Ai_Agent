@@ -8,7 +8,7 @@ import React from 'react'
 
 // function FollowUpQuestions({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps){
 
-const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose} : IProps) => {
+const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTextarea, isStreaming, selfClose, isFollowUpQuestionsClosed} : IProps) => {
 
     // useEffect(() => {console.log("fup questions render")})
 
@@ -24,12 +24,15 @@ const FollowUpQuestions = React.memo(({historyElement, setTextareaValue, focusTe
     }
 
     function handleRefreshFUpClick(){
+        if(ChatService.isAVisionModelActive()) return
         ChatService.abortAgentLastRequest()
         generateFollowUpQuestions(historyElement.question)
     }
 
     useEffect(() => {
-        if(historyElement?.question && historyElement.question != "" && historyElement?.context?.length && !isStreaming) {
+        // if(visionModelsClues.some(clue => ChatService.getActiveAgent().getModelName().toLowerCase().includes(clue))) return
+        if(ChatService.isAVisionModelActive()) return
+        if(historyElement?.question && historyElement.question != "" && historyElement?.context?.length && !isStreaming && !isFollowUpQuestionsClosed) {
             generateFollowUpQuestions(historyElement.question)
         }
     }, [historyElement?.context])
@@ -116,4 +119,5 @@ interface IProps{
     focusTextarea : () => void
     isStreaming : boolean
     selfClose : (bool : boolean) => void
+    isFollowUpQuestionsClosed : boolean
 }

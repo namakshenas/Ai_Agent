@@ -351,9 +351,29 @@ const agents = [
         top_p: 0.9,
         type : "system",
         favorite : false
+    },{
+        id : 'a0000000004',
+        name: "vision [Llama Vision Req.]",
+        model : "llama3.2-vision:11b",
+        systemPrompt : "You are a helpful assistant. Prioritize information from the provided image to fulfill the user's request. Employ chain-of-thought reasoning for complex queries. Consider multiple perspectives and potential outcomes before responding. Maintain awareness of your capabilities and limitations. If uncertain, acknowledge it and provide the most relevant information available. Aim for concise, accurate, and contextually appropriate responses.",
+        mirostat: 0,
+        mirostat_eta: 0.1,
+        mirostat_tau: 5.0,
+        num_ctx: 2048,
+        repeat_last_n: 64,
+        repeat_penalty: 1.1,
+        temperature: 0.3,
+        seed: 0,
+        stop: "AI assistant:",
+        tfs_z: 1,
+        num_predict: 1024,
+        top_k: 40,
+        top_p: 0.9,
+        type : "system",
+        favorite : false
     },
     {
-        id : 'a0000000004',
+        id : 'a0000000005',
         name: "searchQueryOptimizer",
         model : "llama3.2:3b",
         systemPrompt : searchQueryOptimizerPrompt,
@@ -374,7 +394,7 @@ const agents = [
         favorite : false
     },
     {
-        id : 'a0000000005',
+        id : 'a0000000006',
         name: "scrapedDatasSummarizer",
         model : "llama3.2:3b",
         systemPrompt : scrapedDatasSummarizerPrompt,
@@ -395,7 +415,7 @@ const agents = [
         favorite : false
     },
     {
-        id : 'a0000000006',
+        id : 'a0000000007',
         name: "completionAgent",
         model : "llama3.2:3b",
         systemPrompt : completionAssistantPrompt,
@@ -416,7 +436,7 @@ const agents = [
         favorite : false
     },
     {
-        id : 'a0000000007',
+        id : 'a0000000008',
         name: "COTTableGenerator",
         model : "mistral-nemo:latest",
         systemPrompt : COTGeneratorPrompt,
@@ -437,7 +457,7 @@ const agents = [
         favorite : false
     },
     {
-        id : 'a0000000008',
+        id : 'a0000000009',
         name: "EssayWritingAssistant",
         model : "mistral-nemo:latest",
         systemPrompt : ScholarPrompt,
@@ -458,7 +478,7 @@ const agents = [
         favorite : false
     },
     {
-        id : 'a0000000009',
+        id : 'a00000000010',
         name: "professionalsToHire [ Example ]",
         model : "llama3.2:3b",
         systemPrompt : professionalsToHirePrompt,
@@ -499,6 +519,7 @@ const agents = [
         type : "system",
         favorite : false
     },*/
+    
 ]
 
 module.exports = agents

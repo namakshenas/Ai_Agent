@@ -16,6 +16,7 @@ Video demo :
 - **Real-time interactions** with most Open-Source AI models.
 - Lightweight and **fully local** operations.
 - **Beginner-friendly** installation process.
+- **Llama Vision** support.
 - **Agent chaining** for complex task resolution.
 - Retrieval Augmented Generation so you can probe your own documents while **preserving your privacy**.
 - Web Search functionality for the integration of more **up-to-date information**.
@@ -27,7 +28,6 @@ Video demo :
 ## II - Coming Next
 
 - Persistent conversations.
-- **Multimodal** operations.
 - **Responsive** design.
 - **Parallel processing** added to Agent chaining.
 - Improved Web Search algorithm with enhanced options.

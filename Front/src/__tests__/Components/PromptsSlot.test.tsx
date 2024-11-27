@@ -37,6 +37,8 @@ describe('Given I am on the Chat page', () => {
         vi.spyOn(DocService, 'getAll').mockResolvedValue(mockRAGDocumentsList)
         vi.spyOn(PromptService.prototype, 'getAll').mockResolvedValue(mockPromptsList)
         vi.spyOn(PromptService.prototype, 'getByName').mockResolvedValue(mockPromptsList[0])
+        // vi.spyOn(ChatService, 'isAVisionModelActive').mockReturnValue(false)
+
         vi.stubGlobal('speechSynthesis', {
             getVoices: vi.fn().mockReturnValue(mockVoices),
         });
@@ -54,7 +56,6 @@ describe('Given I am on the Chat page', () => {
         expect(screen.getByText(mockPromptsList[1].name)).toBeInTheDocument()
         expect(screen.getByText(mockPromptsList[2].name)).toBeInTheDocument()
 
-
         const previousPages = screen.getAllByTitle("previous page")
         const nextPages = screen.getAllByTitle("next page")
 
@@ -71,7 +72,7 @@ describe('Given I am on the Chat page', () => {
         await waitFor(() => expect(screen.getByText(/OSSPITA FOR/i)).toBeInTheDocument())
         expect(screen.getByText(mockPromptsList[0].name)).toBeInTheDocument()
 
-        const newPromptButton = screen.getByTitle("create a new prompt")
+        const newPromptButton = screen.getByTitle("new prompt")
 
         act(() => newPromptButton.click())
         await waitFor(() => expect(screen.getByTestId("modal")).toBeInTheDocument())
