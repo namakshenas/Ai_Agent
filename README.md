@@ -6,7 +6,7 @@ OSSPITA is a lightweight, fully local, open-source desktop interface that enable
 
 ![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/screenshot1.png "osspita main")
 
-Video demo :
+Video demo of the alpha 1.0.1 release, more up-to-date videos coming soon :
 
 [![OSspita Video Demo](https://img.youtube.com/vi/zKxcANYu-9I/0.jpg)](https://www.youtube.com/watch?v=zKxcANYu-9I "OSspita Video Demo")<br>
 *Click the image above to watch the video on YouTube*
@@ -104,6 +104,7 @@ Video demo :
 - Ollama API
 - ExpressJS
 - LokiJS
+- Zustand
 - Duck-duck-scrape
 - Cheerio
 - React-pdftotext
