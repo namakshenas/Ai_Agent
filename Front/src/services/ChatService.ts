@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-private-class-members */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import visionModelsClues from "../constants/VisionModelsClues";
 import { IConversationElement, IInferenceStats } from "../interfaces/IConversation";
@@ -123,35 +124,23 @@ export class ChatService{
       // the agent receive an amount of scraped datas matching the context size available
 
       let content = ""
-      let decod = ""
+      let decodedValueSave = ""
+      let decodedValue = ""
+      const textDecoder = new TextDecoder()
       try{
           const reader = await this.activeAgent.askForAStreamedResponse(webDatasSizedForAvailableContext + '\n\n<MYREQUEST>' + question + '</MYREQUEST>', images)
 
           while(true){
               const { value } = await reader.read()
-
-              let decodedValue = new TextDecoder().decode(value)
-              decod = decodedValue
+              decodedValue = textDecoder.decode(value)
+              decodedValueSave = decodedValue
 
               // deal with the very last datas chunk being unexpectedly split into partial chunks
-              if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) {
-                // console.log("endvalue no curly bracket : " + decodedValue)
-                let followingChunk = ""
-                while(true){
-                  console.log("trying to add subsequent value")
-                  followingChunk = new TextDecoder().decode((await reader.read()).value)
-                  if(followingChunk == null) {
-                    // if the chunk can't be reconstructed, a chunk with an empty context is returned
-                    decodedValue = decodedValue.split(',"context"')[0] + ',"context":[]}'
-                    break
-                  }
-                  decodedValue += followingChunk
-                  if(decodedValue.trim().endsWith("}")) break
-                }
-              }
+              if(decodedValue.includes('"done":true') && !decodedValue.trim().endsWith("}")) 
+                  decodedValue = await this.#malformedEndingValueReconstructor(decodedValue, reader, textDecoder)
 
               // check if the decoded value isn't malformed -> fix it if it is
-              const reconstructedValue = this.#reconstructMalformedValues(decodedValue)
+              const reconstructedValue = this.#malformedValueReconstructor(decodedValue)
 
               const json = JSON.parse(reconstructedValue)
 
@@ -165,7 +154,7 @@ export class ChatService{
           
               if (!json.done) {
                 content += json.response
-                chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
+                /*if(content.length % 50 < 10)*/ chunkProcessorCallback({markdown : content, html : await AnswerFormatingService.format(content)})
               }
           }
           this.abortAgentLastRequest()
@@ -174,7 +163,7 @@ export class ChatService{
             console.error('Stream aborted.')
           } else {
             console.error('Stream failed : ', error)
-            if(decod) console.error(decod)
+            if(decodedValueSave) console.error(decodedValueSave)
           }
           throw error
       }
@@ -182,9 +171,8 @@ export class ChatService{
       return { newContext : scrapedPages ? [] : newContext, inferenceStats }
     }
 
-    // write three functions in javascript for a tetris game
     // split one malformed block into multiple ones if needed
-    static #reconstructMalformedValues(value : string | null) : string{
+    static #malformedValueReconstructor(value : string | null) : string{
       try{
         // console.log("untouchedValue : " + value)
         if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
@@ -203,13 +191,48 @@ export class ChatService{
         const aggregatedChunk = {...JSON.parse(bracedValues[bracedValues.length-1])}
         aggregatedChunk.response = reconstructedValue
         aggregatedChunk.done = isDone
-        console.log("rebuilt : " + JSON.stringify(aggregatedChunk))
+        // console.log("rebuilt : " + JSON.stringify(aggregatedChunk))
         return JSON.stringify(aggregatedChunk)
       } catch (error) {
         // this.abortAgentLastRequest()
         console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
         throw error
       }
+    }
+
+    /* memo : decodedValue structure : {"model":"qwen2.5:3b","created_at":"2024-09-29T15:14:02.9781312Z","response":" also","done":false} */
+    static #malformedValueReconstructorOptimized(value : string | null) : string {
+      try{
+        if(value == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+        const allResponsesRegex = /(?<="response":")[^"]*(?=","done")/g
+        const matches = value.match(allResponsesRegex)
+        if(matches == null) return JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+        const aggregatedResponse = matches.join("")
+        console.log(aggregatedResponse)
+        const baseResponse = value.includes(`"done":true`) ? JSON.stringify({"model":"","created_at":"","response":" ","done":true}) : JSON.stringify({"model":"","created_at":"","response":" ","done":false})
+        return baseResponse.replace(`"response":" "`, `"response":"${aggregatedResponse}"`)
+      } catch (error) {
+        console.error(`Can't reconstruct these values : ` + JSON.stringify(value))
+        throw error
+      }
+    }
+
+    // deal with the very last datas chunk being unexpectedly split into partial chunks
+    static async #malformedEndingValueReconstructor(value : string, reader : ReadableStreamDefaultReader<Uint8Array>, decoder : TextDecoder) : Promise<string>{
+      let nextChunk = ""
+      let decodedValue = value
+      while(true){
+        console.log("trying to add subsequent value")
+        nextChunk = decoder.decode((await reader.read()).value)
+        if(nextChunk == null) {
+          // if the chunk can't be reconstructed, a chunk with an empty context is returned
+          decodedValue = decodedValue.split(',"context"')[0] + ',"context":[]}'
+          break
+        }
+        decodedValue += nextChunk
+        if(decodedValue.trim().endsWith("}")) break
+      }
+      return decodedValue
     }
 
     static abortAgentLastRequest(){
@@ -246,7 +269,9 @@ export class ChatService{
     }
 
     static clearRAGTargets(){
+      console.log("clearrag")
       this.#targetedRAGDocs = []
+      console.log(this.#targetedRAGDocs)
     }
 
     static logScrapedDatas(scrapedPages : IScrapedPage[]){
