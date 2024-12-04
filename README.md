@@ -1,15 +1,16 @@
-Release : Alpha 1.0.3
+Release : Alpha 1.0.4
 
 <div style="display:flex; width:100%; column-gap:16px; margin-bottom:12px;">
     <span>Compatibility :</span>
-    <img style="width:24px; height:24px" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/windows.png">
-    <img style="width:24px; height:24px" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/chrome.png">
-    <img style="width:24px; height:24px" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/firefox.png">
-    <img style="width:24px; height:24px" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/brave.png">
+    <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/windows.png">
+    <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/chrome.png">
+    <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/firefox.png">
+    <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/brave.png">
     <span style="display:flex; height:100%;">&</span>
     <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/ubuntu.png">
-    <img style="width:24px; height:24px" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/chrome.png">
-    <img style="width:24px; height:24px" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/brave.png">
+    <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/chrome.png">
+    <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/firefox.png">
+    <img style="width:24px; height:24px;" src="https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/brave.png">
 </div>
 
 # OSSPITA : Run your AI assistant locally and experience an intuitive interface that allows you to tune all your agents with just a few clicks. Enjoy guaranteed privacy at no cost.
