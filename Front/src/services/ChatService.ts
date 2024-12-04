@@ -23,7 +23,7 @@ export class ChatService{
       repeat_penalty: 1.1,
       temperature: 0.1,
       seed: 0,
-      stop: "AI assistant:",
+      stop: ["AI assistant:"],
       tfs_z: 1,
       num_predict: 1024,
       top_k: 40,
@@ -247,12 +247,13 @@ export class ChatService{
       if(aggregatedChunks.includes(`"done":true`)){
         const splitChunks = aggregatedChunks.split("}\n{")
         const endAggregateChunk = "{" + splitChunks[splitChunks.length - 1]
-        console.log(endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`))
-        return endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`)
+        const lastChunkResponseRegex = /(?<="response":)"[^"]*"(?=,"done")/g
+        // return endAggregateChunk.replace(`"response":"`, `"response":"${allReponsesValues.join("")}`)
+        return endAggregateChunk.replace(lastChunkResponseRegex, JSON.stringify(allReponsesValues.join("")))
       }else{
         // if only intermediate chunks, create a new generic chunk and add all the chunks reponse values aggregated to it
         const baseAggregateChunk = JSON.stringify({"model":"","created_at":"","response":" ","done":false})
-        return baseAggregateChunk.replace(`"response":" "`, `"response":"${allReponsesValues.join("")}"`)
+        return baseAggregateChunk.replace(`"response":" "`, `"response":${JSON.stringify(allReponsesValues.join(""))}`)
       }
     }
 
