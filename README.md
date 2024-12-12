@@ -76,9 +76,9 @@ Models Recommandations :
 
 | GPU VRAM   | Model            | Purpose        | Link                                                                 |
 | ---------- | ---------------- | -------------- | -------------------------------------------------------------------- |
-| 4GB        | Llama 3.2:3b     | Conversational | [Llama 3.2 on Ollama](https://ollama.ai/library/llama2)              |
+| 4GB        | Llama 3.2:3b     | Conversational | [Llama 3.2 on Ollama](https://ollama.com/library/llama3.2:3b)              |
 | 8GB        | Aya Expanse:8b   | Conversational | [Aya Expanse on Ollama](https://ollama.com/library/aya-expanse:8b)   |
-| 12GB       | Mistral Nemo:12b | Conversational | [Mistal Nemo on Ollama](https://ollama.ai/library/mistral)           |
+| 12GB       | Mistral Nemo:12b | Conversational | [Mistal Nemo on Ollama](https://ollama.com/library/mistral-nemo:12b)           |
 | 4GB        | starcoder2:3b    | Coding         | [StarCoder2 on Ollama](https://ollama.com/library/starcoder2)        |
 | 8GB & 12GB | qwen2.5-coder:7b | Coding         | [Qwen 2.5 Coder on Ollama](https://ollama.com/library/qwen2.5-coder) |
 
