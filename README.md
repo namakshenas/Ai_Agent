@@ -17,7 +17,7 @@ Release : Alpha 1.0.4
 
 OSSPITA is a lightweight, fully local, open-source desktop interface that enables users to interact for free and in real time with various Open-Source LLMs. Leveraging the [Ollama API](https://github.com/ollama/ollama), OSSPITA provides a user-friendly experience for engaging with cutting-edge AI technology.
 
-![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/screenshot1.png "osspita main")
+![osspita main](https://github.com/ask0ldd/OsspitaUI/blob/main/Front/src/assets/screenshot2.png "osspita main")
 
 Video demo of the alpha 1.0.1 release, more up-to-date videos coming soon :
 
