@@ -1,8 +1,8 @@
-import { IConversation } from "../../interfaces/IConversation"
+import { IConversation, IConversationWithId } from "../../interfaces/IConversation"
 
 export default class ConversationService{
  
-    static async save(conversation : IConversation){
+    static async save(conversation : IConversation) : Promise<IConversationWithId | undefined>{
         try{
             const reponse = await fetch('/backend/conversation', {
                 method : 'POST',
@@ -10,6 +10,7 @@ export default class ConversationService{
                 headers:{ 'Content-Type' : 'application/json' }
             })
             if(!reponse.ok) throw new Error('Error saving the conversation') // !!! deal with existing name
+            return reponse.json()
         }catch(e){
             console.error(e)
         }
@@ -19,7 +20,7 @@ export default class ConversationService{
         try{
             const reponse = await fetch('/backend/conversation/byId/' + conversationId, {
                 method : 'PUT',
-                body : JSON.stringify({id : conversationId, ...conversation}),
+                body : JSON.stringify({...conversation}),
                 headers:{ 'Content-Type' : 'application/json' }
             })
             if(!reponse.ok) throw new Error('Error updating the conversation')
@@ -28,7 +29,7 @@ export default class ConversationService{
         }
     }
 
-    static async getById(conversationId : number) : Promise<IConversation | undefined>{
+    static async getById(conversationId : number) : Promise<IConversationWithId | undefined>{
         try {
             const response = await fetch("/backend/conversation/byId/" + conversationId, {
                 method: "GET",
@@ -47,7 +48,7 @@ export default class ConversationService{
         }
     }
 
-    static async getAll() : Promise<IConversation[] | undefined>{
+    static async getAll() : Promise<IConversationWithId[] | undefined>{
         try {
             const response = await fetch("/backend/conversations", {
                 method: "GET",

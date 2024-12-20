@@ -1,4 +1,5 @@
-.agentForm {
+.agentForm,
+.characterForm {
   display: grid;
   width: 100%;
   grid-template-rows: auto auto auto auto auto auto auto;
@@ -11,6 +12,34 @@
     "set2 set2 set2"
     "advancedBar advancedBar advancedBar"
     "y . z";
+
+  h3 {
+    font-size: 14px;
+    color: var(--label-grey-text-color);
+    text-align: left;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+    font-family: "Poppins";
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+
+    /*&.whiteContainer {
+      padding: 0.5rem 1rem 0.3rem 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-grow: 0;
+      width: fit-content;
+      background: rgba(255, 2550, 255, 0.1);
+      border-radius: 6px;
+      border: 1px solid #ffffffbb;
+      box-shadow: 0 2px 4px hsla(251, 50%, 32%, 0.04),
+        0 6px 12px -2px hsla(251, 50%, 32%, 0.1);
+    }*/
+  }
 
   .settingsSet1 {
     /*background-color: red;*/

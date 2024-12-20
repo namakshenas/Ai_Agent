@@ -5,7 +5,13 @@ const saveConversation = (db) => async (req, res) => {
           return res.status(500).json({ error: 'conversations collection does not exist in the database.' })
         }
 
-        await conversationsCollection.insertOne({...req.body.conversation})
+        var conversation = await conversationsCollection.insert({
+            name : req.body.name,
+            history : req.body.history,
+            lastAgentUsed : req.body.lastAgentUsed,
+            lastModelUsed : req.body.lastModelUsed,
+        })
+
         db.saveDatabase((err) => {
             if (err) {
                 console.error("Error saving database:", err)
@@ -15,15 +21,11 @@ const saveConversation = (db) => async (req, res) => {
             }
         })
 
-        res.status(201).send('conversation saved successfully')
+        res.status(201).json(conversation)//.send('conversation saved successfully')
 
     } catch (error) {
         console.error(error)
-        if (error.status) {
-        res.status(error.status).send(error.message)
-        } else {
         res.status(500).send('An error occurred while attempting to save the conversation')
-        }
     }
 }
 
@@ -36,11 +38,11 @@ const updateConversationById = (db) => async (req, res) => {
           return res.status(500).json({ error: 'conversations collection does not exist in the database.' })
         }
     
-        const conversationToUpdate = await conversationsCollection.findOne({ _id: req.params.id })
+        const conversationToUpdate = await conversationsCollection.get(req.params.id)
     
         if (conversationToUpdate) {
           // Update existing agent
-          Object.assign(conversationToUpdate, req.body.conversation)
+          Object.assign(conversationToUpdate, {...req.body})
           await conversationsCollection.update(conversationToUpdate)
     
           // applying the previous actions to the database
@@ -53,7 +55,7 @@ const updateConversationById = (db) => async (req, res) => {
             }
           })
     
-          console.log(`Updated agent: ${JSON.stringify(conversationToUpdate)}`)
+          // console.log(`Updated agent: ${JSON.stringify(conversationToUpdate)}`)
 
           return res.json({ message: 'Agent updated successfully', conversation: conversationToUpdate })
 
@@ -67,23 +69,23 @@ const updateConversationById = (db) => async (req, res) => {
         }
       } catch (error) {
         console.error(error)
-        if (error.status) {
-          res.status(error.status).send(error.message)
-        } else {
-          res.status(500).send('An error occurred while attempting to update the agent')
-        }
+        res.status(500).send('An error occurred while attempting to update the agent')
       }
 }
   
 const getConversationById = (db) => async (req, res) => {
     const conversationId = req.params.id
     if (!conversationId) return res.status(400).json({ error: 'conversation ID is required' })
-
     try {
-        const conversation = await db.getCollection('conversation').findOne({ _id: conversationId })
-        if (!conversation) return res.status(404).json({ error: 'The requested conversation was not found' })
+        const conversationsCollection = await db.getCollection('conversations')
+        if (!conversationsCollection) {
+            return res.status(500).json({ error: 'conversations collection does not exist in the database.' })
+        }
 
-        return res.status(200).json(conversation)
+        const conversation = await conversationsCollection.get(conversationId)
+        if (!conversation) return res.status(404).json({ error: 'The requested conversation was not found' })
+        // console.log(JSON.stringify(conversation))
+        return res.status(200).json({...conversation})
 
     } catch (error) {
         console.error('Error fetching conversation:', error)
@@ -93,45 +95,53 @@ const getConversationById = (db) => async (req, res) => {
 
 const getAllConversations = (db) => async (req, res) => {
     try {
-        console.log("Fetching conversation.")
-        const conversation = db.getCollection("conversation").find()
+        console.log("Fetching conversations.")
+        const conversationsCollection = await db.getCollection('conversations')
+        if (!conversationsCollection) {
+            return res.status(500).json({ error: 'conversations collection does not exist in the database.' })
+        }
 
-        return res.setHeader("Access-Control-Allow-Origin", "*").status(200).json(conversation)
+        const conversations = await conversationsCollection.find().reverse()
+
+        return res.setHeader("Access-Control-Allow-Origin", "*").status(200).json(conversations)
         
     } catch (error) {
         console.error("Error retrieving conversation:", error)
-        res.status(500).json({ message: 'An error occurred while retrieving conversation.' })
+        res.status(500).json({ message: 'An error occurred while retrieving conversations.' })
     }
 }
 
 const deleteConversationById = (db) => async (req, res) => {
-  const conversationId = req.params.id
-  if (!conversationId) {
-      return res.status(400).json({ error: 'conversation ID is required' })
-  }
+    const conversationId = req.params.id
+    if (!conversationId) {
+        return res.status(400).json({ error: 'conversation ID is required' })
+    }
 
-  try {
-      const collection = db.getCollection('conversation')
-      const conversation = await collection.findOne({ _id: conversationId })
+    try {
+        const conversationsCollection = await db.getCollection('conversations')
+        if (!conversationsCollection) {
+            return res.status(500).json({ error: 'conversations collection does not exist in the database.' })
+        }
+        const conversation = await conversationsCollection.get(conversationId)
 
-      if (!conversation) {
-          return res.status(404).json({ error: 'The requested conversation was not found' })
-      }
+        if (!conversation) {
+            return res.status(404).json({ error: 'The requested conversation was not found' })
+        }
 
-      await collection.findAndRemove({ _id: conversationId })
+        await conversationsCollection.remove(conversation)
 
-      db.saveDatabase((err) => {
-          if (err) {
-              console.error("Error saving database:", err)
-              return res.status(500).json({ error: 'Cannot save the database' })
-          }
-          console.log("Database saved successfully")
-          return res.status(204).send()
-      })
-  } catch (error) {
-      console.error('Error deleting conversation:', error)
-      return res.status(500).json({ error: 'Internal server error' })
-  }
+        db.saveDatabase((err) => {
+            if (err) {
+                console.error("Error saving database:", err)
+                return res.status(500).json({ error: 'Cannot save the database' })
+            }
+            console.log("Database saved successfully")
+            return res.status(204).send()
+        })
+    } catch (error) {
+        console.error('Error deleting conversation:', error)
+        return res.status(500).json({ error: 'Internal server error' })
+    }
 }
 
 /*function createError(status, message) {

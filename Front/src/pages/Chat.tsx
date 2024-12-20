@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatService } from "../services/ChatService";
 import ChatHistory from "../features/ChatHistory/ChatHistory";
 import '../style/Chat.css'
-import { ConversationsRepository } from "../repositories/ConversationsRepository";
 import FollowUpQuestions from "../components/FollowUpQuestions";
 import CustomTextarea from "../components/CustomTextarea";
 import { ActionType, useActiveConversationReducer } from "../hooks/useActiveConversationReducer";
@@ -34,6 +33,11 @@ import { useImagesStore } from "../hooks/stores/useImagesStore";
 import { useMainTextAreaStore } from "../hooks/stores/useMainTextAreaStore";
 import useKeyboardListener from "../hooks/useKeyboardListener";
 import { useScrollbar } from "../hooks/useScrollbar";
+import ConversationService from "../services/API/ConversationService";
+import ScrapedPage from "../models/ScrapedPage";
+import Snackbar from "../components/Snackbar";
+import { TRightMenuOptions } from "../interfaces/TRightMenuOptions";
+import FormCharacterSettings from "../features/Modal/FormCharacterSettings";
 
 function Chat() {
 
@@ -42,8 +46,7 @@ function Chat() {
     useScrollbar()
 
     const { getSelectedImages } = useImagesStore()
-
-    const { webSearchService } = useServices();
+    const { webSearchService, imageService } = useServices();
 
     const { AIAgentsList, triggerAIAgentsListRefresh } = useFetchAgentsList()
     
@@ -87,14 +90,37 @@ function Chat() {
         // Reset UI state
         setIsStreaming(false)
         setTextareaValue("")
-        // Load and set the selected conversation
-        dispatch({ 
-            type: ActionType.SET_CONVERSATION, 
-            payload: ConversationsRepository.getConversation(activeConversationId.value) 
-        })
     }, [activeConversationId])
 
     const lastRAGResultsRef = useRef<IRAGChunkResponse[] | null>(null)
+
+    
+    const [activeMode, setActiveMode] = useState<TRightMenuOptions | "web" | "rag">("agent")
+    useEffect(() => {
+        if(activeMenuItemRef.current == "agent" && !isWebSearchActivated) {
+            setActiveMode("agent")
+            return
+        }
+        if(isWebSearchActivated && activeMenuItemRef.current == "agent") {
+            setActiveMode("web")
+            return
+        }
+        if(activeMenuItemRef.current == "chain") {
+            setWebSearchActivated(false)
+            setActiveMode("chain")
+            return
+        }
+        if(activeMenuItemRef.current == "roleplay") {
+            setWebSearchActivated(false)
+            setActiveMode("roleplay")
+            return
+        }
+        if(activeMenuItemRef.current == "settings") {
+            setWebSearchActivated(false)
+            setActiveMode("settings")
+            return
+        }
+    }, [activeMenuItemRef.current, isWebSearchActivated])
 
     /***
     //
@@ -128,13 +154,14 @@ function Chat() {
             })
             let newContext = []
             let inferenceStats : IInferenceStats
+            let scrapedPages : ScrapedPage[] = []
 
             // Handle web search if activated, otherwise use internal knowledge
-            if (isWebSearchActivatedRef.current == true) {
+            if (isWebSearchActivatedRef.current == true && activeMenuItemRef.current == "agent") {
                 // web search unavailable when a vision model is active
                 if(ChatService.isAVisionModelActive()) throw new Error("Web search not available when a vision model is selected.")
                 console.log("***Web Search***")
-                const scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3}) || (() => { throw new Error("No results found for your query") })()
+                scrapedPages = await webSearchService.scrapeRelatedDatas({query, maxPages : 3}) || (() => { throw new Error("No results found for your query") })()
                 console.log("***LLM Loading***")
                 // format YYYY/MM/DD
                 const currentDate = "Current date : " + new Date().getFullYear() + "/" + (new Date().getMonth() + 1) + "/" + new Date().getDate() + ". "
@@ -154,16 +181,21 @@ function Chat() {
                 const isVisionModelActive = ChatService.isAVisionModelActive()
                 
                 // If any document is selected, extract the relevant datas for RAG
-                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 ? await buildRAGContext(query) : ""
+                const ragContext = ChatService.getRAGTargetsFilenames().length > 0 && activeMenuItemRef.current == "agent" ? await buildRAGContext(query) : ""
 
-                let selectedImagesAsBase64 : string[] = []
+                const selectedImagesAsBase64 : string[] = []
                 if(isVisionModelActive != false) {
                     const selectedImages = getSelectedImages()
-                    selectedImagesAsBase64 = selectedImages.map(image => (image.data.split(',')[1]))
-                    const historyImage = selectedImagesAsBase64.length > 0 ? /*images[0].data*/ selectedImages.map(image => image.data) : null
+                    // selectedImagesAsBase64 = selectedImages.map(image => (image.data.split(',')[1]))
+                    for(const image of selectedImages){
+                        console.log(image.filename)
+                        const imageAsB64 = await imageService.getImageAsBase64(image.filename)
+                        if(imageAsB64 != null) selectedImagesAsBase64.push(imageAsB64.split(',')[1])
+                    }
+                    const historyImage = selectedImagesAsBase64.length > 0 ? /*images[0].data*/ selectedImages.map(image => image.filename) : null
                     if(historyImage != null) dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_IMAGES, payload : historyImage })
                 }
-
+                console.log(JSON.stringify(currentContext))
                 const finalDatas = await ChatService.askTheActiveAgentForAStreamedResponse(
                 {
                     question : isVisionModelActive ? query : ragContext + query, 
@@ -185,8 +217,10 @@ function Chat() {
             })
             // Clear textarea if user hasn't modified it during streaming
             if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
-            // TODO: Implement proper persistence instead of this temporary solution
-            ConversationsRepository.updateConversationById(activeConversationId.value, activeConversationStateRef.current)
+            // activeConversationStateRef.current is not directly used to update the DB since this value may not be updated due to the async nature of : dispatch({ type: ActionType.UPDATE_SOURCES...
+            const activeConv = {...activeConversationStateRef.current}
+            if(scrapedPages.length > 0) activeConv.history[activeConv.history.length-1].sources = scrapedPages.map(page => ({asHTML : page.sourceAsHTMLSpan(), asMarkdown : page.source}))
+            await ConversationService.updateById(activeConversationId.value, activeConv)
         }
         catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
@@ -220,21 +254,25 @@ function Chat() {
                 modelUsed : AIAgentChain.getLastAgent().getModelName()}
             })
             const response = await AIAgentChain.process(query) || (() => { throw new Error("The chain failed to produce a response.") })()
-            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : await AnswerFormatingService.format(response.response), markdown : response.response}})
+            const answerAsHTML = await AnswerFormatingService.format(response.response)
+            dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER, payload : {html : answerAsHTML, markdown : response.response}})
             if((textareaRef.current as HTMLTextAreaElement).value == activeConversationStateRef.current.history.slice(-1)[0].question) setTextareaValue("")
             const stats = InferenceStatsFormatingService.extractStats(response)
             dispatch({ 
                 type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_CONTEXT_NSTATS, 
                 payload: {newContext : [], inferenceStats: stats} 
             })
-            ConversationsRepository.updateConversationById(activeConversationId.value, activeConversationStateRef.current)
-            setIsStreaming(false)
+            // activeConversationStateRef.current is not directly used to update the DB since this value may not be updated due to the async nature of : dispatch({ type: ActionType.UPDATE_LAST_HISTORY_ELEMENT_ANSWER...
+            const activeConv = {...activeConversationStateRef.current}
+            activeConv.history[activeConv.history.length-1].answer = {asHTML : answerAsHTML, asMarkdown : response.response}
+            await ConversationService.updateById(activeConversationId.value, activeConv)
             return
         }catch (error : unknown) {
             dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
             AIAgentChain.abortProcess()
             console.error(error)
             showErrorModal("Stream failed : " + error)
+        }finally{
             setIsStreaming(false)
         }
     }
@@ -263,7 +301,7 @@ function Chat() {
     const regenerateLastAnswer = useCallback(() => {
         if(isStreamingRef.current) return
         const retrievedQuestion = activeConversationStateRef.current.history[activeConversationStateRef.current.history.length-1].question
-        ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
+        // ConversationsRepository.updateConversationHistoryById(activeConversationId.value, activeConversationStateRef.current.history.slice(0, -1))
         dispatch({ type: ActionType.DELETE_LAST_HISTORY_ELEMENT })
         if(activeMenuItem === "chain") return sendRequestThroughActiveChain(retrievedQuestion)
         askActiveAgent_Streaming(retrievedQuestion)
@@ -297,6 +335,7 @@ function Chat() {
     }
 
     function handleSearchWebClick(e: React.MouseEvent<HTMLDivElement>) {
+        if(activeMenuItemRef.current != "agent") return
         e.preventDefault()
         setWebSearchActivated(!isWebSearchActivatedRef.current)
     }
@@ -307,7 +346,6 @@ function Chat() {
 
     return (
     <div id="globalContainer" className="globalContainer">
-
         {/* key={"lp-" + forceLeftPanelRefresh} */}
         <LeftPanel 
             forceLeftPanelRefresh={forceLeftPanelRefresh} 
@@ -320,7 +358,7 @@ function Chat() {
             memoizedSetModalStatus={memoizedSetModalStatus} 
             selectedPromptNameRef={selectedPromptNameRef}/>
         
-        <main>
+        <main style={{position:'relative'}}>
 
             <LoadedModelInfosBar hasStreamingEnded={!isStreaming}/>
 
@@ -363,7 +401,7 @@ function Chat() {
                             <svg style={{width:'22px', flexShrink:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M367.2 412.5L99.5 144.8C77.1 176.1 64 214.5 64 256c0 106 86 192 192 192c41.5 0 79.9-13.1 111.2-35.5zm45.3-45.3C434.9 335.9 448 297.5 448 256c0-106-86-192-192-192c-41.5 0-79.9 13.1-111.2 35.5L412.5 367.2zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256z"/></svg>
                         </button> : 
                         <>
-                            {activeMenuItem == "agent" && <button className="sendButton purpleShadow" onClick={() => askActiveAgent_Streaming((textareaRef.current as HTMLTextAreaElement).value)}>Send</button>}
+                            {(activeMenuItem == "agent" || activeMenuItem == "roleplay") && <button className="sendButton purpleShadow" onClick={() => askActiveAgent_Streaming((textareaRef.current as HTMLTextAreaElement).value)}>Send</button>}
                             {activeMenuItem == "chain" && <button className="sendButton purpleShadow" onClick={() => sendRequestThroughActiveChain((textareaRef.current as HTMLTextAreaElement).value)}>Send&nbsp;<span style={{fontWeight:'400'}}>(to Chain)</span></button>}
                         </>
                     }
@@ -372,12 +410,13 @@ function Chat() {
             </div>
         </main>
 
-        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming} activeMenuItem={activeMenuItem} setActiveMenuItem={setActiveMenuItem}/>
+        <RightPanel memoizedSetModalStatus={memoizedSetModalStatus} AIAgentsList={AIAgentsList} isStreaming={isStreaming} activeMenuItemRef={activeMenuItemRef} setActiveMenuItem={setActiveMenuItem}/>
         
         {modalVisibility && 
             <Modal modalVisibility={modalVisibility} memoizedSetModalStatus={memoizedSetModalStatus} width= { modalContentId != "formUploadFile" ? "100%" : "560px"}>
                 {{
                     'formEditAgent' : <FormAgentSettings role={"edit"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
+                    'formEditCharacter' : <FormCharacterSettings memoizedSetModalStatus={memoizedSetModalStatus}/>,
                     'formNewAgent' : <FormAgentSettings role={"create"} memoizedSetModalStatus={memoizedSetModalStatus} triggerAIAgentsListRefresh={triggerAIAgentsListRefresh}/>,
                     'formEditPrompt' : <FormPromptSettings role={"edit"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus} selectedPromptNameRef={selectedPromptNameRef}/>,
                     'formNewPrompt' : <FormPromptSettings role={"create"} setForceLeftPanelRefresh={setForceLeftPanelRefresh} memoizedSetModalStatus={memoizedSetModalStatus}/>,
@@ -387,7 +426,7 @@ function Chat() {
                 } [modalContentId]}
             </Modal>
         }
-
+        <Snackbar mode={activeMode}/>
     </div>
     )
 }

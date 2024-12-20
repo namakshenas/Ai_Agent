@@ -4,3 +4,7 @@ embeddings.db
 sandbox.*
 sandbox.*.*
 *.wav
+images/*.*
+!images/.gitkeep
+deprecated
+test.js
