@@ -1,4 +1,4 @@
-Release : Alpha 1.0.4
+Release : Alpha 1.0.5
 
 <div style="display:flex; width:100%; column-gap:16px; margin-bottom:12px;">
     <span>Compatibility :</span>
@@ -29,7 +29,9 @@ _Click the image above to watch the video on YouTube_
 - **Real-time interactions** with most Open-Source AI models.
 - Lightweight and **fully local** operations.
 - **Beginner-friendly** installation process.
+- Multi-context agent tuning.
 - **Llama Vision** support.
+- Chat functionality with various historical figures.
 - **Agent chaining** for complex task resolution.
 - Retrieval Augmented Generation so you can probe your own documents while **preserving your privacy**.
 - Web Search functionality for the integration of more **up-to-date information**.
@@ -40,12 +42,11 @@ _Click the image above to watch the video on YouTube_
 
 ## II - Coming Next
 
-- Persistent conversations.
 - **Responsive** design.
 - **Parallel processing** added to Agent chaining.
 - Improved Web Search algorithm with enhanced options.
 - Online domain names ranking.
-- Improved RAG algorithm with enhanced options (chunk size selection).
+- Improved RAG algorithm with enhanced options.
 - Online prompt and agent sharing platform.
 - Prompt versioning system.
 - Dedicated coding agent.
