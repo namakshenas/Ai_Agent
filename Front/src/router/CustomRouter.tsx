@@ -6,7 +6,9 @@ import { ServicesProvider } from "../context/ServicesContext";
 function CustomRouter() {
 
     return (
-        <BrowserRouter>
+      <BrowserRouter future={{
+        v7_startTransition: true, v7_relativeSplatPath: true,
+      }}>
           <ServicesProvider>
             <Routes>
               <Route path="/" element={<Installation />} />
